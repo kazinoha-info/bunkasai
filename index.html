@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>文化祭インフォメーション</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New&display=swap" rel="stylesheet">
+
+<style>
+body{
+ margin:0;
+ font-family:'Zen Kaku Gothic New',sans-serif;
+ background:#f5f7fa;
+}
+
+/* テロップ */
+#ticker{
+ background:#003366;
+ color:white;
+ overflow:hidden;
+ padding:8px 0;
+}
+
+#ticker span{
+ display:inline-block;
+ padding-left:100%;
+ animation: flow 20s linear infinite;
+}
+
+@keyframes flow{
+ from{transform:translateX(0);}
+ to{transform:translateX(-100%);}
+}
+
+/* メイン */
+#main{
+ display:flex;
+ height:calc(100vh - 40px);
+}
+
+#left{
+ flex:2;
+ padding:15px;
+}
+
+#right{
+ flex:1;
+ padding:15px;
+ background:#eef1f5;
+}
+
+/* カード */
+.card{
+ background:white;
+ border-radius:10px;
+ padding:10px;
+ margin:8px 0;
+ box-shadow:0 2px 5px rgba(0,0,0,0.1);
+ display:flex;
+ justify-content:space-between;
+ font-size:18px;
+}
+
+.status-o{color:green;font-weight:bold;}
+.status-d{color:orange;font-weight:bold;}
+.status-x{color:red;font-weight:bold;}
+
+/* 時刻表 */
+.blink{
+ animation: blink 1s infinite;
+ color:red;
+}
+
+@keyframes blink{
+ 50%{opacity:0;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- テロップ -->
+<div id="ticker">
+ <span id="tickerText"></span>
+</div>
+
+<!-- メイン -->
+<div id="main">
+
+<!-- 左 -->
+<div id="left">
+ <h2>🎪 各クラス混雑状況</h2>
+ <div id="classes"></div>
+</div>
+
+<!-- 右 -->
+<div id="right">
+ <h2>🚌 時刻表</h2>
+ <div id="times"></div>
+</div>
+
+</div>
+
+<script>
+
+/* テロップ */
+const messages=[
+ "水分補給を忘れずに！",
+ "ご来場ありがとうございます！",
+ "熱中症にご注意ください",
+ "困ったら受付へ！"
+];
+
+let msg=0;
+
+function updateTicker(){
+ document.getElementById("tickerText").textContent="📢 "+messages[msg];
+ msg=(msg+1)%messages.length;
+}
+
+setInterval(updateTicker,7000);
+updateTicker();
+
+/* 仮：クラス表示 */
+const classData=[
+ {id:"1-1",name:"お化け屋敷",status:"○"},
+ {id:"1-2",name:"カフェ",status:"△"},
+ {id:"1-3",name:"脱出ゲーム",status:"✕"},
+ {id:"1-4",name:"縁日",status:"○"},
+ {id:"2-1",name:"射的",status:"△"},
+];
+
+function statusClass(s){
+ if(s==="○") return "status-o";
+ if(s==="△") return "status-d";
+ if(s==="✕") return "status-x";
+}
+
+function drawClasses(){
+ let html="";
+
+ classData.forEach(c=>{
+  html+=`
+   <div class="card">
+    <div>${c.id} ${c.name}</div>
+    <div class="${statusClass(c.status)}">${c.status}</div>
+   </div>
+  `;
+ });
+
+ document.getElementById("classes").innerHTML=html;
+}
+
+drawClasses();
+
+/* 時刻表（仮） */
+
+const schedule=[
+ {to:"駅前",time:"16:10"},
+ {to:"駅前",time:"16:25"},
+ {to:"駅前",time:"16:40"},
+ {to:"駅前",time:"16:55"}
+];
+
+function updateTime(){
+ const now=new Date();
+ let html="";
+
+ schedule.forEach(s=>{
+  const [h,m]=s.time.split(":");
+  const t=new Date();
+  t.setHours(h,m,0);
+
+  const diff=(t-now)/60000;
+
+  if(diff>-2){
+
+   let cls="";
+
+   if(diff<=1 && diff>0) cls="blink";
+
+   html+=`
+    <div class="card ${cls}">
+     <div>${s.to}</div>
+     <div>${s.time}</div>
+    </div>
+   `;
+  }
+ });
+
+ document.getElementById("times").innerHTML=html;
+}
+
+setInterval(updateTime,1000);
+updateTime();
+
+</script>
+
+</body>
+</html>
