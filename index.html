@@ -387,10 +387,15 @@ function loadTransport(){
 
       for(let k in data.train){
 
-        const st = data.train[k];
-        const d = st[mode] || { up: [], down: [] };
+  const st = data.train[k];
+  const d = st[mode] || { up: [], down: [] };
 
-       /* 下り（先に表示） */
+  // 🔽 黒背景スタート
+  trainHTML += `<div class="jr-board">`;
+
+  trainHTML += `<h3>🚉 ${st.name}</h3>`;
+
+        /* 下り（先に表示） */
 trainHTML += `
   <div><b>⬇ 下り</b></div>
 `;
@@ -485,6 +490,7 @@ if(st.upStops && st.upStops.length){
 }
 
 // 停車駅スクロール速度を統一
+// 停車駅スクロール速度を統一＋待ち時間付き
 function setupStopScroll(){
 
   document.querySelectorAll(".stops span").forEach(span=>{
@@ -496,12 +502,14 @@ function setupStopScroll(){
 
     const distance = textWidth + boxWidth;
 
-    const speed = 80; // ← 1秒80px（ここで速さ調整）
+    const speed = 50; // ← 小さくすると遅くなる（今80→50に）
 
     const duration = distance / speed;
 
+    const wait = 5; // ← 消えてから5秒待つ
+
     span.style.animation = `
-      stops-scroll ${duration}s linear infinite
+      stops-scroll ${duration}s linear ${wait}s infinite
     `;
   });
 
@@ -515,6 +523,7 @@ setInterval(loadTransport, 30000); // 30秒ごと更新
 
 </body>
 </html>
+
 
 
 
