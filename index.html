@@ -189,6 +189,47 @@ h1{
   color:yellow;
 }
 
+/* JR風表示 */
+
+.jr-board{
+  background:black;
+  color:#0af;
+  font-family: monospace;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:15px;
+}
+
+.jr-row{
+  display:flex;
+  font-size:22px;
+  padding:5px 0;
+  border-bottom:1px solid #333;
+}
+
+.jr-time{
+  width:80px;
+  color:#0af;
+}
+
+.jr-dest{
+  flex:1;
+  color:white;
+}
+
+.stops{
+  margin-top:8px;
+  overflow:hidden;
+  white-space:nowrap;
+  color:#0f0;
+}
+
+.stops span{
+  display:inline-block;
+  padding-left:100%;
+  animation: scroll 15s linear infinite;
+}
+
 </style>
 
 </head>
@@ -208,9 +249,15 @@ h1{
 
   <!-- 右：時刻表 -->
   <div id="right">
-  <h2>🚍 交通案内</h2>
+  <h2>🚍🚃 交通案内</h2>
   <div class="btns"></div>
-  <div id="board"></div>
+    
+  <!-- 電車 -->
+  <div id="trainBoard"></div>
+  <hr>
+    
+  <!-- バス -->
+  <div id="busBoard"></div>
 
 </div>
 
@@ -296,33 +343,105 @@ document.querySelector(".btns").innerHTML = `
 // 読み込み
 function loadTransport(){
 
-  const box = document.getElementById("board");
-  box.innerHTML = "読み込み中...";
-
-  firebase.database().ref("transport/train").once("value", snap=>{
+  firebase.database().ref("transport").once("value", snap=>{
 
     const data = snap.val();
 
-    const stationKey = Object.keys(data)[0];
-    const station = data[stationKey];
+    let trainHTML = "";
+    let busHTML = "";
 
-    const now = new Date();
-    const nowMin = now.getHours()*60 + now.getMinutes();
+    /* 🚃 電車 */
+    if(data.train){
 
-    let html = `<div class="jr-board">`;
+      for(let k in data.train){
 
-    /* 駅名 */
-    html += `<div class="station-name">🚉 ${station.name}</div>`;
+        const st = data.train[k];
+        const d = st[mode];
 
-    /* 上り */
-    html += makeBlock("上り", station[mode].up, nowMin);
+        trainHTML += `
+          <div class="jr-board">
 
-    /* 下り */
-    html += makeBlock("下り", station[mode].down, nowMin);
+            <h3>🚉 ${st.name}</h3>
 
-    html += `</div>`;
+            <div><b>⬆ 上り</b></div>
+        `;
 
-    box.innerHTML = html;
+        d.up.slice(0,3).forEach(t=>{
+          trainHTML += `
+            <div class="jr-row">
+              <div class="jr-time">${t.time}</div>
+              <div class="jr-dest">${t.dest}</div>
+            </div>
+          `;
+        });
+
+        trainHTML += `
+          <div class="stops">
+            <span>停車駅 ▶ ${st.upStops.join(" → ")}</span>
+          </div>
+
+          <br><b>⬇ 下り</b>
+        `;
+
+        d.down.slice(0,3).forEach(t=>{
+          trainHTML += `
+            <div class="jr-row">
+              <div class="jr-time">${t.time}</div>
+              <div class="jr-dest">${t.dest}</div>
+            </div>
+          `;
+        });
+
+        if(d.down[0].stops){
+
+          trainHTML += `
+            <div class="stops">
+              <span>停車駅 ▶ ${d.down[0].stops.join(" → ")}</span>
+            </div>
+          `;
+        }
+
+        trainHTML += `</div>`;
+      }
+    }
+
+
+    /* 🚌 バス */
+    if(data.bus){
+
+      for(let k in data.bus){
+
+        const stop = data.bus[k];
+        const d = stop[mode];
+
+        busHTML += `
+          <div class="jr-board">
+
+            <h3>🚌 ${stop.name}</h3>
+
+            <b>▶ 駅方面</b><br>
+            ${d.toStation.map(t=>`
+              <div class="jr-row">
+                <div class="jr-time">${t}</div>
+                <div class="jr-dest">駅行き</div>
+              </div>
+            `).join("")}
+
+            <br><b>▶ 町方面</b><br>
+            ${d.toTown.map(t=>`
+              <div class="jr-row">
+                <div class="jr-time">${t}</div>
+                <div class="jr-dest">町行き</div>
+              </div>
+            `).join("")}
+
+          </div>
+        `;
+      }
+    }
+
+    document.getElementById("trainBoard").innerHTML = trainHTML;
+    document.getElementById("busBoard").innerHTML = busHTML;
 
   });
 
@@ -350,10 +469,6 @@ function makeBlock(title, list, nowMin){
 
     let cls = "";
 
-    if(tMin - nowMin === 1){
-      cls = "jr-blink";
-    }
-
     html += `
       <div class="jr-row ${cls}">
         <div>${t.time}</div>
@@ -375,33 +490,6 @@ setInterval(loadTransport, 30000); // 30秒ごと更新
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
