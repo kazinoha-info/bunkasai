@@ -43,16 +43,31 @@ h1{
 }
 
 @keyframes stops-scroll {
-  0%   { transform: translateX(100%); }
-  90%  { transform: translateX(-100%); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(100%);
+  }
+
+  100% {
+    transform: translateX(-200%);
+  }
 }
+
 
 /* レイアウト */
 #layout{
   display:grid;
-  grid-template-columns: 4fr 2fr; /* ← 左:右 = 2:1 */
+  grid-template-columns: 5fr 2fr; /* 左さらに広く */
   height: calc(100vh - 100px);
+}
+
+#right h2{
+  font-size:28px;
+  font-weight:bold;
+  color:white;
+  background:black;
+  padding:8px;
+  border-radius:6px;
+  text-align:center;
 }
 
 /* 左 */
@@ -220,15 +235,20 @@ h1{
   white-space:nowrap;
   color:white;
   font-weight:bold;
+  position: relative;
 }
 
 .stops span{
   display:inline-block;
   padding-left:100%;
-  font-size:28px;          /* ← 駅名と同じくらい */
+  font-size:28px;
   font-weight:bold;
-  animation: stops-scroll 18s linear infinite;
-  animation-delay: 2s;    /* ← 最後で2秒止まる */
+
+  animation-name: stops-scroll;
+  animation-duration: 35s;   /* ← 全部同じ速度 */
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-delay: 2s;
 }
 
 /* 見出し系を強調 */
@@ -471,6 +491,7 @@ setInterval(loadTransport, 30000); // 30秒ごと更新
 
 </body>
 </html>
+
 
 
 
