@@ -159,14 +159,6 @@ h1{
   <!-- 右：時刻表 -->
   <div id="right">
 
-    <h2>🚌 時刻表</h2>
-
-    <div class="btns">
-      <button onclick="showWeekday()">平日</button>
-      <button onclick="showHoliday()">休日</button>
-    </div>
-
-    <div id="timetable"></div>
 <div id="board"></div>
 
   </div>
@@ -223,94 +215,6 @@ ref.on("value", (snapshot) => {
 
   document.getElementById("list").innerHTML = html;
 });
-
-// 時刻表データ（自分用にあとで変えてOK）
-const weekday = [
-  "06:28","06:54","06:58","07:19","07:24",
-  "07:28","07:34","07:38","07:44","07:53",
-  "08:09","08:24","08:34","08:39","08:48",
-  "08:59","09:04","09:28","09:43","09:49",
-  "09:59","10:08","10:18","10:43","10:49",
-];
-
-const holiday = [
-  "9:30","10:00","10:30","11:00","11:30",
-  "12:00","12:30","13:00"
-];
-
-let currentTimes = weekday;
-
-function showWeekday(){
-  currentTimes = weekday;
-  showTable(weekday);
-  updateBoard();
-}
-
-function showHoliday(){
-  currentTimes = holiday;
-  showTable(holiday);
-  updateBoard();
-}
-
-function showTable(data){
-  let html = "";
-
-  data.forEach(t=>{
-    html += `<div class="time">${t}</div>`;
-  });
-
-  document.getElementById("timetable").innerHTML = html;
-}
-
-// 最初は平日表示
-showWeekday();
-
-function updateBoard(){
-
-  const now = new Date();
-  const nowMin = now.getHours()*60 + now.getMinutes();
-
-  // 未来の便だけ残す
-  const future = currentTimes.filter(t=>{
-    const [h,m]=t.split(":");
-    return (h*60+Number(m)) >= nowMin;
-  });
-
-  // 上3つだけ
-  const show = future.slice(0,3);
-
-  let html = `<div class="board">`;
-
-  show.forEach(t=>{
-
-    const [h,m]=t.split(":");
-    const tMin = h*60+Number(m);
-
-    let cls="";
-
-    // 1分前で点滅
-    if(tMin-nowMin===1){
-      cls="blink";
-    }
-
-    html+=`
-      <div class="row ${cls}">
-        <div>▶</div>
-        <div>各停</div>
-        <div>文化祭会場</div>
-        <div>${t}</div>
-      </div>
-    `;
-  });
-
-  html+="</div>";
-
-  document.getElementById("board").innerHTML = html;
-}
-
-// 30秒ごと更新
-setInterval(updateBoard,30000);
-updateBoard();
 
 // 初期設定
 let mode = "weekday"; // weekday / holiday
@@ -402,6 +306,7 @@ loadTransport();
 
 </body>
 </html>
+
 
 
 
