@@ -72,7 +72,7 @@ h1{
   // 初期化
   firebase.initializeApp(firebaseConfig);
 
-  // DB参照
+// DB参照
 const db = firebase.database();
 const ref = db.ref("classes");
 
@@ -83,23 +83,19 @@ ref.on("value", (snapshot) => {
   let html = "";
 
   for (let key in data) {
-let statusClass = "";
 
-if(data[key].status==="○") statusClass="ok";
-if(data[key].status==="△") statusClass="mid";
-if(data[key].status==="×") statusClass="ng";
+    let statusClass = "";
 
-html += `
-  <div class="card">
-    <div>${data[key].name}</div>
-    <div class="status ${statusClass}">
-      ${data[key].status}
-    </div>
-  </div>
-`;
+    if(data[key].status==="○") statusClass="ok";
+    if(data[key].status==="△") statusClass="mid";
+    if(data[key].status==="×") statusClass="ng";
 
-        <strong>${data[key].name}</strong><br>
-        混雑：${data[key].status}
+    html += `
+      <div class="card">
+        <div>${data[key].name}</div>
+        <div class="status ${statusClass}">
+          ${data[key].status}
+        </div>
       </div>
     `;
   }
@@ -111,6 +107,7 @@ html += `
 
 </body>
 </html>
+
 
 
 
