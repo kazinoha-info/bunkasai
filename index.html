@@ -236,11 +236,15 @@ const holiday = [
 ];
 
 function showWeekday(){
+  currentTimes = weekday;
   showTable(weekday);
+  updateBoard();
 }
 
 function showHoliday(){
+  currentTimes = holiday;
   showTable(holiday);
+  updateBoard();
 }
 
 function showTable(data){
@@ -256,10 +260,7 @@ function showTable(data){
 // 最初は平日表示
 showWeekday();
 
-// 時刻表データ（例）
-const times = [
-  "09:24","09:25","09:49","10:05","10:20","10:35"
-];
+let currentTimes = weekday; // 今表示中の時刻
 
 function updateBoard(){
 
@@ -267,7 +268,7 @@ function updateBoard(){
   const nowMin = now.getHours()*60 + now.getMinutes();
 
   // 未来の便だけ残す
-  const future = times.filter(t=>{
+  const future = currentTimes.filter(t=>{
     const [h,m]=t.split(":");
     return (h*60+Number(m)) >= nowMin;
   });
@@ -312,6 +313,7 @@ updateBoard();
 
 </body>
 </html>
+
 
 
 
