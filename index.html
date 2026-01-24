@@ -236,9 +236,9 @@ h1{
   font-size:28px;
   font-weight:bold;
 
-  animation: stops-scroll 25s linear infinite; /* ←これに統一 */
+  white-space: nowrap;
+  will-change: transform;
 }
-
 
 /* 見出し系を強調 */
 
@@ -253,6 +253,13 @@ h1{
   font-size:24px;
   font-weight:bold;
   color:white;
+}
+
+.stops.fixed{
+  overflow: visible;
+  white-space: normal;
+  animation: none;
+  font-size:26px;
 }
 
 </style>
@@ -383,48 +390,51 @@ function loadTransport(){
         const st = data.train[k];
         const d = st[mode] || { up: [], down: [] };
 
-        trainHTML += `
-          <div class="jr-board">
+       /* 下り（先に表示） */
+trainHTML += `
+  <div><b>⬇ 下り</b></div>
+`;
 
-            <h3>🚉 ${st.name}</h3>
+d.down.slice(0,3).forEach(t=>{
+  trainHTML += `
+    <div class="jr-row">
+      <div class="jr-time">${t.time}</div>
+      <div class="jr-dest">${t.dest}</div>
+    </div>
+  `;
+});
 
-            <div><b>⬆ 上り</b></div>
-        `;
+if(st.downStops && st.downStops.length){
 
-        d.up.slice(0,3).forEach(t=>{
-          trainHTML += `
-            <div class="jr-row">
-              <div class="jr-time">${t.time}</div>
-              <div class="jr-dest">${t.dest}</div>
-            </div>
-          `;
-        });
+  trainHTML += `
+    <div class="stops">
+      <span>停車駅 ▶ ${st.downStops.join(" → ")}</span>
+    </div>
+  `;
+}
 
-        trainHTML += `
-          <div class="stops">
-            <span>停車駅 ▶ ${st.upStops.join(" → ")}</span>
-          </div>
 
-          <br><b>⬇ 下り</b>
-        `;
+/* 上り（あと） */
+trainHTML += `<br><b>⬆ 上り</b><br>`;
 
-        d.down.slice(0,3).forEach(t=>{
-          trainHTML += `
-            <div class="jr-row">
-              <div class="jr-time">${t.time}</div>
-              <div class="jr-dest">${t.dest}</div>
-            </div>
-          `;
-        });
+d.up.slice(0,3).forEach(t=>{
+  trainHTML += `
+    <div class="jr-row">
+      <div class="jr-time">${t.time}</div>
+      <div class="jr-dest">${t.dest}</div>
+    </div>
+  `;
+});
 
-        if(st.downStops && st.downStops.length > 0){
+/* 上りは固定表示（流さない） */
+if(st.upStops && st.upStops.length){
 
-          trainHTML += `
-            <div class="stops">
-              <span>停車駅 ▶ ${st.downStops.join(" → ")}</span>
-            </div>
-          `;
-        }
+  trainHTML += `
+    <div class="stops fixed">
+      停車駅 ▶ ${st.upStops.join(" → ")}
+    </div>
+  `;
+}
 
         trainHTML += `</div>`;
       }
@@ -467,11 +477,36 @@ function loadTransport(){
 
     document.getElementById("trainBoard").innerHTML = trainHTML;
     document.getElementById("busBoard").innerHTML = busHTML;
+    
+    setupStopScroll();
 
   });
 
 }
-  
+
+// 停車駅スクロール速度を統一
+function setupStopScroll(){
+
+  document.querySelectorAll(".stops span").forEach(span=>{
+
+    const parent = span.parentElement;
+
+    const textWidth = span.scrollWidth;
+    const boxWidth = parent.clientWidth;
+
+    const distance = textWidth + boxWidth;
+
+    const speed = 80; // ← 1秒80px（ここで速さ調整）
+
+    const duration = distance / speed;
+
+    span.style.animation = `
+      stops-scroll ${duration}s linear infinite
+    `;
+  });
+
+}
+
 loadTransport();
 
 setInterval(loadTransport, 30000); // 30秒ごと更新
@@ -480,6 +515,7 @@ setInterval(loadTransport, 30000); // 30秒ごと更新
 
 </body>
 </html>
+
 
 
 
