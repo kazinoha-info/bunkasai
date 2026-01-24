@@ -194,6 +194,41 @@ h1{
   color:red;
 }
 
+  /* ===== JR風ボード ===== */
+
+.jr-board{
+  background:#000;
+  color:#00ff66;
+  padding:15px;
+  border-radius:8px;
+  font-family: "MS Gothic", monospace;
+}
+
+.jr-title{
+  color:#fff;
+  font-size:18px;
+  border-bottom:1px solid #0f0;
+  margin-bottom:10px;
+  padding-bottom:5px;
+}
+
+.jr-row{
+  display:flex;
+  justify-content:space-between;
+  padding:6px 0;
+  border-bottom:1px dotted #0f0;
+  font-size:20px;
+}
+
+.jr-dest{
+  color:#fff;
+}
+
+.jr-blink{
+  animation: blink 1s infinite;
+  color:yellow;
+}
+
 </style>
 
 </head>
@@ -302,104 +337,74 @@ document.querySelector(".btns").innerHTML = `
 function loadTransport(){
 
   const box = document.getElementById("board");
+  box.innerHTML = "読み込み中...";
 
-  firebase.database().ref("transport").once("value", snap=>{
+  firebase.database().ref("transport/train").once("value", snap=>{
 
     const data = snap.val();
 
-    let html = "";
+    // 最初の駅だけ使う（1個前提）
+    const stationKey = Object.keys(data)[0];
+    const station = data[stationKey];
+
+    const list = station[mode].up;
 
     const now = new Date();
     const nowMin = now.getHours()*60 + now.getMinutes();
 
-    /* ===== バス ===== */
-    if(data.bus){
+    // 未来の電車だけ
+    const future = list.filter(t=>{
 
-      html += `<div class="station-title">🚌 バス案内（${mode==="weekday"?"平日":"休日"}）</div>`;
+      const [h,m] = t.time.split(":");
+      return (h*60 + Number(m)) >= nowMin;
 
-      for(let k in data.bus){
+    });
 
-        const stop = data.bus[k];
-        const d = stop[mode];
+    // 3本だけ
+    const show = future.slice(0,3);
 
-        html += `<b>📍 ${stop.name}</b><br><br>`;
+    let html = `<div class="jr-board">`;
+    html += `<div class="jr-title">次の電車（上り）</div>`;
 
-        html += makeBoard("駅方面", d.toStation, nowMin);
-        html += makeBoard("町方面", d.toTown, nowMin);
+    show.forEach(t=>{
 
+      const [h,m] = t.time.split(":");
+      const tMin = h*60 + Number(m);
+
+      let cls = "";
+
+      // 1分前
+      if(tMin - nowMin === 1){
+        cls = "jr-blink";
       }
-    }
 
-    /* ===== 電車 ===== */
-    if(data.train){
+      html += `
+        <div class="jr-row ${cls}">
+          <div>${t.time}</div>
+          <div class="jr-dest">${t.dest}</div>
+        </div>
+      `;
 
-      html += `<div class="station-title">🚃 電車案内（${mode==="weekday"?"平日":"休日"}）</div>`;
+    });
 
-      for(let k in data.train){
+    html += "</div>";
 
-        const st = data.train[k];
-        const d = st[mode];
+    box.innerHTML = html;
 
-        html += `<b>🚉 ${st.name}</b><br><br>`;
-
-        html += makeBoard("上り", d.up, nowMin);
-        html += makeBoard("下り", d.down, nowMin);
-      }
-    }
-
-    box.innerHTML = `<div class="board">${html}</div>`;
   });
+
 }
 
-
-/* ===== 時刻処理 ===== */
-function makeBoard(title, times, nowMin){
-
-  let html = `<div style="margin-bottom:15px;">`;
-  html += `<div style="color:#0ff;margin-bottom:5px;">▶ ${title}</div>`;
-
-  // 未来だけ
-  const future = times.filter(t=>{
-    const [h,m]=t.split(":");
-    return (h*60+Number(m)) >= nowMin;
-  });
-
-  // 3本
-  const show = future.slice(0,3);
-
-  show.forEach(t=>{
-
-    const [h,m]=t.split(":");
-    const min = h*60+Number(m);
-    const remain = min-nowMin;
-
-    let cls = "";
-
-    if(remain===1) cls="blink";
-
-    html += `
-      <div class="line ${cls}">
-        <div class="dest">${title}</div>
-        <div class="time">${t}</div>
-        <div class="remain">あと${remain}分</div>
-      </div>
-    `;
-  });
-
-  html += `</div>`;
-
-  return html;
-}
   
-// 初回
 loadTransport();
 
-setInterval(loadTransport,60000);
+setInterval(loadTransport, 30000); // 30秒ごと更新
 
 </script>
 
 </body>
 </html>
+
 
 
 
