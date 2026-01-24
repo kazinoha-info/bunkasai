@@ -111,6 +111,34 @@ h1{
   padding:5px;
   border-bottom:1px solid #ddd;
 }
+
+.board{
+  background:black;
+  color:#ccc;
+  font-size:26px;
+  padding:15px;
+  border-radius:10px;
+  font-family: monospace;
+}
+
+.row{
+  display:grid;
+  grid-template-columns: 60px 100px 1fr 80px;
+  padding:8px 0;
+  border-bottom:1px solid #333;
+}
+
+.blink{
+  animation: blink 1s infinite;
+  color:orange;
+}
+
+@keyframes blink{
+  0%{opacity:1;}
+  50%{opacity:0;}
+  100%{opacity:1;}
+}
+
 </style>
 
 </head>
@@ -139,6 +167,7 @@ h1{
     </div>
 
     <div id="timetable"></div>
+<div id="board"></div>
 
   </div>
 
@@ -227,10 +256,63 @@ function showTable(data){
 // 最初は平日表示
 showWeekday();
 
+// 時刻表データ（例）
+const times = [
+  "09:24","09:25","09:49","10:05","10:20","10:35"
+];
+
+function updateBoard(){
+
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes();
+
+  // 未来の便だけ残す
+  const future = times.filter(t=>{
+    const [h,m]=t.split(":");
+    return (h*60+Number(m)) >= nowMin;
+  });
+
+  // 上3つだけ
+  const show = future.slice(0,3);
+
+  let html = `<div class="board">`;
+
+  show.forEach(t=>{
+
+    const [h,m]=t.split(":");
+    const tMin = h*60+Number(m);
+
+    let cls="";
+
+    // 1分前で点滅
+    if(tMin-nowMin===1){
+      cls="blink";
+    }
+
+    html+=`
+      <div class="row ${cls}">
+        <div>▶</div>
+        <div>各停</div>
+        <div>文化祭会場</div>
+        <div>${t}</div>
+      </div>
+    `;
+  });
+
+  html+="</div>";
+
+  document.getElementById("board").innerHTML = html;
+}
+
+// 30秒ごと更新
+setInterval(updateBoard,30000);
+updateBoard();
+
 </script>
 
 </body>
 </html>
+
 
 
 
