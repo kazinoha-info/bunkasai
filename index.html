@@ -401,7 +401,7 @@ function loadTransport(){
           `;
         });
 
-        if(st.downStops){
+        if(st.downStops && st.downStops.length > 0){
 
           trainHTML += `
             <div class="stops">
@@ -499,6 +499,7 @@ setInterval(loadTransport, 30000); // 30秒ごと更新
 
 </body>
 </html>
+
 
 
 
