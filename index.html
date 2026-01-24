@@ -56,7 +56,7 @@ h1{
 /* レイアウト */
 #layout{
   display:grid;
-  grid-template-columns: 10fr 1fr; /* 左さらに広く */
+  grid-template-columns: 3fr 2fr; /* 左3：右2 */
   height: calc(100vh - 100px);
 }
 
@@ -107,7 +107,10 @@ h1{
   background:#f5f9ff;
   padding:15px;
   border-left:2px solid #bbdefb;
+
+  overflow-y:auto;   /* ←追加 */
 }
+
 
 .btns{
   margin:10px 0;
@@ -151,16 +154,6 @@ h1{
   border-bottom:1px solid #333;
 }
 
-.blink{
-  animation: blink 1s infinite;
-  color:orange;
-}
-
-@keyframes blink{
-  0%{opacity:1;}
-  50%{opacity:0;}
-  100%{opacity:1;}
-}
 
 /* 選択中ボタン */
 .btns button.active{
@@ -196,11 +189,6 @@ h1{
   margin-left:20px;
 }
 
-.jr-blink{
-  animation: blink 1s infinite;
-  color:yellow;
-}
-
 /* JR風表示 */
 
 .jr-board{
@@ -210,7 +198,11 @@ h1{
   padding:15px;
   border-radius:10px;
   margin-bottom:15px;
+
+  width: 100%;        /* ←追加 */
+  box-sizing: border-box; /* ←追加 */
 }
+
 
 .jr-row{
   display:flex;
@@ -244,12 +236,9 @@ h1{
   font-size:28px;
   font-weight:bold;
 
-  animation-name: stops-scroll;
-  animation-duration: 35s;   /* ← 全部同じ速度 */
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-delay: 2s;
+  animation: stops-scroll 25s linear infinite; /* ←これに統一 */
 }
+
 
 /* 見出し系を強調 */
 
@@ -491,6 +480,7 @@ setInterval(loadTransport, 30000); // 30秒ごと更新
 
 </body>
 </html>
+
 
 
 
