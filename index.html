@@ -235,6 +235,8 @@ const holiday = [
   "12:00","12:30","13:00"
 ];
 
+let currentTimes = weekday;
+
 function showWeekday(){
   currentTimes = weekday;
   showTable(weekday);
@@ -259,8 +261,6 @@ function showTable(data){
 
 // 最初は平日表示
 showWeekday();
-
-let currentTimes = weekday; // 今表示中の時刻
 
 function updateBoard(){
 
@@ -313,6 +313,7 @@ updateBoard();
 
 </body>
 </html>
+
 
 
 
