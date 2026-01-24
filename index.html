@@ -43,14 +43,15 @@ h1{
 }
 
 @keyframes stops-scroll {
-  from { transform: translateX(100%); }
-  to { transform: translateX(-100%); }
+  0%   { transform: translateX(100%); }
+  90%  { transform: translateX(-100%); }
+  100% { transform: translateX(-100%); }
 }
 
 /* レイアウト */
 #layout{
   display:grid;
-  grid-template-columns: 3fr 2fr;
+  grid-template-columns: 4fr 2fr; /* ← 左:右 = 2:1 */
   height: calc(100vh - 100px);
 }
 
@@ -214,16 +215,35 @@ h1{
 }
 
 .stops{
-  margin-top:8px;
+  margin-top:10px;
   overflow:hidden;
   white-space:nowrap;
-  color:#ffffff;
+  color:white;
+  font-weight:bold;
 }
 
 .stops span{
   display:inline-block;
   padding-left:100%;
-  animation: stops-scroll 50s linear infinite;
+  font-size:28px;          /* ← 駅名と同じくらい */
+  font-weight:bold;
+  animation: stops-scroll 18s linear infinite;
+  animation-delay: 2s;    /* ← 最後で2秒止まる */
+}
+
+/* 見出し系を強調 */
+
+.jr-board h3{
+  font-size:30px;
+  font-weight:bold;
+  color:white;
+  margin:5px 0 10px;
+}
+
+.jr-board b{
+  font-size:24px;
+  font-weight:bold;
+  color:white;
 }
 
 </style>
@@ -451,6 +471,7 @@ setInterval(loadTransport, 30000); // 30秒ごと更新
 
 </body>
 </html>
+
 
 
 
