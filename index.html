@@ -3,46 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>文化祭案内</title>
-  <style>
-body{
-  margin:0;
-  font-family: "Segoe UI", sans-serif;
-  background: #eaf3ff;
-}
-
-h1{
-  background:#1565c0;
-  color:white;
-  padding:15px;
-  margin:0;
-  text-align:center;
-}
-
-#list{
-  display:grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
-  gap:15px;
-  padding:20px;
-}
-
-.card{
-  background:white;
-  border-radius:10px;
-  padding:15px;
-  box-shadow:0 2px 5px rgba(0,0,0,0.1);
-  text-align:center;
-  font-size:18px;
-}
-
-.status{
-  font-size:28px;
-  font-weight:bold;
-  margin-top:10px;
-}
-
-.ok{ color:#2e7d32; }
-.mid{ color:#f9a825; }
-.ng{ color:#c62828; }
 <style>
 body{
   margin:0;
@@ -50,6 +10,7 @@ body{
   background: #eaf3ff;
 }
 
+/* ヘッダー */
 h1{
   background:#1565c0;
   color:white;
@@ -58,34 +19,7 @@ h1{
   text-align:center;
 }
 
-#list{
-  display:grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
-  gap:15px;
-  padding:20px;
-}
-
-.card{
-  background:white;
-  border-radius:10px;
-  padding:15px;
-  box-shadow:0 2px 5px rgba(0,0,0,0.1);
-  text-align:center;
-  font-size:18px;
-}
-
-.status{
-  font-size:28px;
-  font-weight:bold;
-  margin-top:10px;
-}
-
-.ok{ color:#2e7d32; }
-.mid{ color:#f9a825; }
-.ng{ color:#c62828; }
-
-/* ===== テロップ ===== */
-
+/* テロップ */
 #ticker{
   background:#0d47a1;
   color:white;
@@ -98,12 +32,84 @@ h1{
 #ticker-text{
   display:inline-block;
   padding-left:100%;
-  animation: scroll 20s linear infinite;
+  animation: scroll 25s linear infinite;
 }
 
 @keyframes scroll{
   from{ transform: translateX(0); }
   to{ transform: translateX(-100%); }
+}
+
+/* レイアウト */
+#layout{
+  display:grid;
+  grid-template-columns: 2fr 1fr;
+  height: calc(100vh - 100px);
+}
+
+/* 左 */
+#left{
+  overflow:auto;
+}
+
+#list{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+  gap:15px;
+  padding:20px;
+}
+
+/* カード */
+.card{
+  background:white;
+  border-radius:10px;
+  padding:15px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+  text-align:center;
+  font-size:18px;
+}
+
+.status{
+  font-size:28px;
+  font-weight:bold;
+  margin-top:10px;
+}
+
+.ok{ color:#2e7d32; }
+.mid{ color:#f9a825; }
+.ng{ color:#c62828; }
+
+/* 右 */
+#right{
+  background:#f5f9ff;
+  padding:15px;
+  border-left:2px solid #bbdefb;
+}
+
+.btns{
+  margin:10px 0;
+}
+
+.btns button{
+  padding:8px 15px;
+  margin-right:5px;
+  border:none;
+  border-radius:5px;
+  background:#1565c0;
+  color:white;
+  cursor:pointer;
+  border-radius:6px;
+}
+
+.btns button:hover{
+  opacity:0.8;
+}
+
+/* 時刻 */
+.time{
+  font-size:20px;
+  padding:5px;
+  border-bottom:1px solid #ddd;
 }
 </style>
 
@@ -115,10 +121,28 @@ h1{
     🌞 熱中症に注意してください ｜ ご来場ありがとうございます ｜ ゴミは分別しましょう
   </div>
 </div>
+<div id="layout">
 
-<h1>文化祭クラス情報</h1>
+  <!-- 左：クラス -->
+  <div id="left">
+    <div id="list">読み込み中...</div>
+  </div>
 
-<div id="list">読み込み中...</div>
+  <!-- 右：時刻表 -->
+  <div id="right">
+
+    <h2>🚌 時刻表</h2>
+
+    <div class="btns">
+      <button onclick="showWeekday()">平日</button>
+      <button onclick="showHoliday()">休日</button>
+    </div>
+
+    <div id="timetable"></div>
+
+  </div>
+
+</div>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -171,10 +195,43 @@ ref.on("value", (snapshot) => {
   document.getElementById("list").innerHTML = html;
 });
 
+// 時刻表データ（自分用にあとで変えてOK）
+const weekday = [
+  "9:10","9:25","9:40","10:00","10:20",
+  "10:40","11:00","11:20","11:40"
+];
+
+const holiday = [
+  "9:30","10:00","10:30","11:00","11:30",
+  "12:00","12:30","13:00"
+];
+
+function showWeekday(){
+  showTable(weekday);
+}
+
+function showHoliday(){
+  showTable(holiday);
+}
+
+function showTable(data){
+  let html = "";
+
+  data.forEach(t=>{
+    html += `<div class="time">${t}</div>`;
+  });
+
+  document.getElementById("timetable").innerHTML = html;
+}
+
+// 最初は平日表示
+showWeekday();
+
 </script>
 
 </body>
 </html>
+
 
 
 
