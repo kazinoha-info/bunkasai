@@ -268,7 +268,7 @@ function updateBoard(){
   const nowMin = now.getHours()*60 + now.getMinutes();
 
   // 未来の便だけ残す
-  const future = currentTimes;
+  const future = currentTimes.filter(t=>{
     const [h,m]=t.split(":");
     return (h*60+Number(m)) >= nowMin;
   });
@@ -313,6 +313,7 @@ updateBoard();
 
 </body>
 </html>
+
 
 
 
