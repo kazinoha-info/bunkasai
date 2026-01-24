@@ -146,6 +146,52 @@ h1{
   font-weight:bold;
 }
 
+/* ===== 駅風ボード ===== */
+
+.board{
+  background: #000;
+  color: #00ff9c;
+  padding: 15px;
+  border-radius: 12px;
+  font-family: "Consolas", monospace;
+  box-shadow: inset 0 0 15px #0f0;
+}
+
+.station-title{
+  text-align:center;
+  font-size:22px;
+  color:#fff;
+  margin-bottom:10px;
+  border-bottom:1px solid #0f0;
+  padding-bottom:5px;
+}
+
+.line{
+  display:grid;
+  grid-template-columns: 1fr 80px 80px;
+  padding:8px 0;
+  border-bottom:1px dashed #044;
+  align-items:center;
+}
+
+.dest{
+  color:#fff;
+}
+
+.time{
+  text-align:right;
+}
+
+.remain{
+  text-align:right;
+  color:#ff0;
+}
+
+.blink{
+  animation: blink 1s infinite;
+  color:red;
+}
+
 </style>
 
 </head>
@@ -254,78 +300,105 @@ document.querySelector(".btns").innerHTML = `
 function loadTransport(){
 
   const box = document.getElementById("board");
-  box.innerHTML = "読み込み中...";
 
   firebase.database().ref("transport").once("value", snap=>{
 
     const data = snap.val();
+
     let html = "";
 
-    /* 🚌 バス */
+    const now = new Date();
+    const nowMin = now.getHours()*60 + now.getMinutes();
+
+    /* ===== バス ===== */
     if(data.bus){
 
-      html += "<h3>🚌 バス</h3>";
+      html += `<div class="station-title">🚌 バス案内（${mode==="weekday"?"平日":"休日"}）</div>`;
 
       for(let k in data.bus){
 
         const stop = data.bus[k];
-
-        html += `<b>📍${stop.name}</b><br>`;
-
         const d = stop[mode];
 
-        html += "▶ 駅方面<br>";
-        d.toStation.forEach(t=>{
-          html += "・"+t+"<br>";
-        });
+        html += `<b>📍 ${stop.name}</b><br><br>`;
 
-        html += "▶ 町方面<br>";
-        d.toTown.forEach(t=>{
-          html += "・"+t+"<br>";
-        });
+        html += makeBoard("駅方面", d.toStation, nowMin);
+        html += makeBoard("町方面", d.toTown, nowMin);
 
-        html += "<hr>";
       }
     }
 
-    /* 🚃 電車 */
+    /* ===== 電車 ===== */
     if(data.train){
 
-      html += "<h3>🚃 電車</h3>";
+      html += `<div class="station-title">🚃 電車案内（${mode==="weekday"?"平日":"休日"}）</div>`;
 
       for(let k in data.train){
 
         const st = data.train[k];
-
-        html += `<b>🚉${st.name}</b><br>`;
-
         const d = st[mode];
 
-        html += "▶ 上り<br>";
-        d.up.forEach(t=>{
-          html += "・"+t+"<br>";
-        });
+        html += `<b>🚉 ${st.name}</b><br><br>`;
 
-        html += "▶ 下り<br>";
-        d.down.forEach(t=>{
-          html += "・"+t+"<br>";
-        });
-
-        html += "<hr>";
+        html += makeBoard("上り", d.up, nowMin);
+        html += makeBoard("下り", d.down, nowMin);
       }
     }
 
-    box.innerHTML = html;
+    box.innerHTML = `<div class="board">${html}</div>`;
   });
 }
 
+
+/* ===== 時刻処理 ===== */
+function makeBoard(title, times, nowMin){
+
+  let html = `<div style="margin-bottom:15px;">`;
+  html += `<div style="color:#0ff;margin-bottom:5px;">▶ ${title}</div>`;
+
+  // 未来だけ
+  const future = times.filter(t=>{
+    const [h,m]=t.split(":");
+    return (h*60+Number(m)) >= nowMin;
+  });
+
+  // 3本
+  const show = future.slice(0,3);
+
+  show.forEach(t=>{
+
+    const [h,m]=t.split(":");
+    const min = h*60+Number(m);
+    const remain = min-nowMin;
+
+    let cls = "";
+
+    if(remain===1) cls="blink";
+
+    html += `
+      <div class="line ${cls}">
+        <div class="dest">${title}</div>
+        <div class="time">${t}</div>
+        <div class="remain">あと${remain}分</div>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+
+  return html;
+}
+  
 // 初回
 loadTransport();
+
+setInterval(loadTransport,60000);
 
 </script>
 
 </body>
 </html>
+
 
 
 
