@@ -139,6 +139,13 @@ h1{
   100%{opacity:1;}
 }
 
+/* 選択中ボタン */
+.btns button.active{
+  background:#ff9800;
+  color:black;
+  font-weight:bold;
+}
+
 </style>
 
 </head>
@@ -157,13 +164,10 @@ h1{
   </div>
 
   <!-- 右：時刻表 -->
-　<div id="right">
-
- 　 <h2>🚍 交通案内</h2>
-
-  　<div class="btns"></div>
-
-  　<div id="board"></div>
+  <div id="right">
+  <h2>🚍 交通案内</h2>
+  <div class="btns"></div>
+  <div id="board"></div>
 
 </div>
 
@@ -222,14 +226,28 @@ ref.on("value", (snapshot) => {
 let mode = "weekday"; // weekday / holiday
 
 function setMode(m){
+
   mode = m;
+
+  // ボタンの見た目切り替え
+  document.querySelectorAll(".btns button").forEach(btn=>{
+    btn.classList.remove("active");
+  });
+
+  if(m==="weekday"){
+    document.getElementById("btnWeek").classList.add("active");
+  }else{
+    document.getElementById("btnHoliday").classList.add("active");
+  }
+
   loadTransport();
 }
 
+
 // ボタン追加
 document.querySelector(".btns").innerHTML = `
-  <button onclick="setMode('weekday')">平日</button>
-  <button onclick="setMode('holiday')">休日</button>
+  <button id="btnWeek" onclick="setMode('weekday')" class="active">平日</button>
+  <button id="btnHoliday" onclick="setMode('holiday')">休日</button>
 `;
 
 // 読み込み
@@ -308,6 +326,7 @@ loadTransport();
 
 </body>
 </html>
+
 
 
 
