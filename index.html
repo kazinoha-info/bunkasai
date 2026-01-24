@@ -312,10 +312,99 @@ function updateBoard(){
 setInterval(updateBoard,30000);
 updateBoard();
 
+  <script>
+
+// 初期設定
+let mode = "weekday"; // weekday / holiday
+
+function setMode(m){
+  mode = m;
+  loadTransport();
+}
+
+// ボタン追加
+document.querySelector(".btns").innerHTML = `
+  <button onclick="setMode('weekday')">平日</button>
+  <button onclick="setMode('holiday')">休日</button>
+`;
+
+// 読み込み
+function loadTransport(){
+
+  const box = document.getElementById("board");
+  box.innerHTML = "読み込み中...";
+
+  firebase.database().ref("transport").once("value", snap=>{
+
+    const data = snap.val();
+    let html = "";
+
+    /* 🚌 バス */
+    if(data.bus){
+
+      html += "<h3>🚌 バス</h3>";
+
+      for(let k in data.bus){
+
+        const stop = data.bus[k];
+
+        html += `<b>📍${stop.name}</b><br>`;
+
+        const d = stop[mode];
+
+        html += "▶ 駅方面<br>";
+        d.toStation.forEach(t=>{
+          html += "・"+t+"<br>";
+        });
+
+        html += "▶ 町方面<br>";
+        d.toTown.forEach(t=>{
+          html += "・"+t+"<br>";
+        });
+
+        html += "<hr>";
+      }
+    }
+
+    /* 🚃 電車 */
+    if(data.train){
+
+      html += "<h3>🚃 電車</h3>";
+
+      for(let k in data.train){
+
+        const st = data.train[k];
+
+        html += `<b>🚉${st.name}</b><br>`;
+
+        const d = st[mode];
+
+        html += "▶ 上り<br>";
+        d.up.forEach(t=>{
+          html += "・"+t+"<br>";
+        });
+
+        html += "▶ 下り<br>";
+        d.down.forEach(t=>{
+          html += "・"+t+"<br>";
+        });
+
+        html += "<hr>";
+      }
+    }
+
+    box.innerHTML = html;
+  });
+}
+
+// 初回
+loadTransport();
+
 </script>
 
 </body>
 </html>
+
 
 
 
