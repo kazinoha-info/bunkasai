@@ -43,7 +43,48 @@ h1{
 .ok{ color:#2e7d32; }
 .mid{ color:#f9a825; }
 .ng{ color:#c62828; }
-</style>
+<style>
+body{
+  margin:0;
+  font-family: "Segoe UI", sans-serif;
+  background: #eaf3ff;
+}
+
+h1{
+  background:#1565c0;
+  color:white;
+  padding:15px;
+  margin:0;
+  text-align:center;
+}
+
+#list{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+  gap:15px;
+  padding:20px;
+}
+
+.card{
+  background:white;
+  border-radius:10px;
+  padding:15px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+  text-align:center;
+  font-size:18px;
+}
+
+.status{
+  font-size:28px;
+  font-weight:bold;
+  margin-top:10px;
+}
+
+.ok{ color:#2e7d32; }
+.mid{ color:#f9a825; }
+.ng{ color:#c62828; }
+
+/* ===== テロップ ===== */
 
 #ticker{
   background:#0d47a1;
@@ -64,6 +105,7 @@ h1{
   from{ transform: translateX(0); }
   to{ transform: translateX(-100%); }
 }
+</style>
 
 </head>
 <body>
@@ -133,6 +175,7 @@ ref.on("value", (snapshot) => {
 
 </body>
 </html>
+
 
 
 
