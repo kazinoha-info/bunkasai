@@ -157,47 +157,6 @@ h1{
   font-weight:bold;
 }
 
-/* ===== 駅表示ボード ===== */
-
-.jr-board{
-  background:#4a148c; /* 紫 */
-  color:#fff;
-  padding:20px;
-  border-radius:15px;
-  font-family: "MS Gothic", monospace;
-  font-weight:bold;
-}
-
-.station-name{
-  text-align:center;
-  font-size:28px;
-  margin-bottom:15px;
-  border-bottom:2px solid white;
-  padding-bottom:8px;
-}
-
-.jr-title{
-  font-size:22px;
-  margin:15px 0 5px;
-}
-
-.jr-row{
-  display:flex;
-  justify-content:space-between;
-  padding:8px 0;
-  border-bottom:1px solid white;
-  font-size:20px;
-}
-
-.jr-dest{
-  margin-left:20px;
-}
-
-.jr-blink{
-  animation: blink 1s infinite;
-  color:yellow;
-}
-
 /* JR風表示 */
 
 .jr-board{
@@ -350,147 +309,81 @@ document.querySelector(".btns").innerHTML = `
 `;
 
 // 読み込み
+// 読み込み関数の修正版
 function loadTransport(){
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
 
-  firebase.database().ref("transport").once("value", snap=>{
-
+  firebase.database().ref("transport").once("value", snap => {
     const data = snap.val();
+    if(!data) return;
 
     let trainHTML = "";
     let busHTML = "";
 
-    /* 🚃 電車 */
+    /* 🚃 電車：未来の3本を表示 */
     if(data.train){
-
       for(let k in data.train){
-
         const st = data.train[k];
         const d = st[mode];
 
-        trainHTML += `
-          <div class="jr-board">
+        trainHTML += `<div class="jr-board"><h3>🚉 ${st.name}</h3>`;
+        
+        trainHTML += `<div><b>⬆ 上り</b></div>`;
+        trainHTML += getNextTimes(d.up, nowMin);
+        if(st.upStops) trainHTML += `<div class="stops"><span>停車駅 ▶ ${st.upStops.join(" → ")}</span></div>`;
 
-            <h3>🚉 ${st.name}</h3>
-
-            <div><b>⬆ 上り</b></div>
-        `;
-
-        d.up.slice(0,3).forEach(t=>{
-          trainHTML += `
-            <div class="jr-row">
-              <div class="jr-time">${t.time}</div>
-              <div class="jr-dest">${t.dest}</div>
-            </div>
-          `;
-        });
-
-        trainHTML += `
-          <div class="stops">
-            <span>停車駅 ▶ ${st.upStops.join(" → ")}</span>
-          </div>
-
-          <br><b>⬇ 下り</b>
-        `;
-
-        d.down.slice(0,3).forEach(t=>{
-          trainHTML += `
-            <div class="jr-row">
-              <div class="jr-time">${t.time}</div>
-              <div class="jr-dest">${t.dest}</div>
-            </div>
-          `;
-        });
-
-        if(st.downStops && st.downStops.length > 0){
-
-          trainHTML += `
-            <div class="stops">
-              <span>停車駅 ▶ ${st.downStops.join(" → ")}</span>
-            </div>
-          `;
-        }
+        trainHTML += `<br><b>⬇ 下り</b>`;
+        trainHTML += getNextTimes(d.down, nowMin);
+        if(st.downStops) trainHTML += `<div class="stops"><span>停車駅 ▶ ${st.downStops.join(" → ")}</span></div>`;
 
         trainHTML += `</div>`;
       }
     }
 
-
-    /* 🚌 バス */
+    /* 🚌 バス：未来の3本を表示 */
     if(data.bus){
-
       for(let k in data.bus){
-
         const stop = data.bus[k];
         const d = stop[mode];
 
-        busHTML += `
-          <div class="jr-board">
-
-            <h3>🚌 ${stop.name}</h3>
-
-            <b>▶ 駅方面</b><br>
-            ${d.toStation.map(t=>`
-              <div class="jr-row">
-                <div class="jr-time">${t}</div>
-                <div class="jr-dest">駅行き</div>
-              </div>
-            `).join("")}
-
-            <br><b>▶ 町方面</b><br>
-            ${d.toTown.map(t=>`
-              <div class="jr-row">
-                <div class="jr-time">${t}</div>
-                <div class="jr-dest">町行き</div>
-              </div>
-            `).join("")}
-
-          </div>
-        `;
+        busHTML += `<div class="jr-board"><h3>🚌 ${stop.name}</h3>`;
+        busHTML += `<b>▶ 駅方面</b>` + getNextBusTimes(d.toStation, nowMin);
+        busHTML += `<br><b>▶ 町方面</b>` + getNextBusTimes(d.toTown, nowMin);
+        busHTML += `</div>`;
       }
     }
 
     document.getElementById("trainBoard").innerHTML = trainHTML;
     document.getElementById("busBoard").innerHTML = busHTML;
-
   });
-
 }
 
-
-function makeBlock(title, list, nowMin){
-
-  // 未来だけ
-  const future = list.filter(t=>{
-
-    const [h,m] = t.time.split(":");
-    return (h*60 + Number(m)) >= nowMin;
-
-  });
-
-  const show = future.slice(0,3);
-
-  let html = `<div class="jr-title">▶ 次の電車（${title}）</div>`;
-
-  show.forEach(t=>{
-
-    const [h,m] = t.time.split(":");
-    const tMin = h*60 + Number(m);
-
-    let cls = "";
-
-    html += `
-      <div class="jr-row ${cls}">
-        <div>${t.time}</div>
-        <div class="jr-dest">${t.dest}</div>
-      </div>
-    `;
-
-  });
-
-  return html;
+// 未来の時刻だけをHTMLにして返す補助関数（電車用）
+function getNextTimes(list, nowMin) {
+  if(!list) return "";
+  return list
+    .filter(t => {
+      const [h, m] = t.time.split(":");
+      return (parseInt(h) * 60 + parseInt(m)) >= nowMin;
+    })
+    .slice(0, 3)
+    .map(t => `<div class="jr-row"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`)
+    .join("");
 }
 
-  
+// 未来の時刻だけをHTMLにして返す補助関数（バス用）
+function getNextBusTimes(list, nowMin) {
+  if(!list) return "";
+  return list
+    .filter(t => {
+      const [h, m] = t.split(":");
+      return (parseInt(h) * 60 + parseInt(m)) >= nowMin;
+    })
+    .slice(0, 3)
+    .map(t => `<div class="jr-row"><div class="jr-time">${t}</div><div class="jr-dest">行き</div></div>`)
+    .join("");
+}
 loadTransport();
 
 setInterval(loadTransport, 30000); // 30秒ごと更新
@@ -499,6 +392,7 @@ setInterval(loadTransport, 30000); // 30秒ごと更新
 
 </body>
 </html>
+
 
 
 
