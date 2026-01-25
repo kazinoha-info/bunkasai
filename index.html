@@ -51,11 +51,14 @@ h1{
   }
 }
 
-/* スクロールする中身の設定を微調整 */
 .stops span {
-  display: inline-block;
-  white-space: nowrap;
-  padding-left: 0; /* 余計な余白をリセット */
+  display: inline-block; /* 幅を計算可能にする */
+  white-space: nowrap;   /* 絶対に改行させない */
+  padding-right: 50px;   /* 文字の最後に少し余白（任意） */
+  font-size: 28px;
+  font-weight: bold;
+  color: white;
+  will-change: transform;
 }
 
 /* レイアウト */
@@ -497,46 +500,48 @@ if(st.upStops && st.upStops.length){
 
 function setupStopScroll() {
   document.querySelectorAll(".stops span").forEach(span => {
-    // 以前のタイマーやアニメーションをクリア（更新時の重複防止）
+    // 既存のタイマーがあればクリア（二重動作防止）
     if (span.dataset.timerId) {
       clearTimeout(span.dataset.timerId);
     }
 
     const play = () => {
       const parent = span.parentElement;
-      const textW = span.offsetWidth; // テキストの実際の幅
-      const boxW = parent.offsetWidth; // 表示エリアの幅
+      
+      // 文字全体の幅を正確に取得
+      const textW = span.scrollWidth;
+      // 表示エリア（黒い枠）の幅を取得
+      const boxW = parent.clientWidth;
 
-      // 開始位置：表示エリアの右端
-      const start = boxW;
-      // 終了位置：テキストが完全に左に隠れる位置
-      const end = -textW;
+      // 開始：右端の外側
+      const startPos = boxW;
+      // 終了：左端の外側（文字幅分マイナス）
+      const endPos = -textW;
 
-      // 移動距離
-      const distance = start - end;
-
-      // 速度設定（1秒間に何ピクセル進むか。JR風なら 60〜80 くらいがおすすめ）
-      const speed = 70; 
+      // 移動する総距離
+      const distance = startPos - endPos;
+      
+      // 速度（ピクセル/秒）JR風のゆっくりなら 70〜90 くらい
+      const speed = 80; 
       const duration = distance / speed;
 
-      // アニメーションを一度リセット
+      // アニメーションのリセット
       span.style.animation = "none";
-      span.offsetHeight; // リフロー（再描画）を強制
+      span.offsetHeight; // 強制リフロー
 
-      // CSS変数をセット
-      span.style.setProperty("--start", `${start}px`);
-      span.style.setProperty("--end", `${end}px`);
+      // 変数のセット
+      span.style.setProperty("--start", `${startPos}px`);
+      span.style.setProperty("--end", `${endPos}px`);
 
-      // アニメーション実行
+      // アニメーション実行（最後まで流しきるために forwards を指定）
       span.style.animation = `stops-scroll ${duration}s linear forwards`;
 
-      // アニメーションが終わったら（duration秒後）+ 5秒待って再開
+      // 完全に消え去ったタイミング（duration）に 5秒 足して再開
       const timerId = setTimeout(play, (duration * 1000) + 5000);
       span.dataset.timerId = timerId;
     };
 
-    // 少し待ってから開始（レンダリング待ち）
-    setTimeout(play, 500);
+    play();
   });
 }
 
@@ -553,6 +558,7 @@ setInterval(loadTransport, 30000);
 
 </body>
 </html>
+
 
 
 
