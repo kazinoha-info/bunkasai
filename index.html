@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>文化祭案内</title>
 <style>
-/* スタイル設定（既存を維持しつつ左側の表示不備のみ修正） */
+/* スタイル設定（ご提示のものをベースに、停車駅の表示崩れのみ修正） */
 body{
   margin:0;
   font-family: "Segoe UI", "Noto Sans JP", sans-serif;
@@ -40,14 +40,8 @@ body{
   overflow-y:auto;
 }
 
-/* 混雑表示のグリッド修正 */
-.crowd-grid{
-  display:grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap:16px;
-}
-
-/* クラスカードの背景色を#005c3cに固定 */
+/* 混雑表示 */
+.crowd-grid{ display:grid; grid-template-columns: repeat(2, 1fr); gap:16px; }
 .card{
   background: #005c3c;
   color:white;
@@ -60,19 +54,7 @@ body{
   font-size:20px;
   font-weight:bold;
 }
-
-/* ステータス記号の表示設定 */
-.status{ 
-  font-size:28px; 
-  font-weight:bold; 
-  width:42px;
-  height:42px;
-  border-radius:6px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-/* JavaScript側のクラス名とCSSを一致させる */
+.status{ font-size:28px; font-weight:bold; width:42px; height:42px; border-radius:6px; display:flex; justify-content:center; align-items:center; }
 .ok{ background:#2e7d32; color:white; } 
 .mid{ background:#f9a825; color:#333; } 
 .ng{ background:#c62828; color:white; }
@@ -93,11 +75,37 @@ body{
 .jr-row{ display:flex; font-size:22px; padding:5px 0; border-bottom:1px solid #333; }
 .jr-time{ width:100px; color:white; font-weight:bold; }
 .jr-dest{ flex:1; color:white; }
-.stops{ margin-top:10px; overflow:hidden; white-space:nowrap; color:white; font-weight:bold; position: relative; height: 1.4em; }
-.stops span{ display:inline-block; font-size:28px; white-space: nowrap; will-change: transform; position: absolute; }
+
+/* ★ここを修正：停車駅が半分見えない問題を解消★ */
+.stops{ 
+  margin-top:10px; 
+  overflow:hidden; 
+  white-space:nowrap; 
+  color:white; 
+  font-weight:bold; 
+  position: relative; 
+  height: 40px;      /* 高さを十分に確保 */
+  line-height: 40px; /* 文字が上下中央に来るように */
+}
+.stops span{ 
+  display:inline-block; 
+  font-size:28px; 
+  white-space: nowrap; 
+  will-change: transform; 
+  position: absolute; 
+  top: 0;            /* 上に張り付かないように固定 */
+}
+.stops.fixed{ 
+  overflow: visible; 
+  white-space: normal; 
+  height: auto;      /* 固定表示は高さ自動 */
+  line-height: 1.4; 
+  font-size:26px; 
+  position: static; 
+}
+
 .jr-board h3{ font-size:30px; font-weight:bold; color:white; margin:5px 0 10px; }
 .jr-board b{ font-size:24px; font-weight:bold; color:white; }
-.stops.fixed{ overflow: visible; white-space: normal; animation: none; font-size:26px; position: static; }
 .bus-columns{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
 .bus-col b{ display: block; text-align: center; font-size: 22px; margin-bottom: 5px; color: #ffae00; }
 
@@ -320,7 +328,6 @@ function setupStopScroll() {
   });
 }
 
-// 混雑表示の修正（学年振り分け）
 db.ref("classes").on("value", snap => {
   const data = snap.val();
   let h1 = "", h2 = "";
@@ -345,7 +352,6 @@ function updateNowTime(){
 }
 setInterval(updateNowTime,1000);
 updateNowTime();
-
 </script>
 </body>
 </html>
