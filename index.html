@@ -59,7 +59,7 @@ body{ margin:0; font-family: "Trebuchet", sans-serif; background: #eaf3ff; }
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-// --- 1. 基本設定（復活させました） ---
+// --- 1. 基本設定 ---
 const firebaseConfig = {
   apiKey: "AIzaSyDTHN-YfAJz86NgNAaldixubGfDZwRgnKw",
   authDomain: "bunkasai-info-59212.firebaseapp.com",
@@ -76,27 +76,32 @@ let mode = "weekday";
 let transportCache = null;
 let lastRenderTime = -1;
 
-// --- 2. 時刻計算用 ---
+// --- 2. 時刻計算用ユーティリティ ---
 function timeToMin(t){
-  if(!t) return 0;
+  if(!t || typeof t !== "string") return 0;
   const [h,m] = t.split(":").map(Number);
   return h * 60 + m;
 }
+
 function nowMin(){
   const d = new Date();
   return d.getHours() * 60 + d.getMinutes();
 }
+
+// 未来の便を抽出する関数（電車：オブジェクト、バス：文字列の両方に対応）
 function getNextItems(list, limit = 3){
+  if (!list || !Array.isArray(list)) return [];
   const now = nowMin();
-  return (list || [])
-    .filter(t => {
-      const targetTime = typeof t === 'string' ? t : t.time;
-      return timeToMin(targetTime) >= now;
+  return list
+    .filter(item => {
+      // 電車なら item.time、バスなら item 自体が "10:20" などの文字列
+      const t = (typeof item === 'string') ? item : item.time;
+      return timeToMin(t) >= now;
     })
     .slice(0, limit);
 }
 
-// --- 3. 表示処理 ---
+// --- 3. 表示処理 (メイン) ---
 function renderTransport() {
   if (!transportCache) return;
   const currentMin = nowMin();
@@ -107,6 +112,7 @@ function renderTransport() {
   let busHTML = "";
   const data = transportCache;
 
+  // 電車表示
   if (data.train) {
     for (let k in data.train) {
       const st = data.train[k];
@@ -117,26 +123,43 @@ function renderTransport() {
       trainHTML += `<div class="jr-board"><h3>（長野電鉄） ${st.name}</h3>`;
       trainHTML += `<div><b>⬆ 上り 長野方面</b></div>`;
       if(u.length > 0){
-        trainHTML += `<div class="jr-row" style="background: #111; border-left: 4px solid #0af;"><div class="jr-time" style="font-size:30px;">${u[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${u[0].dest}</div></div><div class="stops fixed">停車駅 ▶ ${u[0].stops ? u[0].stops.join(" → ") : "各駅停車"}</div>`;
-        u.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
+        trainHTML += `<div class="jr-row" style="background: #111; border-left: 4px solid #0af;"><div class="jr-time" style="font-size:30px;width:100px;">${u[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${u[0].dest}</div></div><div class="stops fixed">停車駅 ▶ ${u[0].stops ? u[0].stops.join(" → ") : "各駅停車"}</div>`;
+        u.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time" style="width:100px;">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
       } else { trainHTML += `<div class="jr-row" style="color:#888;">本日の運転は終了しました</div>`; }
 
       trainHTML += `<br><div><b>⬇ 下り 中野・湯田中方面</b></div>`;
       if(dn.length > 0){
-        trainHTML += `<div class="jr-row" style="background: #111; border-left: 4px solid #f44;"><div class="jr-time" style="font-size:30px;">${dn[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${dn[0].dest}</div></div><div class="stops"><span>停車駅 ▶ ${dn[0].stops ? dn[0].stops.join(" → ") : "各駅停車"}</span></div>`;
-        dn.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
+        trainHTML += `<div class="jr-row" style="background: #111; border-left: 4px solid #f44;"><div class="jr-time" style="font-size:30px;width:100px;">${dn[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${dn[0].dest}</div></div><div class="stops"><span>停車駅 ▶ ${dn[0].stops ? dn[0].stops.join(" → ") : "各駅停車"}</span></div>`;
+        dn.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time" style="width:100px;">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
       } else { trainHTML += `<div class="jr-row" style="color:#888;">本日の運転は終了しました</div>`; }
       trainHTML += `</div>`;
     }
   }
 
+  // バス表示（修正版）
   if (data.bus) {
     for (let k in data.bus) {
       const stop = data.bus[k];
       const bd = stop[mode] || { toStation: [], toTown: [] };
+      
+      // 文字列の配列から次に来るバスを探す
       const toS = getNextItems(bd.toStation, 4);
       const toT = getNextItems(bd.toTown, 4);
-      busHTML += `<div class="jr-board"><h3>（アルピコ交通） ${stop.name}</h3><div class="bus-columns"><div class="bus-col"><b>▶ 駅方面</b>${toS.length ? toS.map(t => `<div class="jr-row"><div class="jr-time">${t}</div><div class="jr-dest">駅行き</div></div>`).join("") : "---"}</div><div class="bus-col"><b>▶ 町方面</b>${toT.length ? toT.map(t => `<div class="jr-row"><div class="jr-time">${t}</div><div class="jr-dest">町行き</div></div>`).join("") : "---"}</div></div></div>`;
+
+      busHTML += `
+        <div class="jr-board">
+          <h3>（アルピコ交通） ${stop.name}</h3>
+          <div class="bus-columns">
+            <div class="bus-col">
+              <b>▶ 駅方面</b>
+              ${toS.length ? toS.map(t => `<div class="jr-row"><div class="jr-time" style="width:80px;">${t}</div><div class="jr-dest">駅行き</div></div>`).join("") : `<div class="jr-row" style="color:#888;">終了</div>`}
+            </div>
+            <div class="bus-col">
+              <b>▶ 町方面</b>
+              ${toT.length ? toT.map(t => `<div class="jr-row"><div class="jr-time" style="width:80px;">${t}</div><div class="jr-dest">町行き</div></div>`).join("") : `<div class="jr-row" style="color:#888;">終了</div>`}
+            </div>
+          </div>
+        </div>`;
     }
   }
   document.getElementById("trainBoard").innerHTML = trainHTML;
@@ -144,6 +167,7 @@ function renderTransport() {
   setupStopScroll();
 }
 
+// データの再取得
 function loadTransport(){
   db.ref("transport").once("value", snap => {
     transportCache = snap.val();
@@ -152,6 +176,7 @@ function loadTransport(){
   });
 }
 
+// モード切替
 function setMode(m){
   mode = m;
   document.querySelectorAll(".btns button").forEach(btn=>btn.classList.remove("active"));
@@ -160,6 +185,7 @@ function setMode(m){
   renderTransport();
 }
 
+// スクロール処理
 function setupStopScroll() {
   document.querySelectorAll(".stops:not(.fixed) span").forEach(span => {
     if (span.dataset.running) return;
@@ -182,7 +208,7 @@ function setupStopScroll() {
   });
 }
 
-// 混雑表示の復活
+// 混雑表示のライブ更新
 db.ref("classes").on("value", snap => {
   const data = snap.val();
   let html = "";
@@ -193,11 +219,11 @@ db.ref("classes").on("value", snap => {
   document.getElementById("list").innerHTML = html;
 });
 
-// 定期実行（10秒ごとにチェック）
+// 初回実行と定期チェック（10秒）
 loadTransport();
-setInterval(renderTransport, 10000); 
+setInterval(renderTransport, 10000);
 setInterval(loadTransport, 1800000);
 </script>
-
 </body>
 </html>
+
