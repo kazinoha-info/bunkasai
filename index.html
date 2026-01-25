@@ -42,23 +42,21 @@ h1{
   to{ transform: translateX(-100%); }
 }
 
-/* keyframes はそのまま */
+
 @keyframes stops-scroll {
   from { transform: translateX(var(--start)); }
   to { transform: translateX(var(--end)); }
 }
 
-/* span の設定：ここが重要です */
 .stops span {
   display: inline-block;
   white-space: nowrap;
-  padding-right: 100px; /* 消え去る時の余裕 */
+  padding-right: 200px; /* ここを広めにして消え去る余裕を持たせる */
   font-size: 28px;
   font-weight: bold;
   color: white;
   will-change: transform;
 }
-
 /* レイアウト */
 #layout{
   display:grid;
@@ -498,51 +496,57 @@ if(st.upStops && st.upStops.length){
 
 function setupStopScroll() {
   document.querySelectorAll(".stops span").forEach(span => {
-    // すでに動いている（タイマーがある）場合は二重に実行しない
-    if (span.dataset.running === "true") return;
-    span.dataset.running = "true";
+    // 既存のタイマーを一度完全にリセットする
+    if (span.dataset.timerId) {
+      clearTimeout(parseInt(span.dataset.timerId));
+    }
 
     const play = () => {
-      // 要素が画面から消えていたら（更新などで）停止
+      // 要素がすでにDOMから消えている場合は何もしない
       if (!document.body.contains(span)) return;
 
       const parent = span.parentElement;
-      const textW = span.offsetWidth; // 隠れている部分も含めた幅
-      const boxW = parent.clientWidth; // 表示枠の幅
+      if (!parent) return;
 
+      // scrollWidthを使用して、隠れている文字の端まで正確に計算
+      const textW = span.scrollWidth; 
+      const boxW = parent.clientWidth;
+
+      // 開始：右端の外側 / 終了：左端に文字全体が隠れる位置
       const startPos = boxW;
       const endPos = -textW;
 
-      // 速度（動画に近いのは 70-80 くらい）
-      const speed = 75; 
+      // 速度（JR長野駅風：70前後）
+      const speed = 70; 
       const duration = (startPos - endPos) / speed;
 
+      // アニメーションの再設定
       span.style.animation = "none";
-      span.offsetHeight; // 強制リフロー
+      span.offsetHeight; // リフロー強制
 
       span.style.setProperty("--start", `${startPos}px`);
       span.style.setProperty("--end", `${endPos}px`);
-
-      // forwards を指定して、左端で停止させる
       span.style.animation = `stops-scroll ${duration}s linear forwards`;
 
-      // 完全に消えてから 5秒 後にリピート
-      setTimeout(play, (duration * 1000) + 5000);
+      // 完全に消えてから 5秒 後に再実行
+      const nextTimer = setTimeout(() => {
+        if (document.body.contains(span)) play();
+      }, (duration * 1000) + 5000);
+      
+      // タイマーIDを保存
+      span.dataset.timerId = nextTimer;
     };
 
-    // 少しだけ待ってから（HTML描画確定後）開始
-    setTimeout(play, 100);
+    // 描画を待って開始
+    setTimeout(play, 200);
   });
 }
 
-// 初回実行
+// データの読み込み
 loadTransport();
 
-// 🔽 修正：30秒ごとの更新を「データが変わった時だけ」にするか
-// スクロールを邪魔しないように少し間隔をあける
+// 更新間隔：スクロールの邪魔を減らすため 60秒 を推奨
 setInterval(() => {
-  // 画面の書き換えが行われるとスクロールがリセットされるため、
-  // 頻繁な更新が必要なければ 60秒〜 など長めにするのがおすすめです
   loadTransport();
 }, 60000);
 
@@ -550,23 +554,6 @@ setInterval(() => {
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
