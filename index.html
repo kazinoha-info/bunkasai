@@ -233,13 +233,13 @@ function renderTransport() {
       trainHTML += `<div class="jr-board"><h3>（長野電鉄） ${st.name}</h3>`;
       trainHTML += `<div><b>⬆ 上り 長野方面</b></div>`;
       if(u.length > 0){
-        trainHTML += `<div class="jr-row" style="background: #111; border-left: 4px solid #0af;"><div class="jr-time" style="font-size:30px;">${u[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${u[0].dest}</div></div><div class="stops fixed">停車駅 ▶ ${u[0].stops ? u[0].stops.join(" → ") : "各駅停車"}</div>`;
+        trainHTML += `<div class="jr-row" style="background: #111; border-left: 4px solid #0af;"><div class="jr-time" style="font-size:30px;">${u[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${u[0].dest}</div></div><div class="stops fixed">停車駅 ： ${u[0].stops ? u[0].stops.join(" → ") : "各駅停車"}</div>`;
         u.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
       } else { trainHTML += `<div class="jr-row" style="color:#888;">本日の運転は終了しました</div>`; }
 
       trainHTML += `<br><div><b>⬇ 下り 須坂・信州中野・湯田中方面</b></div>`;
       if(dn.length > 0){
-        trainHTML += `<div class="jr-row" style="background: #111; border-left: 4px solid #f44;"><div class="jr-time" style="font-size:30px;">${dn[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${dn[0].dest}</div></div><div class="stops"><span>停車駅 ▶ ${dn[0].stops ? dn[0].stops.join(" → ") : "各駅停車"}</span></div>`;
+        trainHTML += `<div class="jr-row" style="background: #111; border-left: 4px solid #f44;"><div class="jr-time" style="font-size:30px;">${dn[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${dn[0].dest}</div></div><div class="stops"><span>停車駅 ： ${dn[0].stops ? dn[0].stops.join(" → ") : "各駅停車"}</span></div>`;
         dn.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
       } else { trainHTML += `<div class="jr-row" style="color:#888;">本日の運転は終了しました</div>`; }
       trainHTML += `</div>`;
@@ -258,7 +258,7 @@ function renderTransport() {
           <h3>（アルピコ交通） ${stop.name}</h3>
           <div class="bus-columns">
             <div class="bus-col">
-              <b>▶ 長野駅・松岡・大塚南方面</b>
+              <b>城山小学校前：長野駅・松岡・大塚南方面</b>
               ${toS.length ? toS.map(t => `
                 <div class="schedule-card">
                   <div class="jr-time" style="width:80px;">${t.time}</div>
@@ -270,7 +270,7 @@ function renderTransport() {
                 </div>`).join("") : `<div class="jr-row">終了</div>`}
             </div>
             <div class="bus-col">
-              <b>▶ 宇木・若槻・飯綱・戸隠方面</b>
+              <b>善光寺西：宇木・若槻・飯綱・戸隠方面</b>
               ${toT.length ? toT.map(t => `
                 <div class="schedule-card">
                   <div class="jr-time" style="width:80px;">${t.time}</div>
@@ -355,6 +355,7 @@ updateNowTime();
 </script>
 </body>
 </html>
+
 
 
 
