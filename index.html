@@ -314,246 +314,141 @@ h1{
 };
 
 
-  // 初期化
-  firebase.initializeApp(firebaseConfig);
-
-// DB参照
+  // Firebase設定などはそのまま
+firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const ref = db.ref("classes");
 
-// リアルタイム取得（全部読む）
-ref.on("value", (snapshot) => {
+// --- 状態管理用 ---
+let lastTransportData = ""; 
+
+// 1. クラス情報の取得（ここは今のままでOK）
+db.ref("classes").on("value", (snapshot) => {
   const data = snapshot.val();
-
   let html = "";
-
   for (let key in data) {
-
-    let statusClass = "";
-
-    if(data[key].status==="○") statusClass="ok";
-    if(data[key].status==="△") statusClass="mid";
-    if(data[key].status==="×") statusClass="ng";
-
-    html += `
-      <div class="card">
-        <div>${data[key].name}</div>
-        <div class="status ${statusClass}">
-          ${data[key].status}
-        </div>
-      </div>
-    `;
+    let statusClass = (data[key].status==="○")?"ok":(data[key].status==="△")?"mid":(data[key].status==="×")?"ng":"";
+    html += `<div class="card"><div>${data[key].name}</div><div class="status ${statusClass}">${data[key].status}</div></div>`;
   }
-
   document.getElementById("list").innerHTML = html;
 });
 
-// 初期設定
-let mode = "weekday"; // weekday / holiday
-
+// 2. モード切替
+let mode = "weekday";
 function setMode(m){
-
   mode = m;
-
-  // ボタンの見た目切り替え
-  document.querySelectorAll(".btns button").forEach(btn=>{
-    btn.classList.remove("active");
-  });
-
-  if(m==="weekday"){
-    document.getElementById("btnWeek").classList.add("active");
-  }else{
-    document.getElementById("btnHoliday").classList.add("active");
-  }
-
-  loadTransport();
+  document.querySelectorAll(".btns button").forEach(btn=>btn.classList.remove("active"));
+  document.getElementById(m==="weekday"?"btnWeek":"btnHoliday").classList.add("active");
+  loadTransport(true); // 強制更新
 }
 
-
-// ボタン追加
 document.querySelector(".btns").innerHTML = `
   <button id="btnWeek" onclick="setMode('weekday')" class="active">平日</button>
   <button id="btnHoliday" onclick="setMode('holiday')">休日</button>
 `;
 
-// 読み込み
-function loadTransport(){
-
-  firebase.database().ref("transport").once("value", snap=>{
-
+// 3. 交通案内（ここが修正のキモ）
+function loadTransport(force = false){
+  db.ref("transport").once("value", snap=>{
     const data = snap.val();
+    const dataStr = JSON.stringify(data) + mode;
+
+    // データが前回と同じなら何もしない（スクロールを邪魔しない）
+    if(!force && dataStr === lastTransportData) return;
+    lastTransportData = dataStr;
 
     let trainHTML = "";
     let busHTML = "";
 
-    /* 🚃 電車 */
+    /* 電車 */
     if(data.train){
-
       for(let k in data.train){
-
-  const st = data.train[k];
-  const d = st[mode] || { up: [], down: [] };
-
-  // 🔽 黒背景スタート
-  trainHTML += `<div class="jr-board">`;
-
-  trainHTML += `<h3>🚉 ${st.name}</h3>`;
-
-        /* 下り（先に表示） */
-trainHTML += `
-  <div><b>⬇ 下り</b></div>
-`;
-
-d.down.slice(0,3).forEach(t=>{
-  trainHTML += `
-    <div class="jr-row">
-      <div class="jr-time">${t.time}</div>
-      <div class="jr-dest">${t.dest}</div>
-    </div>
-  `;
-});
-
-if(st.downStops && st.downStops.length){
-
-  trainHTML += `
-    <div class="stops">
-      <span>停車駅 ▶ ${st.downStops.join(" → ")}</span>
-    </div>
-  `;
-}
-
-
-/* 上り（あと） */
-trainHTML += `<br><b>⬆ 上り</b><br>`;
-
-d.up.slice(0,3).forEach(t=>{
-  trainHTML += `
-    <div class="jr-row">
-      <div class="jr-time">${t.time}</div>
-      <div class="jr-dest">${t.dest}</div>
-    </div>
-  `;
-});
-
-/* 上りは固定表示（流さない） */
-if(st.upStops && st.upStops.length){
-
-  trainHTML += `
-    <div class="stops fixed">
-      停車駅 ▶ ${st.upStops.join(" → ")}
-    </div>
-  `;
-}
-
+        const st = data.train[k];
+        const d = st[mode] || { up: [], down: [] };
+        trainHTML += `<div class="jr-board"><h3>🚉 ${st.name}</h3><div><b>⬇ 下り</b></div>`;
+        d.down.slice(0,3).forEach(t=>{
+          trainHTML += `<div class="jr-row"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
+        });
+        if(st.downStops && st.downStops.length){
+          trainHTML += `<div class="stops"><span>停車駅 ▶ ${st.downStops.join(" → ")}</span></div>`;
+        }
+        trainHTML += `<br><b>⬆ 上り</b><br>`;
+        d.up.slice(0,3).forEach(t=>{
+          trainHTML += `<div class="jr-row"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
+        });
+        if(st.upStops && st.upStops.length){
+          trainHTML += `<div class="stops fixed">停車駅 ▶ ${st.upStops.join(" → ")}</div>`;
+        }
         trainHTML += `</div>`;
       }
     }
 
-
-    /* 🚌 バス */
+    /* バス */
     if(data.bus){
-
       for(let k in data.bus){
-
         const stop = data.bus[k];
         const d = stop[mode] || { toStation: [], toTown: [] };
-
-        busHTML += `
-          <div class="jr-board">
-
-            <h3>🚌 ${stop.name}</h3>
-
-            <b>▶ 駅方面</b><br>
-            ${d.toStation.map(t=>`
-              <div class="jr-row">
-                <div class="jr-time">${t}</div>
-                <div class="jr-dest">駅行き</div>
-              </div>
-            `).join("")}
-
-            <br><b>▶ 町方面</b><br>
-            ${d.toTown.map(t=>`
-              <div class="jr-row">
-                <div class="jr-time">${t}</div>
-                <div class="jr-dest">町行き</div>
-              </div>
-            `).join("")}
-
-          </div>
-        `;
+        busHTML += `<div class="jr-board"><h3>🚌 ${stop.name}</h3><b>▶ 駅方面</b><br>${d.toStation.map(t=>`<div class="jr-row"><div class="jr-time">${t}</div><div class="jr-dest">駅行き</div></div>`).join("")}<br><b>▶ 町方面</b><br>${d.toTown.map(t=>`<div class="jr-row"><div class="jr-time">${t}</div><div class="jr-dest">町行き</div></div>`).join("")}</div>`;
       }
     }
 
     document.getElementById("trainBoard").innerHTML = trainHTML;
     document.getElementById("busBoard").innerHTML = busHTML;
     
+    // スクロール開始
     setupStopScroll();
-
   });
-
 }
 
-
+// 4. スクロール処理（より堅牢なロジック）
 function setupStopScroll() {
-  document.querySelectorAll(".stops span").forEach(span => {
-    // 既存のタイマーを一度完全にリセットする
-    if (span.dataset.timerId) {
-      clearTimeout(parseInt(span.dataset.timerId));
-    }
+  document.querySelectorAll(".stops:not(.fixed) span").forEach(span => {
+    let timerId = null;
 
     const play = () => {
-      // 要素がすでにDOMから消えている場合は何もしない
+      // DOMから消えていたら終了
       if (!document.body.contains(span)) return;
 
       const parent = span.parentElement;
-      if (!parent) return;
-
-      // scrollWidthを使用して、隠れている文字の端まで正確に計算
       const textW = span.scrollWidth; 
       const boxW = parent.clientWidth;
 
-      // 開始：右端の外側 / 終了：左端に文字全体が隠れる位置
       const startPos = boxW;
-      const endPos = -textW;
+      const endPos = -textW - 10; // 完全に消し去るために少し余裕を持たせる
 
-      // 速度（JR長野駅風：70前後）
-      const speed = 70; 
+      const speed = 70; // JR風の速さ
       const duration = (startPos - endPos) / speed;
 
-      // アニメーションの再設定
-      span.style.animation = "none";
-      span.offsetHeight; // リフロー強制
-
-      span.style.setProperty("--start", `${startPos}px`);
-      span.style.setProperty("--end", `${endPos}px`);
-      span.style.animation = `stops-scroll ${duration}s linear forwards`;
-
-      // 完全に消えてから 5秒 後に再実行
-      const nextTimer = setTimeout(() => {
-        if (document.body.contains(span)) play();
-      }, (duration * 1000) + 5000);
+      // リセット
+      span.style.transition = "none";
+      span.style.transform = `translateX(${startPos}px)`;
       
-      // タイマーIDを保存
-      span.dataset.timerId = nextTimer;
+      // 強制リフロー
+      span.offsetHeight;
+
+      // アニメーション設定
+      span.style.transition = `transform ${duration}s linear`;
+      span.style.transform = `translateX(${endPos}px)`;
+
+      // 完全に消え去ったタイミングで5秒待機してループ
+      timerId = setTimeout(() => {
+        play();
+      }, (duration * 1000) + 5000);
     };
 
-    // 描画を待って開始
-    setTimeout(play, 200);
+    play();
   });
 }
 
-// データの読み込み
+// 初回実行
 loadTransport();
 
-// 更新間隔：スクロールの邪魔を減らすため 60秒 を推奨
-setInterval(() => {
-  loadTransport();
-}, 60000);
-
+// 30秒ごとにチェック（データが変わった時だけ書き換わる）
+setInterval(loadTransport, 30000);
 </script>
 
 </body>
 </html>
+
 
 
 
