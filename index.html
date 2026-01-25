@@ -5,8 +5,8 @@
   <title>文化祭案内サイネージ</title>
 <style>
   :root {
-    --main-navy: #1a2a44;
-    --sub-blue: #4472c4;
+    --panel-color: #005c3c;   /* ご指定のカラーに変更 */
+    --accent-orange: #ff8c00; 
     --bg-light: #f4f7f9;
     --status-ok: #28a745;
     --status-mid: #ffc107;
@@ -21,142 +21,51 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    color: #333;
   }
 
   /* テロップ */
-  #ticker {
-    background: #ff8c00;
-    color: white;
-    overflow: hidden;
-    white-space: nowrap;
-    height: 45px;
-    line-height: 45px;
-    font-size: 20px;
-    font-weight: bold;
-  }
+  #ticker { background: var(--accent-orange); color: white; overflow: hidden; white-space: nowrap; height: 45px; line-height: 45px; font-size: 20px; font-weight: bold; }
   #ticker-text { display: inline-block; padding-left: 100%; animation: scroll 35s linear infinite; }
   @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
 
-  #main-layout {
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 15px;
-    padding: 15px;
-    flex: 1;
-    min-height: 0;
-  }
+  #main-layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 15px; padding: 15px; flex: 1; min-height: 0; }
 
   /* 左：混雑状況 */
-  #left-panel {
-    background: white;
-    border-radius: 12px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  }
-  .grade-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    flex: 1;
-    overflow-y: auto;
-  }
-  .grade-col h4 {
-    text-align: center;
-    background: var(--main-navy);
-    color: white;
-    margin: 0 0 10px 0;
-    padding: 8px;
-    border-radius: 5px;
-  }
-  .crowd-card {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  .class-name {
-    flex: 1;
-    background: var(--sub-blue);
-    color: white;
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-  }
-  .status-box {
-    width: 40px;
-    height: 40px;
-    border-radius: 6px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 22px;
-    font-weight: bold;
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-  }
+  #left-panel { background: white; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .grade-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; overflow-y: auto; }
+  .grade-col h4 { text-align: center; background: var(--panel-color); color: white; margin: 0 0 10px 0; padding: 8px; border-radius: 5px; font-size: 18px; }
+  .crowd-card { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .class-name { flex: 1; background: var(--panel-color); color: white; padding: 10px; border-radius: 6px; font-size: 16px; font-weight: bold; text-align: center; }
+  .status-box { width: 42px; height: 42px; border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; color: white; }
   .status-ok { background: var(--status-ok); }
-  .status-mid { background: var(--status-mid); color: #333; text-shadow: none; }
+  .status-mid { background: var(--status-mid); color: #333; }
   .status-ng { background: var(--status-ng); }
+  .legend-area { text-align: center; font-size: 17px; padding: 12px 0 5px 0; color: #333; font-weight: bold; border-top: 1px solid #eee; }
 
   /* 右：交通案内 */
-  #right-panel {
-    background: white;
-    border-radius: 12px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  }
-  #now-time-bar {
-    background: #000;
-    color: #fff;
-    text-align: center;
-    padding: 6px;
-    font-size: 22px;
-    font-weight: bold;
-    border-radius: 6px;
-    margin-bottom: 10px;
-  }
-  .section-title {
-    background: #333;
-    color: white;
-    text-align: center;
-    padding: 6px;
-    font-size: 20px;
-    border-radius: 6px;
-    margin-bottom: 10px;
-  }
-
-  .transport-card {
-    background: #000;
-    color: white;
-    padding: 12px;
-    border-radius: 10px;
-    margin-bottom: 12px;
-  }
+  #right-panel { background: white; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  #now-time-bar { background: #000; color: #fff; text-align: center; padding: 6px; font-size: 22px; font-weight: bold; border-radius: 6px; margin-bottom: 10px; }
+  .section-title { background: #333; color: white; text-align: center; padding: 6px; font-size: 20px; border-radius: 6px; margin-bottom: 10px; }
+  
+  .transport-card { background: #000; color: white; padding: 12px; border-radius: 10px; margin-bottom: 12px; }
   .transport-card h3 { margin: 0 0 8px 0; font-size: 18px; border-bottom: 1px solid #444; color: #fff; }
-  .dir-label { font-size: 15px; color: #ffae00; font-weight: bold; margin: 8px 0 4px; display: block; }
+  .dir-label { font-size: 15px; color: var(--accent-orange); font-weight: bold; margin: 8px 0 4px; display: block; }
   
   .row { display: flex; align-items: baseline; border-bottom: 1px solid #222; padding: 2px 0; }
-  .time { width: 65px; font-size: 22px; font-weight: bold; }
-  .dest { flex: 1; font-size: 19px; }
-  .line-tag { font-size: 11px; border: 1px solid #0af; color: #0af; padding: 0 3px; margin-right: 4px; }
-  .via-text { font-size: 12px; color: #aaa; margin-left: 20px; }
+  .time { width: 70px; font-size: 26px; font-weight: bold; }
+  .dest { flex: 1; font-size: 22px; }
+  .line-tag { font-size: 12px; border: 1px solid #0af; color: #0af; padding: 0 4px; margin-right: 5px; }
+  .via-text { font-size: 14px; color: #ccc; margin-left: 20px; padding-bottom: 2px; }
 
-  /* 停車駅表示用 */
-  .stops-area { font-size: 13px; color: #999; height: 1.4em; overflow: hidden; position: relative; margin-top: 2px; }
-  .stops-fixed { color: #888; }
-  .stops-scroll-wrap { display: inline-block; white-space: nowrap; position: absolute; left: 100%; }
+  /* 停車駅表示（白・大きく） */
+  .stops-area { font-size: 18px; color: #ffffff; height: 1.5em; overflow: hidden; position: relative; margin-top: 5px; font-weight: bold; }
+  .stops-fixed { color: #ffffff; }
+  .stops-scroll-wrap { display: inline-block; white-space: nowrap; position: absolute; left: 100%; will-change: left; }
 
   .bus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .mode-btns { display: flex; gap: 8px; margin-bottom: 10px; justify-content: center; }
-  .mode-btns button { border: 1px solid #ddd; background: #eee; padding: 4px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; }
-  .mode-btns button.active { background: var(--sub-blue); color: white; border-color: var(--sub-blue); }
+  .mode-btns button { border: 1px solid #ddd; background: #eee; padding: 4px 15px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: bold; }
+  .mode-btns button.active { background: var(--accent-orange); color: white; border-color: var(--accent-orange); }
 </style>
 </head>
 <body>
@@ -177,17 +86,17 @@
         <div id="list-2year"></div>
       </div>
     </div>
-    <div style="text-align:center; font-size:16px; margin-top:10px; color:#666;">
-      凡例：<span style="color:var(--status-ok)">○空</span> &nbsp; <span style="color:#d4a017">△混</span> &nbsp; <span style="color:var(--status-ng)">×満</span>
+    <div class="legend-area">
+      凡例：<span style="color:var(--status-ok)">○ 空いている</span> &nbsp; <span style="color:#d4a017">△ 少し混雑</span> &nbsp; <span style="color:var(--status-ng)">× 混雑</span>
     </div>
   </div>
 
   <div id="right-panel">
-    <div id="now-time-bar">--:--</div>
+    <div id="now-time-bar">現在時刻 --:--</div>
     <div class="section-title">交通案内</div>
     <div class="mode-btns">
-      <button id="btnWeek" onclick="setMode('weekday')" class="active">平日</button>
-      <button id="btnHoliday" onclick="setMode('holiday')">休日</button>
+      <button id="btnWeek" onclick="setMode('weekday')" class="active">平日ダイヤ</button>
+      <button id="btnHoliday" onclick="setMode('holiday')">休日ダイヤ</button>
     </div>
     <div id="transport-list" style="overflow-y:auto; flex:1;"></div>
   </div>
@@ -232,23 +141,24 @@
     renderTransport();
   }
 
-  // 下り電車のスクロールアニメーション制御
   function startScroll(el) {
-    const parentWidth = el.parentElement.clientWidth;
-    const selfWidth = el.scrollWidth;
-    const duration = (parentWidth + selfWidth) / 40; // 速度調整
+    if(!el) return;
+    const parent = el.parentElement;
+    const animate = () => {
+      const parentWidth = parent.clientWidth;
+      const selfWidth = el.scrollWidth;
+      const duration = (parentWidth + selfWidth) / 35;
 
-    function animate() {
       el.style.transition = 'none';
       el.style.left = '100%';
-      el.getBoundingClientRect();
+      el.offsetHeight;
       el.style.transition = `left ${duration}s linear`;
       el.style.left = `-${selfWidth}px`;
 
       setTimeout(() => {
-        setTimeout(animate, 5000); // 抜けきってから5秒待機
+        setTimeout(animate, 5000); 
       }, duration * 1000);
-    }
+    };
     animate();
   }
 
@@ -256,7 +166,6 @@
     if (!transportData) return;
     let html = "";
     
-    // 電車
     for (let k in transportData.train) {
       const st = transportData.train[k];
       const d = st[mode] || { up: [], down: [] };
@@ -268,19 +177,18 @@
       html += ups.length ? ups.map(t => `
         <div class="row"><div class="time">${t.time}</div><div class="dest">${t.dest}</div></div>
         <div class="stops-area stops-fixed">停車駅：善光寺下・権堂・市役所前・長野</div>
-      `).join("") : "<div>運転終了</div>";
+      `).join("") : "<div>本日の運転は終了しました</div>";
       
       html += `<span class="dir-label">⬇ 下り 須坂・信州中野方面</span>`;
       html += dns.length ? dns.map((t, i) => `
         <div class="row"><div class="time">${t.time}</div><div class="dest">${t.dest}</div></div>
         <div class="stops-area">
-          <div class="stops-scroll-wrap" id="scroll-dn-${i}">停車駅：${t.stops ? t.stops.join(" → ") : "各駅停車"}</div>
+          <div class="stops-scroll-wrap js-scroll-dn">停車駅：${t.stops ? t.stops.join(" → ") : "各駅停車"}</div>
         </div>
-      `).join("") : "<div>運転終了</div>";
+      `).join("") : "<div>本日の運転は終了しました</div>";
       html += `</div>`;
     }
 
-    // バス
     for (let k in transportData.bus) {
       const stop = transportData.bus[k];
       const d = stop[mode] || { toStation: [], toTown: [] };
@@ -289,38 +197,34 @@
 
       html += `<div class="transport-card"><h3>アルピコ交通 ${stop.name}</h3>
         <div class="bus-grid">
-          <div><span class="dir-label">▶ 長野駅方面</span>
+          <div><span class="dir-label">▶ 駅・松岡・大塚南 方面</span>
             ${toS.length ? toS.map(t => `<div class="row"><div class="time">${t.time}</div><div class="dest"><span class="line-tag">${t.line}</span>${t.dest}</div></div><div class="via-text">${t.via || ""}</div>`).join("") : "<div>終了</div>"}
           </div>
-          <div><span class="dir-label">▶ 宇木・若槻方面</span>
+          <div><span class="dir-label">▶ 若槻・戸隠 方面</span>
             ${toT.length ? toT.map(t => `<div class="row"><div class="time">${t.time}</div><div class="dest"><span class="line-tag">${t.line}</span>${t.dest}</div></div><div class="via-text">${t.via || ""}</div>`).join("") : "<div>終了</div>"}
           </div>
         </div></div>`;
     }
     document.getElementById("transport-list").innerHTML = html;
     
-    // 下りスクロール開始
-    dns.forEach((_, i) => {
-      const el = document.getElementById(`scroll-dn-${i}`);
-      if(el) startScroll(el);
-    });
+    setTimeout(() => {
+      document.querySelectorAll('.js-scroll-dn').forEach(el => startScroll(el));
+    }, 500);
   }
 
-  // 混雑状況（1年・2年分割）
   db.ref("classes").on("value", snap => {
     const data = snap.val();
-    let html1 = "", html2 = "";
+    let h1 = "", h2 = "";
     for (let key in data) {
       const item = data[key];
       const s = item.status;
       const sCls = s === "○" ? "status-ok" : s === "△" ? "status-mid" : "status-ng";
       const card = `<div class="crowd-card"><div class="class-name">${item.name}</div><div class="status-box ${sCls}">${s}</div></div>`;
-      
-      if (item.name.includes("1年")) html1 += card;
-      else if (item.name.includes("2年")) html2 += card;
+      if (item.name.includes("1年")) h1 += card;
+      else if (item.name.includes("2年")) h2 += card;
     }
-    document.getElementById("list-1year").innerHTML = html1;
-    document.getElementById("list-2year").innerHTML = html2;
+    document.getElementById("list-1year").innerHTML = h1 || "なし";
+    document.getElementById("list-2year").innerHTML = h2 || "なし";
   });
 
   db.ref("transport").on("value", snap => {
