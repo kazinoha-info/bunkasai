@@ -51,6 +51,12 @@ h1{
   }
 }
 
+/* スクロールする中身の設定を微調整 */
+.stops span {
+  display: inline-block;
+  white-space: nowrap;
+  padding-left: 0; /* 余計な余白をリセット */
+}
 
 /* レイアウト */
 #layout{
@@ -489,49 +495,49 @@ if(st.upStops && st.upStops.length){
 }
 
 
-function setupStopScroll(){
+function setupStopScroll() {
+  document.querySelectorAll(".stops span").forEach(span => {
+    // 以前のタイマーやアニメーションをクリア（更新時の重複防止）
+    if (span.dataset.timerId) {
+      clearTimeout(span.dataset.timerId);
+    }
 
-  document.querySelectorAll(".stops span").forEach(span=>{
-
-    setTimeout(()=>{
-
+    const play = () => {
       const parent = span.parentElement;
+      const textW = span.offsetWidth; // テキストの実際の幅
+      const boxW = parent.offsetWidth; // 表示エリアの幅
 
-      const textW = span.scrollWidth;
-      const boxW  = parent.clientWidth;
+      // 開始位置：表示エリアの右端
+      const start = boxW;
+      // 終了位置：テキストが完全に左に隠れる位置
+      const end = -textW;
 
-      // 開始位置：右の外
-      const start = boxW + "px";
+      // 移動距離
+      const distance = start - end;
 
-      // 終了位置：左の外（文字全部消える）
-      const end = -textW + "px";
-
-      const distance = boxW + textW;
-
-      const speed = 60; // ←速度（大きいほど速い）
+      // 速度設定（1秒間に何ピクセル進むか。JR風なら 60〜80 くらいがおすすめ）
+      const speed = 70; 
       const duration = distance / speed;
 
-      function play(){
+      // アニメーションを一度リセット
+      span.style.animation = "none";
+      span.offsetHeight; // リフロー（再描画）を強制
 
-        span.style.animation = "none";
-        span.offsetHeight;
+      // CSS変数をセット
+      span.style.setProperty("--start", `${start}px`);
+      span.style.setProperty("--end", `${end}px`);
 
-        span.style.setProperty("--start", start);
-        span.style.setProperty("--end", end);
+      // アニメーション実行
+      span.style.animation = `stops-scroll ${duration}s linear forwards`;
 
-        span.style.animation =
-          `stops-scroll ${duration}s linear`;
+      // アニメーションが終わったら（duration秒後）+ 5秒待って再開
+      const timerId = setTimeout(play, (duration * 1000) + 5000);
+      span.dataset.timerId = timerId;
+    };
 
-        // 終了＋5秒待機
-        setTimeout(play, duration*1000 + 5000);
-      }
-
-      play();
-
-    },100);
-
+    // 少し待ってから開始（レンダリング待ち）
+    setTimeout(play, 500);
   });
-
 }
 
 
@@ -547,6 +553,7 @@ setInterval(loadTransport, 30000);
 
 </body>
 </html>
+
 
 
 
