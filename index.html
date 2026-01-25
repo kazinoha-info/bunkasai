@@ -42,19 +42,17 @@ h1{
   to{ transform: translateX(-100%); }
 }
 
+/* keyframes はそのまま */
 @keyframes stops-scroll {
-  from {
-    transform: translateX(var(--start));
-  }
-  to {
-    transform: translateX(var(--end));
-  }
+  from { transform: translateX(var(--start)); }
+  to { transform: translateX(var(--end)); }
 }
 
+/* span の設定：ここが重要です */
 .stops span {
-  display: inline-block; /* 幅を計算可能にする */
-  white-space: nowrap;   /* 絶対に改行させない */
-  padding-right: 50px;   /* 文字の最後に少し余白（任意） */
+  display: inline-block;
+  white-space: nowrap;
+  padding-right: 100px; /* 消え去る時の余裕 */
   font-size: 28px;
   font-weight: bold;
   color: white;
@@ -500,64 +498,59 @@ if(st.upStops && st.upStops.length){
 
 function setupStopScroll() {
   document.querySelectorAll(".stops span").forEach(span => {
-    // 既存のタイマーがあればクリア（二重動作防止）
-    if (span.dataset.timerId) {
-      clearTimeout(span.dataset.timerId);
-    }
+    // すでに動いている（タイマーがある）場合は二重に実行しない
+    if (span.dataset.running === "true") return;
+    span.dataset.running = "true";
 
     const play = () => {
-      const parent = span.parentElement;
-      
-      // 文字全体の幅を正確に取得
-      const textW = span.scrollWidth;
-      // 表示エリア（黒い枠）の幅を取得
-      const boxW = parent.clientWidth;
+      // 要素が画面から消えていたら（更新などで）停止
+      if (!document.body.contains(span)) return;
 
-      // 開始：右端の外側
+      const parent = span.parentElement;
+      const textW = span.offsetWidth; // 隠れている部分も含めた幅
+      const boxW = parent.clientWidth; // 表示枠の幅
+
       const startPos = boxW;
-      // 終了：左端の外側（文字幅分マイナス）
       const endPos = -textW;
 
-      // 移動する総距離
-      const distance = startPos - endPos;
-      
-      // 速度（ピクセル/秒）JR風のゆっくりなら 70〜90 くらい
-      const speed = 80; 
-      const duration = distance / speed;
+      // 速度（動画に近いのは 70-80 くらい）
+      const speed = 75; 
+      const duration = (startPos - endPos) / speed;
 
-      // アニメーションのリセット
       span.style.animation = "none";
       span.offsetHeight; // 強制リフロー
 
-      // 変数のセット
       span.style.setProperty("--start", `${startPos}px`);
       span.style.setProperty("--end", `${endPos}px`);
 
-      // アニメーション実行（最後まで流しきるために forwards を指定）
+      // forwards を指定して、左端で停止させる
       span.style.animation = `stops-scroll ${duration}s linear forwards`;
 
-      // 完全に消え去ったタイミング（duration）に 5秒 足して再開
-      const timerId = setTimeout(play, (duration * 1000) + 5000);
-      span.dataset.timerId = timerId;
+      // 完全に消えてから 5秒 後にリピート
+      setTimeout(play, (duration * 1000) + 5000);
     };
 
-    play();
+    // 少しだけ待ってから（HTML描画確定後）開始
+    setTimeout(play, 100);
   });
 }
 
-
-
-// 初回読み込み
+// 初回実行
 loadTransport();
 
-// 30秒ごと更新
-setInterval(loadTransport, 30000);
-
+// 🔽 修正：30秒ごとの更新を「データが変わった時だけ」にするか
+// スクロールを邪魔しないように少し間隔をあける
+setInterval(() => {
+  // 画面の書き換えが行われるとスクロールがリセットされるため、
+  // 頻繁な更新が必要なければ 60秒〜 など長めにするのがおすすめです
+  loadTransport();
+}, 60000);
 
 </script>
 
 </body>
 </html>
+
 
 
 
