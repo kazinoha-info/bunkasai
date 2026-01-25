@@ -320,47 +320,139 @@ h1{
 
 
 // "9:25" → 565 (分) に変換
+// --- 1. 時刻計算用のユーティリティ ---
+
+// "09:25" → 565 (分) に変換
 function timeToMin(t){
+  if(!t) return 0;
   const [h,m] = t.split(":").map(Number);
-  return h*60 + m;
+  return h * 60 + m;
 }
 
-// 今の時刻（分）
+// 今の時刻（分）を取得
 function nowMin(){
   const d = new Date();
-  return d.getHours()*60 + d.getMinutes() + d.getSeconds()/60;
+  return d.getHours() * 60 + d.getMinutes();
 }
 
+// 未来の電車だけを3本抽出する
 function getNextTrains(list){
   const now = nowMin();
-
   return list
-    .filter(t => timeToMin(t.time) >= now) // 未来だけ
-    .slice(0,3); // 3本だけ
+    .filter(t => timeToMin(t.time) >= now) // 現在時刻以降の列車のみ
+    .sort((a, b) => timeToMin(a.time) - timeToMin(b.time)) // 時刻順に並び替え
+    .slice(0, 3); // 先頭から3本
 }
 
-  // 🔽 Firebase設定（君のやつ用にもう入れてある）
-  const firebaseConfig = {
-  apiKey: "AIzaSyDTHN-YfAJz86NgNAaldixubGfDZwRgnKw",
-  authDomain: "bunkasai-info-59212.firebaseapp.com",
-  databaseURL: "https://bunkasai-info-59212-default-rtdb.firebaseio.com",
-  projectId: "bunkasai-info-59212",
-  storageBucket: "bunkasai-info-59212.firebasestorage.app",
-  messagingSenderId: "775251011941",
-  appId: "1:775251011941:web:7237a990162fa00217198c"
-};
+// --- 2. メインの表示処理 ---
 
+let transportCache = null; // Firebaseから取得したデータを保持しておく変数
+let lastRenderTime = -1;   // 最後に表示更新した時刻（分）
 
-  // Firebase設定などはそのまま
+// --- 3. 表示処理 (メイン) ---
+function renderTransport() {
+  if (!transportCache) return;
+
+  const currentMin = nowMin();
+  // 分が変わっていないなら更新しない（点滅防止）
+  if (currentMin === lastRenderTime) return;
+  lastRenderTime = currentMin;
+
+  let trainHTML = "";
+  let busHTML = "";
+  const data = transportCache;
+
+  // 【電車】時間が過ぎたものを消して表示
+  if (data.train) {
+    for (let k in data.train) {
+      const st = data.train[k];
+      const d = st[mode] || { up: [], down: [] };
+      
+      // 未来の電車だけを抽出
+      const u = getNextItems(d.up);
+      const dn = getNextItems(d.down);
+
+      trainHTML += `<div class="jr-board"><h3>（長野電鉄） ${st.name}</h3>`;
+
+      // 上り表示
+      trainHTML += `<div><b>⬆ 上り 長野方面</b></div>`;
+      if(u.length > 0){
+        trainHTML += `
+          <div class="jr-row" style="background: #111; border-left: 4px solid #0af;">
+            <div class="jr-time" style="font-size: 30px;">${u[0].time}</div>
+            <div class="jr-dest" style="font-size: 30px; color: #ff9800;">${u[0].dest}</div>
+          </div>
+          <div class="stops fixed">停車駅 ▶ ${u[0].stops ? u[0].stops.join(" → ") : "各駅停車"}</div>
+        `;
+        u.slice(1).forEach(t => {
+          trainHTML += `<div class="jr-row" style="opacity: 0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
+        });
+      } else { trainHTML += `<div class="jr-row" style="color:#888;">本日の運転は終了しました</div>`; }
+
+      trainHTML += `<br><div><b>⬇ 下り 中野・湯田中方面</b></div>`;
+      
+      // 下り表示
+      if(dn.length > 0){
+        trainHTML += `
+          <div class="jr-row" style="background: #111; border-left: 4px solid #f44;">
+            <div class="jr-time" style="font-size: 30px;">${dn[0].time}</div>
+            <div class="jr-dest" style="font-size: 30px; color: #ff9800;">${dn[0].dest}</div>
+          </div>
+          <div class="stops"><span>停車駅 ▶ ${dn[0].stops ? dn[0].stops.join(" → ") : "各駅停車"}</span></div>
+        `;
+        dn.slice(1).forEach(t => {
+          trainHTML += `<div class="jr-row" style="opacity: 0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
+        });
+      } else { trainHTML += `<div class="jr-row" style="color:#888;">本日の運転は終了しました</div>`; }
+      
+      trainHTML += `</div>`;
+    }
+  }
+
+  // 【バス】時間が過ぎたものを消して表示
+  if (data.bus) {
+    for (let k in data.bus) {
+      const stop = data.bus[k];
+      const bd = stop[mode] || { toStation: [], toTown: [] };
+      // 未来のバスだけを4件ずつ抽出
+      const toS = getNextItems(bd.toStation, 4);
+      const toT = getNextItems(bd.toTown, 4);
+
+      busHTML += `
+        <div class="jr-board">
+          <h3>（アルピコ交通） ${stop.name}</h3>
+          <div class="bus-columns">
+            <div class="bus-col"><b>▶ 駅方面</b>
+              ${toS.length ? toS.map(t => `<div class="jr-row"><div class="jr-time">${t}</div><div class="jr-dest">駅行き</div></div>`).join("") : "---"}
+            </div>
+            <div class="bus-col"><b>▶ 町方面</b>
+              ${toT.length ? toT.map(t => `<div class="jr-row"><div class="jr-time">${t}</div><div class="jr-dest">町行き</div></div>`).join("") : "---"}
+            </div>
+          </div>
+        </div>`;
+    }
+  }
+
+  document.getElementById("trainBoard").innerHTML = trainHTML;
+  document.getElementById("busBoard").innerHTML = busHTML;
+  setupStopScroll();
+}
+
+// データの再取得
+function loadTransport(force = false){
+  db.ref("transport").once("value", snap => {
+    transportCache = snap.val();
+    if(force) lastRenderTime = -1; // 強制更新
+    renderTransport();
+  });
+}
+
+// --- 3. 起動とタイマー設定 ---
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let transportCache = null; // ← これを追加！！
-
-// --- 状態管理用 ---
-let lastTransportData = ""; 
-
-// 1. クラス情報の取得（ここは今のままでOK）
+// クラス情報のライブ更新
 db.ref("classes").on("value", (snapshot) => {
   const data = snapshot.val();
   let html = "";
@@ -371,14 +463,23 @@ db.ref("classes").on("value", (snapshot) => {
   document.getElementById("list").innerHTML = html;
 });
 
-// 2. モード切替
-let mode = "weekday";
+// モード切替
 function setMode(m){
   mode = m;
   document.querySelectorAll(".btns button").forEach(btn=>btn.classList.remove("active"));
   document.getElementById(m==="weekday"?"btnWeek":"btnHoliday").classList.add("active");
-  loadTransport(true); // 強制更新
+  lastRenderTime = -1; 
+  renderTransport();
 }
+
+// 初回読み込み
+loadTransport();
+
+// 1秒ごとに「今の時刻」をチェックし、分が変わったら表示を更新する
+setInterval(renderTransport, 1000);
+
+// 30分ごとにFirebaseから最新データを再取得（念のため）
+setInterval(loadTransport, 1800000);
 
 document.querySelector(".btns").innerHTML = `
   <button id="btnWeek" onclick="setMode('weekday')" class="active">平日</button>
@@ -536,10 +637,11 @@ function setupStopScroll() {
 loadTransport();
 
 // 30秒ごとにチェック（データが変わった時だけ書き換わる）
-setInterval(loadTransport, 5000);
+setInterval(loadTransport, 10000);
 </script>
 
 </body>
 </html>
+
 
 
