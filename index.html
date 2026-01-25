@@ -43,11 +43,10 @@ h1{
 }
 
 @keyframes stops-scroll {
-  0% {
+  from {
     transform: translateX(100%);
   }
-
-  100% {
+  to {
     transform: translateX(-100%);
   }
 }
@@ -497,17 +496,32 @@ function setupStopScroll(){
 
     const parent = span.parentElement;
 
-    const textWidth = span.scrollWidth;
-    const boxWidth = parent.clientWidth;
+    function startScroll(){
 
-    const distance = textWidth + boxWidth;
+      const textWidth = span.scrollWidth;
+      const boxWidth = parent.clientWidth;
 
-    const speed = 50; // 速さ統一
-    const duration = distance / speed;
+      const distance = textWidth + boxWidth;
 
-    const wait = 5; // 待ち時間
+      const speed = 50; // px/秒
+      const duration = distance / speed;
 
-    span.style.animation = `stops-scroll ${duration}s linear ${wait}s infinite`;
+      // アニメーション初期化
+      span.style.animation = "none";
+      span.offsetHeight; // 強制再描画
+
+      // 開始
+      span.style.animation =
+        `stops-scroll ${duration}s linear`;
+
+      // 終了後 → 5秒待って再開
+      setTimeout(()=>{
+        setTimeout(startScroll, 5000);
+      }, duration * 1000);
+
+    }
+
+    startScroll();
 
   });
 
@@ -524,6 +538,7 @@ setInterval(loadTransport, 30000);
 
 </body>
 </html>
+
 
 
 
