@@ -73,8 +73,8 @@ body{
   box-shadow:0 0 12px rgba(0,195,255,0.25);
 }
 .jr-row{ display:flex; font-size:22px; padding:5px 0; border-bottom:1px solid #333; }
-.jr-time{ width:100px; color:white; font-weight:bold; font-size: 30px; }
-.jr-dest{ flex:1; color:white; font-size: 30px; }
+.jr-time{ width:100px; color:white; font-weight:bold; font-size: 20px; }
+.jr-dest{ flex:1; color:white; font-size: 20px; }
 
 /* ★ここを修正：停車駅が半分見えない問題を解消★ */
 .stops{ 
@@ -258,24 +258,24 @@ function renderTransport() {
           <h3>（アルピコ交通） ${stop.name}</h3>
           <div class="bus-columns">
             <div class="bus-col">
-              <b>▶ （城山小学校前）長野駅・松岡・大塚南方面</b>
+              <b>▶ 城山小学校前-長野駅・松岡・大塚南方面</b>
               ${toS.length ? toS.map(t => `
                 <div class="schedule-card">
                   <div class="jr-time" style="width:80px;">${t.time}</div>
                   <div class="jr-dest">
-                    <span style="color:#0af; font-size:30px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>
+                    <span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>
                     ${t.dest}
                     <div style="font-size:12px; color:#aaa; margin-left:20px;">${t.via || ""}</div>
                   </div>
                 </div>`).join("") : `<div class="jr-row">終了</div>`}
             </div>
             <div class="bus-col">
-              <b>▶ （善光寺西）宇木・若槻・飯綱・戸隠方面</b>
+              <b>▶善光寺西-宇木・若槻・飯綱・戸隠方面</b>
               ${toT.length ? toT.map(t => `
                 <div class="schedule-card">
                   <div class="jr-time" style="width:80px;">${t.time}</div>
                   <div class="jr-dest">
-                    <span style="color:#0af; font-size:30px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>
+                    <span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>
                     ${t.dest}
                     <div style="font-size:12px; color:#aaa; margin-left:20px;">${t.via || ""}</div>
                   </div>
@@ -355,6 +355,7 @@ updateNowTime();
 </script>
 </body>
 </html>
+
 
 
 
