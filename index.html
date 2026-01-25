@@ -363,17 +363,20 @@ document.querySelector(".btns").innerHTML = `
 
 // 3. 交通案内（ここが修正のキモ）
 // 3. 交通案内（修正版：行き先ごとの停車駅を表示）
+// 3. 交通案内（電車とバスの両方を表示し、電車の停車駅を個別化）
 function loadTransport(force = false){
   db.ref("transport").once("value", snap=>{
     const data = snap.val();
     const dataStr = JSON.stringify(data) + mode;
 
+    // データが前回と同じなら何もしない（スクロールを邪魔しない）
     if(!force && dataStr === lastTransportData) return;
     lastTransportData = dataStr;
 
     let trainHTML = "";
     let busHTML = "";
 
+    /* 電車：行き先ごとに停車駅を出し分ける */
     if(data.train){
       for(let k in data.train){
         const st = data.train[k];
@@ -385,9 +388,7 @@ function loadTransport(force = false){
             <div><b>⬆ 上り</b></div>
         `;
 
-        // --- 上り ---
-        // 直近の1本目の停車駅を表示する設定（上りは通常「長野」のみなので固定に近い）
-        const nextUp = d.up[0];
+        // 上り（直近3本）
         d.up.slice(0,3).forEach(t=>{
           trainHTML += `
             <div class="jr-row">
@@ -397,6 +398,8 @@ function loadTransport(force = false){
           `;
         });
 
+        // 上りの停車駅表示（次の列車のデータを使用）
+        const nextUp = d.up[0];
         if(nextUp && nextUp.stops){
           trainHTML += `
             <div class="stops fixed">
@@ -405,12 +408,9 @@ function loadTransport(force = false){
           `;
         }
 
-        // --- 下り ---
         trainHTML += `<br><div><b>⬇ 下り</b></div>`;
 
-        // 直近の1本目のデータ（ここから停車駅を取得する）
-        const nextDown = d.down[0];
-
+        // 下り（直近3本）
         d.down.slice(0,3).forEach(t=>{
           trainHTML += `
             <div class="jr-row">
@@ -420,7 +420,8 @@ function loadTransport(force = false){
           `;
         });
 
-        // 🔽 ここが修正ポイント：st.downStops ではなく、次の列車の t.stops を見る
+        // 下りの停車駅表示（★ここがポイント★ 次の列車の行き先に合わせた停車駅を出す）
+        const nextDown = d.down[0];
         if(nextDown && nextDown.stops){
           trainHTML += `
             <div class="stops">
@@ -428,18 +429,47 @@ function loadTransport(force = false){
             </div>
           `;
         }
-
         trainHTML += `</div>`;
       }
     }
 
-    /* バス処理（変更なし） */
+    /* バス：元通りに表示 */
     if(data.bus){
-      // ...（既存のバス処理と同じ）
+      for(let k in data.bus){
+        const stop = data.bus[k];
+        const d = stop[mode] || { toStation: [], toTown: [] };
+        busHTML += `
+          <div class="jr-board">
+            <h3>（アルピコ交通） ${stop.name}</h3>
+            <div class="bus-columns">
+              <div class="bus-col">
+                <b>▶ 駅方面</b>
+                ${d.toStation.map(t=>`
+                  <div class="jr-row">
+                    <div class="jr-time">${t}</div>
+                    <div class="jr-dest">駅行き</div>
+                  </div>
+                `).join("")}
+              </div>
+              <div class="bus-col">
+                <b>▶ 町方面</b>
+                ${d.toTown.map(t=>`
+                  <div class="jr-row">
+                    <div class="jr-time">${t}</div>
+                    <div class="jr-dest">町行き</div>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+          </div>
+        `;
+      }
     }
 
     document.getElementById("trainBoard").innerHTML = trainHTML;
     document.getElementById("busBoard").innerHTML = busHTML;
+    
+    // スクロール開始
     setupStopScroll();
   });
 }
@@ -493,6 +523,7 @@ setInterval(loadTransport, 30000);
 
 </body>
 </html>
+
 
 
 
