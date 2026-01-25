@@ -31,6 +31,18 @@ body{ margin:0; font-family: "Trebuchet", sans-serif; background: #eaf3ff; }
 .stops.fixed{ overflow: visible; white-space: normal; animation: none; font-size:26px; }
 .bus-columns{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
 .bus-col b{ display: block; text-align: center; font-size: 22px; margin-bottom: 5px; }
+#nowClock{
+  text-align: center;
+  font-size: 26px;
+  font-weight: bold;
+  color: #0af;
+  background: black;
+  padding: 6px;
+  margin: 6px 0 10px;
+  border-radius: 6px;
+  font-family: monospace;
+  letter-spacing: 2px;
+}
 </style>
 </head>
 <body>
@@ -45,6 +57,7 @@ body{ margin:0; font-family: "Trebuchet", sans-serif; background: #eaf3ff; }
   <div id="left"><div id="list">読み込み中...</div></div>
   <div id="right">
     <h2>交通案内</h2>
+    <div id="nowClock">--:--</div>
     <div class="btns">
       <button id="btnWeek" onclick="setMode('weekday')" class="active">平日</button>
       <button id="btnHoliday" onclick="setMode('holiday')">休日</button>
@@ -88,7 +101,17 @@ function nowMin(){
   return d.getHours() * 60 + d.getMinutes();
 }
 
-// 未来の便を抽出する関数（電車：オブジェクト、バス：文字列の両方に対応）
+function updateClock(){
+  const d = new Date();
+  const h = String(d.getHours()).padStart(2,"0");
+  const m = String(d.getMinutes()).padStart(2,"0");
+  const s = String(d.getSeconds()).padStart(2,"0");
+
+  document.getElementById("nowClock").textContent =
+    `${h}:${m}:${s}`;
+}
+
+// 未来の便を抽出する関数（time を持つオブジェクト用）
 function getNextItems(list, limit = 3){
   if (!list || !Array.isArray(list)) return [];
   const now = nowMin();
@@ -240,9 +263,14 @@ db.ref("classes").on("value", snap => {
 loadTransport();
 setInterval(renderTransport, 10000);
 setInterval(loadTransport, 1800000);
+
+updateClock();
+setInterval(updateClock, 1000);
+
 </script>
 </body>
 </html>
+
 
 
 
