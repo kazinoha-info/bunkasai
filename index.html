@@ -44,10 +44,10 @@ h1{
 
 @keyframes stops-scroll {
   from {
-    transform: translateX(100%);
+    transform: translateX(var(--start));
   }
   to {
-    transform: translateX(-100%);
+    transform: translateX(var(--end));
   }
 }
 
@@ -488,48 +488,52 @@ if(st.upStops && st.upStops.length){
 
 }
 
-// 停車駅スクロール速度を統一
-// 停車駅スクロール速度を統一＋待ち時間付き
+
 function setupStopScroll(){
 
   document.querySelectorAll(".stops span").forEach(span=>{
 
-    // 一度描画待ちしてから実行
-    setTimeout(() => {
+    setTimeout(()=>{
 
       const parent = span.parentElement;
 
-      const textWidth = span.scrollWidth;
-      const boxWidth = parent.clientWidth;
+      const textW = span.scrollWidth;
+      const boxW  = parent.clientWidth;
 
-      const distance = textWidth + boxWidth;
+      // 開始位置：右の外
+      const start = boxW + "px";
 
-      const speed = 50; // px/秒
+      // 終了位置：左の外（文字全部消える）
+      const end = -textW + "px";
+
+      const distance = boxW + textW;
+
+      const speed = 60; // ←速度（大きいほど速い）
       const duration = distance / speed;
 
-      function startScroll(){
+      function play(){
 
-        // リセットアニメ
         span.style.animation = "none";
-        span.offsetHeight; // 再描画トリガー
+        span.offsetHeight;
 
-        // 思い通りに流す
-        span.style.animation = `stops-scroll ${duration}s linear`;
+        span.style.setProperty("--start", start);
+        span.style.setProperty("--end", end);
 
-        // 終了後 5秒待って再開
-        setTimeout(()=>{
-          startScroll();
-        }, (duration * 1000) + 5000);
+        span.style.animation =
+          `stops-scroll ${duration}s linear`;
 
+        // 終了＋5秒待機
+        setTimeout(play, duration*1000 + 5000);
       }
 
-      startScroll();
+      play();
 
-    }, 0); // 描画後すぐ走る
+    },100);
 
   });
 
 }
+
 
 
 // 初回読み込み
@@ -543,6 +547,7 @@ setInterval(loadTransport, 30000);
 
 </body>
 </html>
+
 
 
 
