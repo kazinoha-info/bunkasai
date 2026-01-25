@@ -170,6 +170,61 @@ body{
   font-size:20px;
   padding:18px;
 }
+#ticker-text{
+  display:inline-block;
+  min-width:200%;
+  padding-left:100%;
+  animation: scroll 35s linear infinite;
+  font-size:26px;
+  font-weight:600;
+}
+/* 混雑カード全体 */
+.crowd-grid{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap:16px;
+}
+
+/* 1枚のカード */
+.card{
+  background:#ffffff;
+  border-radius:14px;
+  padding:14px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+  font-size:16px;
+  font-weight:500;
+}
+
+/* 混雑マーク */
+.status{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-weight:bold;
+  color:white;
+}
+
+.good{ background:#4caf50; }
+.warn{ background:#ff9800; }
+.bad{ background:#f44336; }
+.legend{
+  margin-top:15px;
+  font-size:13px;
+  color:#555;
+  text-align:center;
+}
+.traffic-note{
+  font-size:12px;
+  color:#aaa;
+  text-align:center;
+  margin-top:10px;
+}
 </style>
 </head>
 <body>
@@ -181,10 +236,13 @@ body{
 </div>
 
 <div id="layout">
-  <div id="left"><div id="list">読み込み中...</div></div>
+  <div id="left"><div id="list" class="crowd-grid">読み込み中...</div></div>
   <div id="right">
   <div id="nowTime"></div>
     <h2>交通案内</h2>
+    <p class="traffic-note">
+※詳細につきましては各運行会社のホームページをご確認ください。
+</p>
     <div class="btns">
       <button id="btnWeek" onclick="setMode('weekday')" class="active">平日</button>
       <button id="btnHoliday" onclick="setMode('holiday')">休日</button>
@@ -193,6 +251,10 @@ body{
     <hr>
     <div id="busBoard"></div>
   </div>
+  <div class="legend">
+  <p>凡例：○ 空いている　△ 少し混雑　✕ 混雑</p>
+  <p>※混雑状況はあくまでも目安です。今現在の状態であるため、すぐに変わる可能性もあります。</p>
+</div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -396,13 +458,4 @@ updateNowTime();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
 
