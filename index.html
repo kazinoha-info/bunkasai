@@ -181,16 +181,6 @@ function nowMin(){
   return d.getHours() * 60 + d.getMinutes();
 }
 
-function updateClock(){
-  const d = new Date();
-  const h = String(d.getHours()).padStart(2,"0");
-  const m = String(d.getMinutes()).padStart(2,"0");
-
-  document.getElementById("nowClock").textContent =
-    `${h}:${m}`;
-}
-
-
 // 未来の便を抽出する関数（time を持つオブジェクト用）
 function getNextItems(list, limit = 3){
   if (!list || !Array.isArray(list)) return [];
@@ -344,9 +334,6 @@ loadTransport();
 setInterval(renderTransport, 10000);
 setInterval(loadTransport, 1800000);
 
-updateClock();
-setInterval(updateClock, 1000);
-
 function updateNowTime(){
   const d = new Date();
   const h = String(d.getHours()).padStart(2,"0");
@@ -362,6 +349,7 @@ updateNowTime();
 </script>
 </body>
 </html>
+
 
 
 
