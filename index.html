@@ -508,12 +508,8 @@ function setupStopScroll(){
 
     const wait = 5; // ← 消えてから5秒待つ
 
-    span.style.animation = `
-      stops-scroll ${duration}s linear ${wait}s infinite
-    `;
-  });
+   span.style.animation = `stops-scroll ${duration}s linear ${wait}s infinite`;
 
-}
 
 loadTransport();
 
@@ -523,6 +519,7 @@ setInterval(loadTransport, 30000); // 30秒ごと更新
 
 </body>
 </html>
+
 
 
 
