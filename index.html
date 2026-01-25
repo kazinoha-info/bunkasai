@@ -364,112 +364,104 @@ document.querySelector(".btns").innerHTML = `
 // 3. 交通案内（ここが修正のキモ）
 // 3. 交通案内（修正版：行き先ごとの停車駅を表示）
 // 3. 交通案内（電車とバスの両方を表示し、電車の停車駅を個別化）
+// 3. 交通案内（レイアウト変更版：1番目とその停車駅をセットにする）
 function loadTransport(force = false){
   db.ref("transport").once("value", snap=>{
     const data = snap.val();
     const dataStr = JSON.stringify(data) + mode;
 
-    // データが前回と同じなら何もしない（スクロールを邪魔しない）
     if(!force && dataStr === lastTransportData) return;
     lastTransportData = dataStr;
 
     let trainHTML = "";
     let busHTML = "";
 
-    /* 電車：行き先ごとに停車駅を出し分ける */
     if(data.train){
       for(let k in data.train){
         const st = data.train[k];
         const d = st[mode] || { up: [], down: [] };
 
-        trainHTML += `
-          <div class="jr-board">
-            <h3>（長野電鉄） ${st.name}</h3>
-            <div><b>⬆ 上り</b></div>
-        `;
+        trainHTML += `<div class="jr-board"><h3>（長野電鉄） ${st.name}</h3>`;
 
-        // 上り（直近3本）
-        d.up.slice(0,3).forEach(t=>{
+        // --- 上り（長野方面） ---
+        const u = d.up || [];
+        trainHTML += `<div><b>⬆ 上り 長野方面</b></div>`;
+        if(u.length > 0) {
+          // 1番目（大きく表示）
           trainHTML += `
-            <div class="jr-row">
-              <div class="jr-time">${t.time}</div>
-              <div class="jr-dest">${t.dest}</div>
+            <div class="jr-row" style="background: #111; border-left: 4px solid #0af;">
+              <div class="jr-time" style="font-size: 30px; width: 100px;">${u[0].time}</div>
+              <div class="jr-dest" style="font-size: 30px; color: #ff9800;">${u[0].dest}</div>
+            </div>
+            <div class="stops fixed" style="margin-bottom: 10px; border-bottom: 1px dashed #444; padding-bottom: 5px;">
+              停車駅 ▶ ${u[0].stops ? u[0].stops.join(" → ") : "各駅停車"}
             </div>
           `;
-        });
-
-        // 上りの停車駅表示（次の列車のデータを使用）
-        const nextUp = d.up[0];
-        if(nextUp && nextUp.stops){
-          trainHTML += `
-            <div class="stops fixed">
-              停車駅 ▶ ${nextUp.stops.join(" → ")}
-            </div>
-          `;
+          // 2番目・3番目（少し小さく並べる）
+          u.slice(1,3).forEach(t=>{
+            trainHTML += `
+              <div class="jr-row" style="opacity: 0.8; font-size: 20px;">
+                <div class="jr-time">${t.time}</div>
+                <div class="jr-dest">${t.dest}</div>
+              </div>
+            `;
+          });
         }
 
-        trainHTML += `<br><div><b>⬇ 下り</b></div>`;
+        trainHTML += `<br><div><b>⬇ 下り 信州中野・湯田中方面</b></div>`;
 
-        // 下り（直近3本）
-        d.down.slice(0,3).forEach(t=>{
+        // --- 下り（中野方面） ---
+        const dn = d.down || [];
+        if(dn.length > 0) {
+          // 1番目（大きく表示 ＋ スクロール停車駅）
           trainHTML += `
-            <div class="jr-row">
-              <div class="jr-time">${t.time}</div>
-              <div class="jr-dest">${t.dest}</div>
+            <div class="jr-row" style="background: #111; border-left: 4px solid #f44;">
+              <div class="jr-time" style="font-size: 30px; width: 100px;">${dn[0].time}</div>
+              <div class="jr-dest" style="font-size: 30px; color: #ff9800;">${dn[0].dest}</div>
             </div>
-          `;
-        });
-
-        // 下りの停車駅表示（★ここがポイント★ 次の列車の行き先に合わせた停車駅を出す）
-        const nextDown = d.down[0];
-        if(nextDown && nextDown.stops){
-          trainHTML += `
             <div class="stops">
-              <span>次は ${nextDown.dest} 行き： 停車駅 ▶ ${nextDown.stops.join(" → ")}</span>
+              <span>停車駅 ▶ ${dn[0].stops ? dn[0].stops.join(" → ") : "各駅停車"}</span>
             </div>
+            <div style="height: 10px; border-bottom: 1px dashed #444; margin-bottom: 10px;"></div>
           `;
+          // 2番目・3番目
+          dn.slice(1,3).forEach(t=>{
+            trainHTML += `
+              <div class="jr-row" style="opacity: 0.8; font-size: 20px;">
+                <div class="jr-time">${t.time}</div>
+                <div class="jr-dest">${t.dest}</div>
+              </div>
+            `;
+          });
         }
         trainHTML += `</div>`;
       }
     }
 
-    /* バス：元通りに表示 */
+    /* バス表示：変更なし（前回と同じループ処理を記述） */
     if(data.bus){
       for(let k in data.bus){
         const stop = data.bus[k];
-        const d = stop[mode] || { toStation: [], toTown: [] };
+        const bd = stop[mode] || { toStation: [], toTown: [] };
         busHTML += `
           <div class="jr-board">
             <h3>（アルピコ交通） ${stop.name}</h3>
             <div class="bus-columns">
               <div class="bus-col">
                 <b>▶ 駅方面</b>
-                ${d.toStation.map(t=>`
-                  <div class="jr-row">
-                    <div class="jr-time">${t}</div>
-                    <div class="jr-dest">駅行き</div>
-                  </div>
-                `).join("")}
+                ${bd.toStation.map(t=>`<div class="jr-row"><div class="jr-time">${t}</div><div class="jr-dest">駅行き</div></div>`).join("")}
               </div>
               <div class="bus-col">
                 <b>▶ 町方面</b>
-                ${d.toTown.map(t=>`
-                  <div class="jr-row">
-                    <div class="jr-time">${t}</div>
-                    <div class="jr-dest">町行き</div>
-                  </div>
-                `).join("")}
+                ${bd.toTown.map(t=>`<div class="jr-row"><div class="jr-time">${t}</div><div class="jr-dest">町行き</div></div>`).join("")}
               </div>
             </div>
-          </div>
-        `;
+          </div>`;
       }
     }
 
     document.getElementById("trainBoard").innerHTML = trainHTML;
     document.getElementById("busBoard").innerHTML = busHTML;
-    
-    // スクロール開始
     setupStopScroll();
   });
 }
@@ -523,6 +515,7 @@ setInterval(loadTransport, 30000);
 
 </body>
 </html>
+
 
 
 
