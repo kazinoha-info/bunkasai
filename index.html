@@ -285,7 +285,7 @@ h1{
 
   <!-- 右：時刻表 -->
   <div id="right">
-  <h2>🚍🚃 交通案内</h2>
+  <h2>交通案内</h2>
   <div class="btns"></div>
     
   <!-- 電車 -->
@@ -360,34 +360,68 @@ function loadTransport(force = false){
     let busHTML = "";
 
     /* 電車 */
-    if(data.train){
-      for(let k in data.train){
-        const st = data.train[k];
-        const d = st[mode] || { up: [], down: [] };
-        trainHTML += `<div class="jr-board"><h3>🚉 ${st.name}</h3><div><b>⬇ 下り</b></div>`;
-        d.down.slice(0,3).forEach(t=>{
-          trainHTML += `<div class="jr-row"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
-        });
-        if(st.downStops && st.downStops.length){
-          trainHTML += `<div class="stops"><span>停車駅 ▶ ${st.downStops.join(" → ")}</span></div>`;
-        }
-        trainHTML += `<br><b>⬆ 上り</b><br>`;
-        d.up.slice(0,3).forEach(t=>{
-          trainHTML += `<div class="jr-row"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
-        });
-        if(st.upStops && st.upStops.length){
-          trainHTML += `<div class="stops fixed">停車駅 ▶ ${st.upStops.join(" → ")}</div>`;
-        }
-        trainHTML += `</div>`;
-      }
+    /* 電車 */
+if(data.train){
+  for(let k in data.train){
+    const st = data.train[k];
+    const d = st[mode] || { up: [], down: [] };
+
+    trainHTML += `
+      <div class="jr-board">
+        <h3>（長野電鉄） ${st.name}</h3>
+
+        <div><b>⬆ 上り</b></div>
+    `;
+
+    // 上り
+    d.up.slice(0,3).forEach(t=>{
+      trainHTML += `
+        <div class="jr-row">
+          <div class="jr-time">${t.time}</div>
+          <div class="jr-dest">${t.dest}</div>
+        </div>
+      `;
+    });
+
+    if(st.upStops && st.upStops.length){
+      trainHTML += `
+        <div class="stops fixed">
+          停車駅 ▶ ${st.upStops.join(" → ")}
+        </div>
+      `;
     }
+
+    // 下り
+    trainHTML += `<br><div><b>⬇ 下り</b></div>`;
+
+    d.down.slice(0,3).forEach(t=>{
+      trainHTML += `
+        <div class="jr-row">
+          <div class="jr-time">${t.time}</div>
+          <div class="jr-dest">${t.dest}</div>
+        </div>
+      `;
+    });
+
+    if(st.downStops && st.downStops.length){
+      trainHTML += `
+        <div class="stops">
+          <span>停車駅 ▶ ${st.downStops.join(" → ")}</span>
+        </div>
+      `;
+    }
+
+    trainHTML += `</div>`;
+  }
+}
+
 
     /* バス */
     if(data.bus){
       for(let k in data.bus){
         const stop = data.bus[k];
         const d = stop[mode] || { toStation: [], toTown: [] };
-        busHTML += `<div class="jr-board"><h3>🚌 ${stop.name}</h3><b>▶ 駅方面</b><br>${d.toStation.map(t=>`<div class="jr-row"><div class="jr-time">${t}</div><div class="jr-dest">駅行き</div></div>`).join("")}<br><b>▶ 町方面</b><br>${d.toTown.map(t=>`<div class="jr-row"><div class="jr-time">${t}</div><div class="jr-dest">町行き</div></div>`).join("")}</div>`;
+        busHTML += `<div class="jr-board"><h3>（アルピコ交通） ${stop.name}</h3><b>▶ 駅方面</b><br>${d.toStation.map(t=>`<div class="jr-row"><div class="jr-time">${t}</div><div class="jr-dest">駅行き</div></div>`).join("")}<br><b>▶ 町方面</b><br>${d.toTown.map(t=>`<div class="jr-row"><div class="jr-time">${t}</div><div class="jr-dest">町行き</div></div>`).join("")}</div>`;
       }
     }
 
@@ -448,6 +482,7 @@ setInterval(loadTransport, 30000);
 
 </body>
 </html>
+
 
 
 
