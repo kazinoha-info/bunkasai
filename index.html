@@ -328,7 +328,7 @@ function timeToMin(t){
 // 今の時刻（分）
 function nowMin(){
   const d = new Date();
-  return d.getHours()*60 + d.getMinutes();
+  return d.getHours()*60 + d.getMinutes() + d.getSeconds()/60;
 }
 
 function getNextTrains(list){
@@ -532,8 +532,9 @@ function setupStopScroll() {
 loadTransport();
 
 // 30秒ごとにチェック（データが変わった時だけ書き換わる）
-setInterval(loadTransport, 30000);
+setInterval(loadTransport, 5000);
 </script>
 
 </body>
 </html>
+
