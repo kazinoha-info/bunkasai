@@ -355,6 +355,8 @@ function getNextTrains(list){
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+let transportCache = null; // ← これを追加！！
+
 // --- 状態管理用 ---
 let lastTransportData = ""; 
 
@@ -390,7 +392,9 @@ document.querySelector(".btns").innerHTML = `
 function loadTransport(force = false){
   db.ref("transport").once("value", snap=>{
     const data = snap.val();
+    transportCache = data;   // ← これを追加！！
     const dataStr = JSON.stringify(data) + mode;
+
 
     if(!force && dataStr === lastTransportData) return;
     lastTransportData = dataStr;
@@ -537,4 +541,5 @@ setInterval(loadTransport, 5000);
 
 </body>
 </html>
+
 
