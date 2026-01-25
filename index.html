@@ -266,6 +266,21 @@ h1{
   font-size:26px;
 }
 
+/* ===== バス用 横並びレイアウト ===== */
+.bus-columns{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.bus-col b{
+  display: block;
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 5px;
+}
+
 </style>
 
 </head>
@@ -360,7 +375,6 @@ function loadTransport(force = false){
     let busHTML = "";
 
     /* 電車 */
-    /* 電車 */
 if(data.train){
   for(let k in data.train){
     const st = data.train[k];
@@ -421,7 +435,38 @@ if(data.train){
       for(let k in data.bus){
         const stop = data.bus[k];
         const d = stop[mode] || { toStation: [], toTown: [] };
-        busHTML += `<div class="jr-board"><h3>（アルピコ交通） ${stop.name}</h3><b>▶ 駅方面</b><br>${d.toStation.map(t=>`<div class="jr-row"><div class="jr-time">${t}</div><div class="jr-dest">駅行き</div></div>`).join("")}<br><b>▶ 町方面</b><br>${d.toTown.map(t=>`<div class="jr-row"><div class="jr-time">${t}</div><div class="jr-dest">町行き</div></div>`).join("")}</div>`;
+        busHTML += `
+  <div class="jr-board">
+    <h3>（アルピコ交通） ${stop.name}</h3>
+
+    <div class="bus-columns">
+      
+      <!-- 駅方面 -->
+      <div class="bus-col">
+        <b>▶ 駅方面</b>
+        ${d.toStation.map(t=>`
+          <div class="jr-row">
+            <div class="jr-time">${t}</div>
+            <div class="jr-dest">駅行き</div>
+          </div>
+        `).join("")}
+      </div>
+
+      <!-- 町方面 -->
+      <div class="bus-col">
+        <b>▶ 町方面</b>
+        ${d.toTown.map(t=>`
+          <div class="jr-row">
+            <div class="jr-time">${t}</div>
+            <div class="jr-dest">町行き</div>
+          </div>
+        `).join("")}
+      </div>
+
+    </div>
+  </div>
+`;
+
       }
     }
 
@@ -482,6 +527,7 @@ setInterval(loadTransport, 30000);
 
 </body>
 </html>
+
 
 
 
