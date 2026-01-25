@@ -258,7 +258,7 @@ function renderTransport() {
           <h3>（アルピコ交通） ${stop.name}</h3>
           <div class="bus-columns">
             <div class="bus-col">
-              <b>▶ 城山小学校前：長野駅・松岡・大塚南方面</b>
+              <b>▶ 長野駅・松岡・大塚南方面</b>
               ${toS.length ? toS.map(t => `
                 <div class="schedule-card">
                   <div class="jr-time" style="width:80px;">${t.time}</div>
@@ -270,7 +270,7 @@ function renderTransport() {
                 </div>`).join("") : `<div class="jr-row">終了</div>`}
             </div>
             <div class="bus-col">
-              <b>▶ 善光寺西：宇木・若槻・飯綱・戸隠方面</b>
+              <b>▶ 宇木・若槻・飯綱・戸隠方面</b>
               ${toT.length ? toT.map(t => `
                 <div class="schedule-card">
                   <div class="jr-time" style="width:80px;">${t.time}</div>
@@ -355,6 +355,7 @@ updateNowTime();
 </script>
 </body>
 </html>
+
 
 
 
