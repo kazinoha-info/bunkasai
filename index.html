@@ -5,22 +5,67 @@
   <title>文化祭案内</title>
 <style>
 /* スタイル設定（変更なし） */
-body{ margin:0; font-family: "Trebuchet", sans-serif; background: #eaf3ff; }
-#ticker{ background:#ed7d0c; color:white; overflow:hidden; white-space:nowrap; height:100px; line-height:100px; }
-#ticker-text{ display:inline-block; padding-left:100%; animation: scroll 60s linear infinite; font-size: 32px; font-weight: bold; }
+body{
+  margin:0;
+  font-family: "Segoe UI", "Noto Sans JP", sans-serif;
+  background: linear-gradient(180deg,#f7f9fc,#eaf3ff);
+}
+#ticker{
+  background: linear-gradient(90deg,#ff9800,#ff6f00);
+  color:white;
+  height:80px;
+  line-height:80px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
+#ticker-text{
+  font-size:26px;
+  font-weight:600;
+}
 @keyframes scroll{ from{ transform: translateX(0); } to{ transform: translateX(-100%); } }
 #layout{ display:grid; grid-template-columns: 3fr 2fr; height: calc(100vh - 100px); }
 #right h2{ font-size:28px; font-weight:bold; color:white; background:black; padding:8px; border-radius:6px; text-align:center; }
 #left{ overflow:auto; }
 #list{ display:grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap:15px; padding:20px; }
-.card{ background:white; border-radius:10px; padding:15px; box-shadow:0 2px 5px rgba(0,0,0,0.1); text-align:center; font-size:18px; }
+.card{
+  background:white;
+  border-radius:15px;
+  padding:15px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  transition:0.2s;
+}
+.card:hover{
+  transform:translateY(-3px);
+}
 .status{ font-size:28px; font-weight:bold; margin-top:10px; }
 .ok{ color:#2e7d32; } .mid{ color:#f9a825; } .ng{ color:#c62828; }
-#right{ background:#f5f9ff; padding:15px; border-left:2px solid #bbdefb; overflow-y:auto; }
+#right{
+  background:white;
+  margin:10px;
+  border-radius:15px;
+  padding:15px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  overflow-y:auto;
+}
 .btns{ margin:10px 0; }
-.btns button{ padding:8px 15px; margin-right:5px; border:none; border-radius:5px; background:#1565c0; color:white; cursor:pointer; border-radius:6px;}
-.btns button.active{ background:#ff9800; color:black; font-weight:bold; }
-.jr-board{ background:black; color:#0af; font-family: monospace; padding:15px; border-radius:10px; margin-bottom:15px; width: 100%; box-sizing: border-box; }
+.btns button{
+  background: #eee;
+  color:#333;
+  font-weight:600;
+  border-radius:20px;
+  padding:6px 16px;
+}
+.btns button.active{
+  background:#ff9800;
+  color:white;
+}
+.jr-board{
+  background: linear-gradient(180deg,#000,#111);
+  color:#00c3ff;
+  border-radius:15px;
+  padding:18px;
+  margin-bottom:20px;
+  box-shadow:0 0 15px rgba(0,195,255,0.3);
+}
 .jr-row{ display:flex; font-size:22px; padding:5px 0; border-bottom:1px solid #333; }
 .jr-time{ width:100px; color:#0af; }
 .jr-dest{ flex:1; color:white; }
@@ -270,6 +315,7 @@ setInterval(updateClock, 1000);
 </script>
 </body>
 </html>
+
 
 
 
