@@ -317,6 +317,28 @@ h1{
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
+
+
+// "9:25" → 565 (分) に変換
+function timeToMin(t){
+  const [h,m] = t.split(":").map(Number);
+  return h*60 + m;
+}
+
+// 今の時刻（分）
+function nowMin(){
+  const d = new Date();
+  return d.getHours()*60 + d.getMinutes();
+}
+
+function getNextTrains(list){
+  const now = nowMin();
+
+  return list
+    .filter(t => timeToMin(t.time) >= now) // 未来だけ
+    .slice(0,3); // 3本だけ
+}
+
   // 🔽 Firebase設定（君のやつ用にもう入れてある）
   const firebaseConfig = {
   apiKey: "AIzaSyDTHN-YfAJz86NgNAaldixubGfDZwRgnKw",
@@ -384,7 +406,7 @@ function loadTransport(force = false){
         trainHTML += `<div class="jr-board"><h3>（長野電鉄） ${st.name}</h3>`;
 
         // --- 上り（長野方面） ---
-        const u = d.up || [];
+        const u = getNextTrains(d.up || []);
         trainHTML += `<div><b>⬆ 上り 長野方面</b></div>`;
         if(u.length > 0) {
           // 1番目（大きく表示）
@@ -411,7 +433,7 @@ function loadTransport(force = false){
         trainHTML += `<br><div><b>⬇ 下り 信州中野・湯田中方面</b></div>`;
 
         // --- 下り（中野方面） ---
-        const dn = d.down || [];
+        const dn = getNextTrains(d.down || []);
         if(dn.length > 0) {
           // 1番目（大きく表示 ＋ スクロール停車駅）
           trainHTML += `
@@ -515,11 +537,3 @@ setInterval(loadTransport, 30000);
 
 </body>
 </html>
-
-
-
-
-
-
-
-
