@@ -5,190 +5,191 @@
   <title>文化祭案内サイネージ</title>
 <style>
   :root {
-    --main-blue: #4472c4;
-    --bg-light: #f0f4f8;
-    --text-dark: #333;
+    --main-navy: #1a2a44;
+    --sub-blue: #4472c4;
+    --bg-light: #f4f7f9;
+    --status-ok: #28a745;
+    --status-mid: #ffc107;
+    --status-ng: #dc3545;
   }
 
   body {
     margin: 0;
     font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-    background-color: #e2eaf4;
+    background-color: var(--bg-light);
     height: 100vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    color: #333;
   }
 
-  /* 上部テロップ */
+  /* テロップ */
   #ticker {
     background: #ff8c00;
     color: white;
     overflow: hidden;
     white-space: nowrap;
-    height: 50px;
-    line-height: 50px;
-    font-size: 22px;
+    height: 45px;
+    line-height: 45px;
+    font-size: 20px;
     font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
-  #ticker-text {
-    display: inline-block;
-    padding-left: 100%;
-    animation: scroll 30s linear infinite;
-  }
+  #ticker-text { display: inline-block; padding-left: 100%; animation: scroll 35s linear infinite; }
   @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
 
   #main-layout {
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
+    grid-template-columns: 1.1fr 0.9fr;
     gap: 15px;
     padding: 15px;
     flex: 1;
     min-height: 0;
   }
 
-  /* 左側：混雑状況 */
+  /* 左：混雑状況 */
   #left-panel {
     background: white;
-    border-radius: 15px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   }
-  #crowd-list {
+  .grade-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    overflow-y: auto;
+    gap: 20px;
     flex: 1;
-    padding-right: 5px;
+    overflow-y: auto;
+  }
+  .grade-col h4 {
+    text-align: center;
+    background: var(--main-navy);
+    color: white;
+    margin: 0 0 10px 0;
+    padding: 8px;
+    border-radius: 5px;
   }
   .crowd-card {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    margin-bottom: 10px;
   }
   .class-name {
     flex: 1;
-    background: var(--main-blue);
+    background: var(--sub-blue);
     color: white;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 18px;
-    text-align: center;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 16px;
     font-weight: bold;
+    text-align: center;
   }
   .status-box {
-    width: 45px;
-    height: 45px;
-    border-radius: 8px;
-    border: 2px solid var(--main-blue);
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--main-blue);
-  }
-  .legend-area {
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px solid #eee;
-    text-align: center;
-    font-size: 18px;
-    color: #555;
-  }
-
-  /* 右側：交通案内 */
-  #right-panel {
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    overflow-y: auto;
-  }
-  #now-time-bar {
-    background: black;
-    color: white;
-    text-align: center;
-    padding: 8px;
     font-size: 22px;
     font-weight: bold;
-    border-radius: 8px;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  }
+  .status-ok { background: var(--status-ok); }
+  .status-mid { background: var(--status-mid); color: #333; text-shadow: none; }
+  .status-ng { background: var(--status-ng); }
+
+  /* 右：交通案内 */
+  #right-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  #now-time-bar {
+    background: #000;
+    color: #fff;
+    text-align: center;
+    padding: 6px;
+    font-size: 22px;
+    font-weight: bold;
+    border-radius: 6px;
     margin-bottom: 10px;
   }
   .section-title {
-    background: black;
+    background: #333;
     color: white;
     text-align: center;
-    padding: 8px;
-    font-size: 22px;
-    border-radius: 8px;
-    margin-bottom: 15px;
+    padding: 6px;
+    font-size: 20px;
+    border-radius: 6px;
+    margin-bottom: 10px;
   }
 
-  /* モード切替ボタン */
-  .mode-btns { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
-  .mode-btns button {
-    border: 1px solid #ccc; background: white; padding: 5px 15px; border-radius: 15px; cursor: pointer;
-  }
-  .mode-btns button.active { background: #ff8c00; color: white; border-color: #ff8c00; }
-
-  /* 電車・バス共通ボード */
   .transport-card {
-    background: black;
+    background: #000;
     color: white;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 15px;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 12px;
   }
-  .transport-card h3 { margin: 0 0 10px 0; font-size: 20px; color: white; border-bottom: 1px solid #444; padding-bottom: 5px; }
-  .direction { font-size: 16px; font-weight: bold; margin: 10px 0 5px; display: flex; align-items: center; gap: 5px; }
+  .transport-card h3 { margin: 0 0 8px 0; font-size: 18px; border-bottom: 1px solid #444; color: #fff; }
+  .dir-label { font-size: 15px; color: #ffae00; font-weight: bold; margin: 8px 0 4px; display: block; }
   
-  .row { display: flex; align-items: baseline; padding: 4px 0; border-bottom: 1px solid #222; }
-  .time { width: 70px; font-size: 22px; font-weight: bold; color: white; }
-  .dest { flex: 1; font-size: 20px; }
-  .line-tag { font-size: 12px; border: 1px solid #0af; color: #0af; padding: 0 3px; margin-right: 5px; vertical-align: middle; }
+  .row { display: flex; align-items: baseline; border-bottom: 1px solid #222; padding: 2px 0; }
+  .time { width: 65px; font-size: 22px; font-weight: bold; }
+  .dest { flex: 1; font-size: 19px; }
+  .line-tag { font-size: 11px; border: 1px solid #0af; color: #0af; padding: 0 3px; margin-right: 4px; }
+  .via-text { font-size: 12px; color: #aaa; margin-left: 20px; }
 
-  /* 停車駅スクロール */
-  .stops-scroll {
-    font-size: 14px; color: #aaa; overflow: hidden; white-space: nowrap; margin-top: 2px; height: 1.2em;
-  }
-  .stops-scroll span { display: inline-block; padding-left: 100%; animation: scroll-stops 15s linear infinite; }
-  @keyframes scroll-stops { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+  /* 停車駅表示用 */
+  .stops-area { font-size: 13px; color: #999; height: 1.4em; overflow: hidden; position: relative; margin-top: 2px; }
+  .stops-fixed { color: #888; }
+  .stops-scroll-wrap { display: inline-block; white-space: nowrap; position: absolute; left: 100%; }
 
   .bus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .mode-btns { display: flex; gap: 8px; margin-bottom: 10px; justify-content: center; }
+  .mode-btns button { border: 1px solid #ddd; background: #eee; padding: 4px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; }
+  .mode-btns button.active { background: var(--sub-blue); color: white; border-color: var(--sub-blue); }
 </style>
 </head>
 <body>
 
 <div id="ticker">
-  <div id="ticker-text">第67回梶の葉祭にご来場くださいましてありがとうございます。熱中症対策にご協力お願いします。</div>
+  <div id="ticker-text">第67回梶の葉祭にご来場ありがとうございます。熱中症対策のため、こまめな水分補給をお願いします。</div>
 </div>
 
 <div id="main-layout">
   <div id="left-panel">
-    <div id="crowd-list">読み込み中...</div>
-    <div class="legend-area">
-      凡例：○ 空いている &nbsp; △ 少し混雑 &nbsp; × 混雑
+    <div class="grade-container">
+      <div class="grade-col">
+        <h4>1年</h4>
+        <div id="list-1year"></div>
+      </div>
+      <div class="grade-col">
+        <h4>2年</h4>
+        <div id="list-2year"></div>
+      </div>
+    </div>
+    <div style="text-align:center; font-size:16px; margin-top:10px; color:#666;">
+      凡例：<span style="color:var(--status-ok)">○空</span> &nbsp; <span style="color:#d4a017">△混</span> &nbsp; <span style="color:var(--status-ng)">×満</span>
     </div>
   </div>
 
   <div id="right-panel">
-    <div id="now-time-bar">現在時刻 --:--</div>
+    <div id="now-time-bar">--:--</div>
     <div class="section-title">交通案内</div>
-    
     <div class="mode-btns">
       <button id="btnWeek" onclick="setMode('weekday')" class="active">平日</button>
       <button id="btnHoliday" onclick="setMode('holiday')">休日</button>
     </div>
-
-    <div id="train-container"></div>
-    <div id="bus-container"></div>
+    <div id="transport-list" style="overflow-y:auto; flex:1;"></div>
   </div>
 </div>
 
@@ -196,7 +197,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-  // Firebase設定
   const firebaseConfig = {
     apiKey: "AIzaSyDTHN-YfAJz86NgNAaldixubGfDZwRgnKw",
     authDomain: "bunkasai-info-59212.firebaseapp.com",
@@ -213,7 +213,7 @@
   let transportData = null;
 
   function timeToMin(t) {
-    if(!t) return 0;
+    if(!t || typeof t !== "string") return 0;
     const [h,m] = t.split(":").map(Number);
     return h * 60 + m;
   }
@@ -222,7 +222,7 @@
     if (!list) return [];
     const now = new Date();
     const nowM = now.getHours() * 60 + now.getMinutes();
-    return list.filter(i => timeToMin(i.time || i) >= nowM).slice(0, limit);
+    return list.filter(i => timeToMin(i.time) >= nowM).slice(0, limit);
   }
 
   function setMode(m) {
@@ -232,67 +232,95 @@
     renderTransport();
   }
 
-  // 交通案内描画
+  // 下り電車のスクロールアニメーション制御
+  function startScroll(el) {
+    const parentWidth = el.parentElement.clientWidth;
+    const selfWidth = el.scrollWidth;
+    const duration = (parentWidth + selfWidth) / 40; // 速度調整
+
+    function animate() {
+      el.style.transition = 'none';
+      el.style.left = '100%';
+      el.getBoundingClientRect();
+      el.style.transition = `left ${duration}s linear`;
+      el.style.left = `-${selfWidth}px`;
+
+      setTimeout(() => {
+        setTimeout(animate, 5000); // 抜けきってから5秒待機
+      }, duration * 1000);
+    }
+    animate();
+  }
+
   function renderTransport() {
     if (!transportData) return;
+    let html = "";
     
     // 電車
-    let trHtml = "";
     for (let k in transportData.train) {
       const st = transportData.train[k];
       const d = st[mode] || { up: [], down: [] };
       const ups = getNextItems(d.up, 3);
       const dns = getNextItems(d.down, 3);
 
-      trHtml += `<div class="transport-card"><h3>（長野電鉄） ${st.name}駅</h3>`;
-      trHtml += `<div class="direction">⬆ 上り 長野方面</div>`;
-      trHtml += ups.length ? ups.map(t => `
+      html += `<div class="transport-card"><h3>長野電鉄 ${st.name}駅</h3>`;
+      html += `<span class="dir-label">⬆ 上り 長野方面</span>`;
+      html += ups.length ? ups.map(t => `
         <div class="row"><div class="time">${t.time}</div><div class="dest">${t.dest}</div></div>
-        <div class="stops-scroll"><span>停車駅：${t.stops ? t.stops.join(" → ") : "各駅停車"}</span></div>
+        <div class="stops-area stops-fixed">停車駅：善光寺下・権堂・市役所前・長野</div>
       `).join("") : "<div>運転終了</div>";
       
-      trHtml += `<div class="direction">⬇ 下り 須坂・中野方面</div>`;
-      trHtml += dns.length ? dns.map(t => `
+      html += `<span class="dir-label">⬇ 下り 須坂・信州中野方面</span>`;
+      html += dns.length ? dns.map((t, i) => `
         <div class="row"><div class="time">${t.time}</div><div class="dest">${t.dest}</div></div>
-        <div class="stops-scroll"><span>停車駅：${t.stops ? t.stops.join(" → ") : "各駅停車"}</span></div>
+        <div class="stops-area">
+          <div class="stops-scroll-wrap" id="scroll-dn-${i}">停車駅：${t.stops ? t.stops.join(" → ") : "各駅停車"}</div>
+        </div>
       `).join("") : "<div>運転終了</div>";
-      trHtml += `</div>`;
+      html += `</div>`;
     }
-    document.getElementById("train-container").innerHTML = trHtml;
 
     // バス
-    let bsHtml = "";
     for (let k in transportData.bus) {
       const stop = transportData.bus[k];
       const d = stop[mode] || { toStation: [], toTown: [] };
       const toS = getNextItems(d.toStation, 3);
       const toT = getNextItems(d.toTown, 3);
 
-      bsHtml += `<div class="transport-card"><h3>（アルピコ交通） ${stop.name}</h3>
+      html += `<div class="transport-card"><h3>アルピコ交通 ${stop.name}</h3>
         <div class="bus-grid">
-          <div><div class="direction">▶ 駅・松岡方面</div>
-            ${toS.length ? toS.map(t => `<div class="row"><div class="time">${t.time}</div><div class="dest"><span class="line-tag">${t.line}</span>${t.dest}</div></div>`).join("") : "<div>終了</div>"}
+          <div><span class="dir-label">▶ 長野駅方面</span>
+            ${toS.length ? toS.map(t => `<div class="row"><div class="time">${t.time}</div><div class="dest"><span class="line-tag">${t.line}</span>${t.dest}</div></div><div class="via-text">${t.via || ""}</div>`).join("") : "<div>終了</div>"}
           </div>
-          <div><div class="direction">▶ 若槻・戸隠方面</div>
-            ${toT.length ? toT.map(t => `<div class="row"><div class="time">${t.time}</div><div class="dest"><span class="line-tag">${t.line}</span>${t.dest}</div></div>`).join("") : "<div>終了</div>"}
+          <div><span class="dir-label">▶ 宇木・若槻方面</span>
+            ${toT.length ? toT.map(t => `<div class="row"><div class="time">${t.time}</div><div class="dest"><span class="line-tag">${t.line}</span>${t.dest}</div></div><div class="via-text">${t.via || ""}</div>`).join("") : "<div>終了</div>"}
           </div>
         </div></div>`;
     }
-    document.getElementById("bus-container").innerHTML = bsHtml;
+    document.getElementById("transport-list").innerHTML = html;
+    
+    // 下りスクロール開始
+    dns.forEach((_, i) => {
+      const el = document.getElementById(`scroll-dn-${i}`);
+      if(el) startScroll(el);
+    });
   }
 
-  // 混雑状況取得
+  // 混雑状況（1年・2年分割）
   db.ref("classes").on("value", snap => {
     const data = snap.val();
-    let html = "";
+    let html1 = "", html2 = "";
     for (let key in data) {
-      html += `
-        <div class="crowd-card">
-          <div class="class-name">${data[key].name}</div>
-          <div class="status-box">${data[key].status}</div>
-        </div>`;
+      const item = data[key];
+      const s = item.status;
+      const sCls = s === "○" ? "status-ok" : s === "△" ? "status-mid" : "status-ng";
+      const card = `<div class="crowd-card"><div class="class-name">${item.name}</div><div class="status-box ${sCls}">${s}</div></div>`;
+      
+      if (item.name.includes("1年")) html1 += card;
+      else if (item.name.includes("2年")) html2 += card;
     }
-    document.getElementById("crowd-list").innerHTML = html;
+    document.getElementById("list-1year").innerHTML = html1;
+    document.getElementById("list-2year").innerHTML = html2;
   });
 
   db.ref("transport").on("value", snap => {
@@ -302,10 +330,10 @@
 
   function update() {
     const d = new Date();
-    document.getElementById("now-time-bar").textContent = `現在時刻 ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+    document.getElementById("now-time-bar").textContent = `現在時刻 ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
     renderTransport();
   }
-  setInterval(update, 10000);
+  setInterval(update, 30000);
   update();
 </script>
 </body>
