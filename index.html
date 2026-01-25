@@ -494,9 +494,10 @@ function setupStopScroll(){
 
   document.querySelectorAll(".stops span").forEach(span=>{
 
-    const parent = span.parentElement;
+    // 一度描画待ちしてから実行
+    setTimeout(() => {
 
-    function startScroll(){
+      const parent = span.parentElement;
 
       const textWidth = span.scrollWidth;
       const boxWidth = parent.clientWidth;
@@ -506,26 +507,30 @@ function setupStopScroll(){
       const speed = 50; // px/秒
       const duration = distance / speed;
 
-      // アニメーション初期化
-      span.style.animation = "none";
-      span.offsetHeight; // 強制再描画
+      function startScroll(){
 
-      // 開始
-      span.style.animation =
-        `stops-scroll ${duration}s linear`;
+        // リセットアニメ
+        span.style.animation = "none";
+        span.offsetHeight; // 再描画トリガー
 
-      // 終了後 → 5秒待って再開
-      setTimeout(()=>{
-        setTimeout(startScroll, 5000);
-      }, duration * 1000);
+        // 思い通りに流す
+        span.style.animation = `stops-scroll ${duration}s linear`;
 
-    }
+        // 終了後 5秒待って再開
+        setTimeout(()=>{
+          startScroll();
+        }, (duration * 1000) + 5000);
 
-    startScroll();
+      }
+
+      startScroll();
+
+    }, 0); // 描画後すぐ走る
 
   });
 
 }
+
 
 // 初回読み込み
 loadTransport();
@@ -538,6 +543,7 @@ setInterval(loadTransport, 30000);
 
 </body>
 </html>
+
 
 
 
