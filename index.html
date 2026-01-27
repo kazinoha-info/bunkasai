@@ -408,6 +408,9 @@ function showEmergency(d){
 
   const screen = document.getElementById("emergencyScreen");
 
+  // 通常画面を消す
+  document.getElementById("layout").style.display="none";
+
   screen.style.display="flex";
 
   if(d.mode==="drill"){
@@ -417,133 +420,35 @@ function showEmergency(d){
 
   if(d.mode==="real"){
     screen.style.background="#c62828";
-    document.getElementById("emTitle").innerText=" 緊急地震速報 ";
+    document.getElementById("emTitle").innerText="⚠ 緊急地震速報";
   }
 
   document.getElementById("emMessage").innerText = d.message || "";
-}
 
-function hideEmergency(){
-  document.getElementById("emergencyScreen").style.display="none";
-}
-  
-</script>
-
-<script>
-const firebaseConfig = { ... };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-  apiKey: "AIzaSyDTHN-YfAJz86NgNAaldixubGfDZwRgnKw",
-  authDomain: "bunkasai-info-59212.firebaseapp.com",
-  databaseURL: "https://bunkasai-info-59212-default-rtdb.firebaseio.com",
-  projectId: "bunkasai-info-59212",
-  storageBucket: "bunkasai-info-59212.firebasestorage.app",
-  messagingSenderId: "775251011941",
-  appId: "1:775251011941:web:7237a990162fa00217198c"
-};
-
-const db = firebase.database();
-</script>
-
-<script>
-
-
-  const data = snap.val();
-
-  if(!data) return;
-
-  const screen = document.getElementById("emergencyScreen");
-  const msg = document.getElementById("emgMsg");
-  const title = document.getElementById("emgTitle");
-
-  if(data.emergency === true){
-
-    // 緊急ON
-    screen.style.display = "block";
-
-    if(data.mode === "drill"){
-      title.innerText = "⚠️ 防災訓練";
-    }else{
-      title.innerText = "⚠️ 緊急地震速報";
-    }
-
-    msg.innerText = data.message || "";
-
-  }else{
-
-    // 通常
-    screen.style.display = "none";
-
-  }
-
-});
-
-
-  const data = snap.val();
-
-  if(!data) return;
-
-  const screen = document.getElementById("emergencyScreen");
-  const title = document.getElementById("emTitle");
-  const msg = document.getElementById("emMessage");
-  const video = document.getElementById("emVideo");
-
-  if(data.emergency){
-
-    // 通常画面を消す
-    document.getElementById("layout").style.display="none";
-
-    screen.style.display="flex";
-
-    if(data.mode === "drill"){
-      title.innerText = "⚠ 防災訓練";
-    }else{
-      title.innerText = "⚠ 緊急地震速報";
-    }
-
-    msg.innerText = data.message || "";
-
-    // YouTube埋め込み（自動再生）
-    video.src =
-      "https://www.youtube.com/embed/c7_kqMFDE8c?autoplay=1&mute=1";
-
-  }else{
-
-    // 解除
-    screen.style.display="none";
-    document.getElementById("layout").style.display="grid";
-
-    video.src = "";
-  }
-
-});
-</script>
-<!-- 緊急画面 -->
-<div id="emergencyScreen">
-  <div id="emBox">
-    <h1 id="emTitle"></h1>
-    <p id="emMessage"></p>
-
+  document.getElementById("emVideo").innerHTML = `
     <iframe
-      id="emVideo"
       width="100%"
       height="70%"
-      src=""
+      src="https://www.youtube.com/embed/c7_kqMFDE8c?autoplay=1&mute=1"
       frameborder="0"
       allow="autoplay"
       allowfullscreen>
     </iframe>
+  `;
+}
 
-    <p style="margin-top:10px;font-size:16px;">
-      ※ 音を出す場合は画面をクリックしてください
-    </p>
-  </div>
-</div>
+function hideEmergency(){
 
+  document.getElementById("emergencyScreen").style.display="none";
+  document.getElementById("layout").style.display="grid";
+  document.getElementById("emVideo").innerHTML = "";
 
+}
+  
+</script>
 </body>
 </html>
+
 
 
 
