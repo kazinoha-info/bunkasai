@@ -177,6 +177,21 @@ select{
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
+  <script>
+
+// ===== パスワード設定 =====
+const ADMIN_PASSWORD = "naganishi2450"; // ← 好きなパスワードに変える
+
+// ===== 認証チェック =====
+const input = prompt("管理者パスワードを入力してください");
+
+if(input !== ADMIN_PASSWORD){
+  alert("パスワードが違います");
+  location.href = "about:blank"; // 追い出す
+}
+
+</script>
+
 <script>
 
 const firebaseConfig = {
@@ -212,7 +227,7 @@ function startReal(){
   db.ref("system").set({
     emergency:true,
     mode:"real",
-    message:"強い揺れに警戒してください。付近に倒れやすいもの落ちてきやすいものなどがある場合は速やかに移動してください。揺れが収まり次第、係委員の指示に従ってください。"
+    message:"強い揺れに警戒してください。付近に倒れやすいものや落ちてきやすいものなどがある場合は速やかに移動してください。揺れが収まり次第、係委員の指示に従ってください。"
   });
 
   showMsg("本番警報 発令");
