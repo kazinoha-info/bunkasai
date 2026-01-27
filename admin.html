@@ -1,36 +1,181 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-<meta charset="utf-8">
-<title>管理ページ</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>文化祭 防災・混雑管理</title>
+
+<style>
+
+body{
+  margin:0;
+  font-family:"Segoe UI","Noto Sans JP",sans-serif;
+  background:linear-gradient(180deg,#e3f2fd,#ffffff);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* 全体カード */
+#panel{
+  background:white;
+  width:92%;
+  max-width:520px;
+  border-radius:22px;
+  padding:25px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* タイトル */
+h1{
+  text-align:center;
+  margin:0 0 20px;
+  color:#1565c0;
+  font-size:26px;
+}
+
+/* セクション */
+.section{
+  margin-bottom:25px;
+}
+
+.section h2{
+  font-size:20px;
+  margin-bottom:10px;
+  color:#333;
+  border-left:6px solid #1565c0;
+  padding-left:8px;
+}
+
+/* ボタン共通 */
+button{
+  width:100%;
+  font-size:20px;
+  font-weight:bold;
+  padding:14px;
+  margin:6px 0;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
+  transition:0.15s;
+}
+
+button:active{
+  transform:scale(0.96);
+  opacity:0.85;
+}
+
+/* 防災ボタン */
+.btn-drill{ background:#f9a825; color:#333; }
+.btn-real{ background:#c62828; color:white; }
+.btn-stop{ background:#2e7d32; color:white; }
+
+/* セレクト */
+select{
+  width:100%;
+  font-size:20px;
+  padding:10px;
+  border-radius:10px;
+  border:2px solid #1565c0;
+  margin-bottom:10px;
+}
+
+/* 混雑ボタン */
+.crowd-btns{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
+}
+
+.btn-ok{ background:#2e7d32; color:white; }
+.btn-mid{ background:#f9a825; color:#333; }
+.btn-ng{ background:#c62828; color:white; }
+
+/* メッセージ */
+#msg{
+  margin-top:12px;
+  text-align:center;
+  font-weight:bold;
+  color:#2e7d32;
+  min-height:1.4em;
+}
+
+.footer{
+  margin-top:15px;
+  font-size:12px;
+  text-align:center;
+  color:#777;
+}
+
+</style>
 </head>
+
 <body>
 
-<h1>文化祭 防災管理</h1>
+<div id="panel">
 
-<button onclick="startDrill()">訓練開始</button>
-<button onclick="startReal()">本番警報</button>
-<button onclick="stopAll()">解除</button>
+<h1>文化祭 防災・混雑管理</h1>
 
-<hr>
+<!-- 防災 -->
+<div class="section">
 
-<h2>混雑更新</h2>
+  <h2>🚨 防災管理</h2>
 
-<select id="cName">
-  <option value="">選択してください</option>
-</select>
-<select id="cStatus">
-  <option>○</option>
-  <option>△</option>
-  <option>×</option>
-</select>
+  <button class="btn-drill" onclick="startDrill()">
+    ⚠ 訓練開始
+  </button>
 
-<button onclick="updateCrowd()">更新</button>
+  <button class="btn-real" onclick="startReal()">
+    🚨 本番警報
+  </button>
+
+  <button class="btn-stop" onclick="stopAll()">
+    ✅ 解除
+  </button>
+
+</div>
+
+<!-- 混雑 -->
+<div class="section">
+
+  <h2>👥 混雑更新</h2>
+
+  <select id="cName">
+    <option>読み込み中...</option>
+  </select>
+
+  <div class="crowd-btns">
+
+    <button class="btn-ok" onclick="setStatus('○')">
+      ○ 空き
+    </button>
+
+    <button class="btn-mid" onclick="setStatus('△')">
+      △ 普通
+    </button>
+
+    <button class="btn-ng" onclick="setStatus('×')">
+      × 混雑
+    </button>
+
+  </div>
+
+</div>
+
+<p id="msg"></p>
+
+<div class="footer">
+  ※ 操作内容は即時反映されます
+</div>
+
+</div>
 
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 
 <script>
 
@@ -44,65 +189,84 @@ const firebaseConfig = {
   appId: "1:775251011941:web:7237a990162fa00217198c"
 };
 
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+const select = document.getElementById("cName");
+const msg = document.getElementById("msg");
+
+/* 防災 */
 function startDrill(){
+
   db.ref("system").set({
     emergency:true,
     mode:"drill",
-    message:"緊急地震速報訓練中です。これはテストです。いつも通り過ごしてください。"
+    message:"緊急地震速報訓練中です。これはテストです。落ち着いて行動してください。"
   });
+
+  showMsg("訓練モード開始");
 }
 
 function startReal(){
+
   db.ref("system").set({
     emergency:true,
     mode:"real",
     message:"強い揺れに警戒してください。身を守ってください。付近に倒れやすいもの落ちてきやすいものなどがある場合は速やかに移動してください。地震が収まり次第、係委員の指示に従ってください。"
   });
+
+  showMsg("本番警報 発令");
 }
 
 function stopAll(){
+
   db.ref("system").set({
     emergency:false,
     mode:"normal"
   });
+
+  showMsg("警報解除");
 }
 
-function updateCrowd(){
+/* 混雑 */
+function setStatus(s){
 
-  const name = document.getElementById("cName").value;
-  const status = document.getElementById("cStatus").value;
+  const key = select.value;
 
-  if(!name){
+  if(!key){
     alert("場所を選んでください");
     return;
   }
 
-  db.ref("classes/"+name).update({
-    status: status
-  });
+  db.ref("classes/"+key+"/status").set(s);
 
-  alert("更新OK");
+  showMsg("混雑状況 更新完了");
 }
-  // クラス一覧を取得してプルダウンに入れる
-db.ref("classes").on("value", snap => {
+
+/* メッセージ表示 */
+function showMsg(t){
+
+  msg.textContent = "✔ " + t;
+
+  setTimeout(()=>{
+    msg.textContent="";
+  },1500);
+}
+
+/* クラス取得 */
+db.ref("classes").on("value", snap=>{
 
   const data = snap.val();
-  const select = document.getElementById("cName");
 
-  select.innerHTML = '<option value="">選択してください</option>';
+  select.innerHTML="";
 
   if(!data) return;
 
-  for(let key in data){
+  for(let k in data){
 
     const opt = document.createElement("option");
-
-    opt.value = key;
-    opt.textContent = data[key].name;
+    opt.value = k;
+    opt.textContent = data[k].name;
 
     select.appendChild(opt);
   }
