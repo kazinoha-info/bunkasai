@@ -16,7 +16,9 @@
 
 <h2>混雑更新</h2>
 
-<input id="cName" placeholder="場所名">
+<select id="cName">
+  <option value="">選択してください</option>
+</select>
 <select id="cStatus">
   <option>○</option>
   <option>△</option>
@@ -28,6 +30,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 
 <script>
 
@@ -70,18 +73,42 @@ function stopAll(){
 
 function updateCrowd(){
 
-  const name = cName.value;
-  const status = cStatus.value;
+  const name = document.getElementById("cName").value;
+  const status = document.getElementById("cStatus").value;
 
-  if(!name) return alert("名前入れて");
+  if(!name){
+    alert("場所を選んでください");
+    return;
+  }
 
-  db.ref("classes/"+name).set({
-    name:name,
-    status:status
+  db.ref("classes/"+name).update({
+    status: status
   });
 
   alert("更新OK");
 }
+  // クラス一覧を取得してプルダウンに入れる
+db.ref("classes").on("value", snap => {
+
+  const data = snap.val();
+  const select = document.getElementById("cName");
+
+  select.innerHTML = '<option value="">選択してください</option>';
+
+  if(!data) return;
+
+  for(let key in data){
+
+    const opt = document.createElement("option");
+
+    opt.value = key;
+    opt.textContent = data[key].name;
+
+    select.appendChild(opt);
+  }
+
+});
+
 </script>
 
 </body>
