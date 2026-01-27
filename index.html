@@ -139,6 +139,32 @@ body{
   font-weight:bold;
 }
 .traffic-note{ font-size:12px; color:#aaa; text-align:center; margin-top:10px; }
+#emergencyScreen{
+  position:fixed;
+  top:0;left:0;
+  width:100%;
+  height:100%;
+  background:#c62828;
+  color:white;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+#emBox{
+  text-align:center;
+  max-width:90%;
+}
+
+#emTitle{
+  font-size:60px;
+}
+
+#emMessage{
+  font-size:28px;
+  margin:20px 0;
+}
 </style>
 </head>
 <body>
@@ -169,6 +195,14 @@ body{
     <div id="trainBoard"></div>
     <hr>
     <div id="busBoard"></div>
+  </div>
+</div>
+  <!-- 緊急画面 -->
+<div id="emergencyScreen">
+  <div id="emBox">
+    <h1 id="emTitle"></h1>
+    <p id="emMessage"></p>
+    <div id="emVideo"></div>
   </div>
 </div>
 
@@ -353,9 +387,49 @@ function updateNowTime(){
 }
 setInterval(updateNowTime,1000);
 updateNowTime();
+// 緊急監視
+db.ref("system").on("value", snap=>{
+
+  const d = snap.val();
+  if(!d) return;
+
+  if(d.emergency){
+
+    showEmergency(d);
+
+  }else{
+
+    hideEmergency();
+
+  }
+
+});
+function showEmergency(d){
+
+  const screen = document.getElementById("emergencyScreen");
+
+  screen.style.display="flex";
+
+  if(d.mode==="drill"){
+    screen.style.background="#f9a825";
+    document.getElementById("emTitle").innerText="⚠ 防災訓練中 ⚠";
+  }
+
+  if(d.mode==="real"){
+    screen.style.background="#c62828";
+    document.getElementById("emTitle").innerText="🚨 緊急地震速報 🚨";
+  }
+
+  document.getElementById("emMessage").innerText = d.message || "";
+}
+
+function hideEmergency(){
+  document.getElementById("emergencyScreen").style.display="none";
+}
 </script>
 </body>
 </html>
+
 
 
 
