@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>管理ページ</title>
+</head>
+<body>
+
+<h1>文化祭 防災管理</h1>
+
+<button onclick="startDrill()">訓練開始</button>
+<button onclick="startReal()">本番警報</button>
+<button onclick="stopAll()">解除</button>
+
+<hr>
+
+<h2>混雑更新</h2>
+
+<input id="cName" placeholder="場所名">
+<select id="cStatus">
+  <option>○</option>
+  <option>△</option>
+  <option>×</option>
+</select>
+
+<button onclick="updateCrowd()">更新</button>
+
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+
+const firebaseConfig = {
+  // 表示ページと同じやつをコピペ
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+function startDrill(){
+  db.ref("system").set({
+    emergency:true,
+    mode:"drill",
+    message:"防災訓練中です。落ち着いて行動してください。"
+  });
+}
+
+function startReal(){
+  db.ref("system").set({
+    emergency:true,
+    mode:"real",
+    message:"強い揺れに警戒してください。身を守ってください。"
+  });
+}
+
+function stopAll(){
+  db.ref("system").set({
+    emergency:false,
+    mode:"normal"
+  });
+}
+
+function updateCrowd(){
+
+  const name = cName.value;
+  const status = cStatus.value;
+
+  if(!name) return alert("名前入れて");
+
+  db.ref("classes/"+name).set({
+    name:name,
+    status:status
+  });
+
+  alert("更新OK");
+}
+</script>
+
+</body>
+</html>
