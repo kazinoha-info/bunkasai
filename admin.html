@@ -52,7 +52,7 @@ function startDrill(){
   db.ref("system").set({
     emergency:true,
     mode:"drill",
-    message:"防災訓練中です。落ち着いて行動してください。"
+    message:"緊急地震速報訓練中です。これはテストです。いつも通り過ごしてください。"
   });
 }
 
@@ -60,7 +60,7 @@ function startReal(){
   db.ref("system").set({
     emergency:true,
     mode:"real",
-    message:"強い揺れに警戒してください。身を守ってください。"
+    message:"強い揺れに警戒してください。身を守ってください。付近に倒れやすいもの・落ちてきやすいものがある場合は速やかに移動してください。"
   });
 }
 
