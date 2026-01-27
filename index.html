@@ -430,7 +430,10 @@ function hideEmergency(){
 </script>
 
 <script>
-const firebaseConfig = {
+const firebaseConfig = { ... };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
   apiKey: "AIzaSyDTHN-YfAJz86NgNAaldixubGfDZwRgnKw",
   authDomain: "bunkasai-info-59212.firebaseapp.com",
   databaseURL: "https://bunkasai-info-59212-default-rtdb.firebaseio.com",
@@ -440,14 +443,11 @@ const firebaseConfig = {
   appId: "1:775251011941:web:7237a990162fa00217198c"
 };
 
-firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 </script>
 
 <script>
 
-// system を監視
-db.ref("system").on("value", snap => {
 
   const data = snap.val();
 
@@ -478,8 +478,7 @@ db.ref("system").on("value", snap => {
   }
 
 });
-// 緊急監視
-db.ref("system").on("value", snap => {
+
 
   const data = snap.val();
 
@@ -520,44 +519,31 @@ db.ref("system").on("value", snap => {
 
 });
 </script>
-
 <!-- 緊急画面 -->
-<div id="emergencyScreen" style="
-  display:none;
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:#b71c1c;
-  color:white;
-  z-index:9999;
-  text-align:center;
-  padding-top:100px;
-  font-size:32px;
-">
-
-  <h1 id="emgTitle">⚠️ 緊急速報</h1>
-  <p id="emgMsg"></p>
-
-</div>
-<!-- 緊急表示 -->
-<div id="emergencyScreen" style="display:none;">
-  <div id="emergencyInner">
+<div id="emergencyScreen">
+  <div id="emBox">
     <h1 id="emTitle"></h1>
     <p id="emMessage"></p>
 
     <iframe
       id="emVideo"
       width="100%"
-      height="100%"
+      height="70%"
       src=""
       frameborder="0"
-      allow="autoplay; encrypted-media"
+      allow="autoplay"
       allowfullscreen>
     </iframe>
+
+    <p style="margin-top:10px;font-size:16px;">
+      ※ 音を出す場合は画面をクリックしてください
+    </p>
   </div>
 </div>
 
+
 </body>
 </html>
+
 
 
