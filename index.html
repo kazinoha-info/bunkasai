@@ -288,13 +288,13 @@ function renderTransport() {
       if(u.length > 0){
         trainHTML += `<div class="jr-row" style="background: #111; border-left: 4px solid #0af;"><div class="jr-time" style="font-size:30px;">${u[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${u[0].dest}</div></div><div class="stops fixed">停車駅 ： ${u[0].stops ? u[0].stops.join(" → ") : "各駅停車"}</div>`;
         u.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
-      } else { trainHTML += `<div class="jr-row" style="color:#888;">本日の運転は終了しました</div>`; }
+      } else { trainHTML += `<div class="jr-row" style="color:#888;">本日の運行は終了しました</div>`; }
 
       trainHTML += `<br><div><b>⬇ 下り 須坂・信州中野・湯田中方面</b></div>`;
       if(dn.length > 0){
         trainHTML += `<div class="jr-row" style="background: #111; border-left: 4px solid #f44;"><div class="jr-time" style="font-size:30px;">${dn[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${dn[0].dest}</div></div><div class="stops"><span>停車駅 ： ${dn[0].stops ? dn[0].stops.join(" → ") : "各駅停車"}</span></div>`;
         dn.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
-      } else { trainHTML += `<div class="jr-row" style="color:#888;">本日の運転は終了しました</div>`; }
+      } else { trainHTML += `<div class="jr-row" style="color:#888;">本日の運行は終了しました</div>`; }
       trainHTML += `</div>`;
     }
   }
@@ -320,7 +320,7 @@ function renderTransport() {
                     ${t.dest}
                     <div style="font-size:12px; color:#aaa; margin-left:20px;">${t.via || ""}</div>
                   </div>
-                </div>`).join("") : `<div class="jr-row">終了</div>`}
+                </div>`).join("") : `<div class="jr-row">本日の運行は終了しました</div>`}
             </div>
             <div class="bus-col">
               <b>善光寺西：宇木・若槻・飯綱・戸隠方面</b>
@@ -332,7 +332,7 @@ function renderTransport() {
                     ${t.dest}
                     <div style="font-size:12px; color:#aaa; margin-left:20px;">${t.via || ""}</div>
                   </div>
-                </div>`).join("") : `<div class="jr-row">終了</div>`}
+                </div>`).join("") : `<div class="jr-row">本日の運行は終了しました</div>`}
             </div>
           </div>
         </div>`;
@@ -477,6 +477,7 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
 
 
 
