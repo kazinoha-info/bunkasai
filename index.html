@@ -85,7 +85,7 @@ body{
   color:white; 
   font-weight:bold; 
   position: relative; 
-  height: 40px;      /* 高さを十分に確保 */
+  height: 40px;       /* 高さを十分に確保 */
   line-height: 40px; /* 文字が上下中央に来るように */
 }
 .stops span{ 
@@ -94,12 +94,12 @@ body{
   white-space: nowrap; 
   will-change: transform; 
   position: absolute; 
-  top: 0;            /* 上に張り付かないように固定 */
+  top: 0;             /* 上に張り付かないように固定 */
 }
 .stops.fixed{ 
   overflow: visible; 
   white-space: normal; 
-  height: auto;      /* 固定表示は高さ自動 */
+  height: auto;       /* 固定表示は高さ自動 */
   line-height: 1.4; 
   font-size:26px; 
   position: static; 
@@ -215,8 +215,7 @@ body{
     <div id="busBoard"></div>
   </div>
 </div>
-  <!-- 緊急画面 -->
-<div id="emergencyScreen">
+  <div id="emergencyScreen">
   <div id="emBox">
     <h1 id="emTitle"></h1>
     <p id="emMessage"></p>
@@ -224,264 +223,237 @@ body{
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDTHN-YfAJz86NgNAaldixubGfDZwRgnKw",
-  authDomain: "bunkasai-info-59212.firebaseapp.com",
-  databaseURL: "https://bunkasai-info-59212-default-rtdb.firebaseio.com",
-  projectId: "bunkasai-info-59212",
-  storageBucket: "bunkasai-info-59212.firebasestorage.app",
-  messagingSenderId: "775251011941",
-  appId: "1:775251011941:web:7237a990162fa00217198c"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+// DOMが読み込まれてから実行
+window.addEventListener('DOMContentLoaded', () => {
+  const firebaseConfig = {
+    apiKey: "AIzaSyDTHN-YfAJz86NgNAaldixubGfDZwRgnKw",
+    authDomain: "bunkasai-info-59212.firebaseapp.com",
+    databaseURL: "https://bunkasai-info-59212-default-rtdb.firebaseio.com",
+    projectId: "bunkasai-info-59212",
+    storageBucket: "bunkasai-info-59212.firebasestorage.app",
+    messagingSenderId: "775251011941",
+    appId: "1:775251011941:web:7237a990162fa00217198c"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-let mode = "weekday";
-let transportCache = null;
-let lastRenderTime = -1;
+  window.mode = "weekday"; // グローバル関数からアクセスできるようにwindowに紐付け
+  let transportCache = null;
+  let lastRenderTime = -1;
 
-function timeToMin(t){
-  if(!t || typeof t !== "string") return 0;
-  const [h,m] = t.split(":").map(Number);
-  return h * 60 + m;
-}
-
-function nowMin(){
-  const d = new Date();
-  return d.getHours() * 60 + d.getMinutes();
-}
-
-function getNextItems(list, limit = 3){
-  if (!list || !Array.isArray(list)) return [];
-  const now = nowMin();
-  return list
-    .filter(item => {
-      const t = (typeof item === 'string') ? item : item.time;
-      return timeToMin(t) >= now;
-    })
-    .slice(0, limit);
-}
-
-function renderTransport() {
-  if (!transportCache) return;
-  const currentMin = nowMin();
-  if (currentMin === lastRenderTime) return;
-  lastRenderTime = currentMin;
-
-  let trainHTML = "";
-  let busHTML = "";
-  const data = transportCache;
-
-  if (data.train) {
-    for (let k in data.train) {
-      const st = data.train[k];
-      const d = st[mode] || { up: [], down: [] };
-      const u = getNextItems(d.up, 3);
-      const dn = getNextItems(d.down, 3);
-
-      trainHTML += `<div class="jr-board"><h3>（長野電鉄） ${st.name}</h3>`;
-      trainHTML += `<div><b>⬆ 上り 長野方面</b></div>`;
-      if(u.length > 0){
-        trainHTML += `<div class="jr-row" style="background: #111; border-left: 4px solid #0af;"><div class="jr-time" style="font-size:30px;">${u[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${u[0].dest}</div></div><div class="stops fixed">停車駅 ： ${u[0].stops ? u[0].stops.join(" → ") : "各駅停車"}</div>`;
-        u.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
-      } else { trainHTML += `<div class="jr-row" style="color:#888;">本日の運行は終了しました</div>`; }
-
-      trainHTML += `<br><div><b>⬇ 下り 須坂・信州中野・湯田中方面</b></div>`;
-      if(dn.length > 0){
-        trainHTML += `<div class="jr-row" style="background: #111; border-left: 4px solid #f44;"><div class="jr-time" style="font-size:30px;">${dn[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${dn[0].dest}</div></div><div class="stops"><span>停車駅 ： ${dn[0].stops ? dn[0].stops.join(" → ") : "各駅停車"}</span></div>`;
-        dn.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
-      } else { trainHTML += `<div class="jr-row" style="color:#888;">本日の運行は終了しました</div>`; }
-      trainHTML += `</div>`;
-    }
+  function timeToMin(t){
+    if(!t || typeof t !== "string") return 0;
+    const [h,m] = t.split(":").map(Number);
+    return h * 60 + m;
   }
 
-  if (data.bus) {
-    for (let k in data.bus) {
-      const stop = data.bus[k];
-      const bd = stop[mode] || { toStation: [], toTown: [] };
-      const toS = getNextItems(bd.toStation, 3);
-      const toT = getNextItems(bd.toTown, 3);
-
-      busHTML += `
-        <div class="jr-board">
-          <h3>（アルピコ交通） ${stop.name}</h3>
-          <div class="bus-columns">
-            <div class="bus-col">
-              <b>城山小学校前：長野駅・松岡・大塚南方面</b>
-              ${toS.length ? toS.map(t => `
-                <div class="schedule-card">
-                  <div class="jr-time" style="width:80px;">${t.time}</div>
-                  <div class="jr-dest">
-                    <span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>
-                    ${t.dest}
-                    <div style="font-size:12px; color:#aaa; margin-left:20px;">${t.via || ""}</div>
-                  </div>
-                </div>`).join("") : `<div class="jr-row">本日の運行は終了しました</div>`}
-            </div>
-            <div class="bus-col">
-              <b>善光寺西：宇木・若槻・飯綱・戸隠方面</b>
-              ${toT.length ? toT.map(t => `
-                <div class="schedule-card">
-                  <div class="jr-time" style="width:80px;">${t.time}</div>
-                  <div class="jr-dest">
-                    <span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>
-                    ${t.dest}
-                    <div style="font-size:12px; color:#aaa; margin-left:20px;">${t.via || ""}</div>
-                  </div>
-                </div>`).join("") : `<div class="jr-row">本日の運行は終了しました</div>`}
-            </div>
-          </div>
-        </div>`;
-    }
+  function nowMin(){
+    const d = new Date();
+    return d.getHours() * 60 + d.getMinutes();
   }
-  document.getElementById("trainBoard").innerHTML = trainHTML;
-  document.getElementById("busBoard").innerHTML = busHTML;
-  setupStopScroll();
-}
 
-function loadTransport(){
-  db.ref("transport").once("value", snap => {
-    transportCache = snap.val();
+  function getNextItems(list, limit = 3){
+    if (!list || !Array.isArray(list)) return [];
+    const now = nowMin();
+    return list
+      .filter(item => {
+        const t = (typeof item === 'string') ? item : item.time;
+        return timeToMin(t) >= now;
+      })
+      .slice(0, limit);
+  }
+
+  function renderTransport() {
+    if (!transportCache) return;
+    const currentMin = nowMin();
+    if (currentMin === lastRenderTime) return;
+    lastRenderTime = currentMin;
+
+    let trainHTML = "";
+    let busHTML = "";
+    const data = transportCache;
+
+    if (data.train) {
+      for (let k in data.train) {
+        const st = data.train[k];
+        const d = st[window.mode] || { up: [], down: [] };
+        const u = getNextItems(d.up, 3);
+        const dn = getNextItems(d.down, 3);
+
+        trainHTML += `<div class="jr-board"><h3>（長野電鉄） ${st.name}</h3>`;
+        trainHTML += `<div><b>⬆ 上り 長野方面</b></div>`;
+        if(u.length > 0){
+          trainHTML += `<div class="jr-row" style="background: #111; border-left: 4px solid #0af;"><div class="jr-time" style="font-size:30px;">${u[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${u[0].dest}</div></div><div class="stops fixed">停車駅 ： ${u[0].stops ? u[0].stops.join(" → ") : "各駅停車"}</div>`;
+          u.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
+        } else { trainHTML += `<div class="jr-row" style="color:#888;">本日の運行は終了しました</div>`; }
+
+        trainHTML += `<br><div><b>⬇ 下り 須坂・信州中野・湯田中方面</b></div>`;
+        if(dn.length > 0){
+          trainHTML += `<div class="jr-row" style="background: #111; border-left: 4px solid #f44;"><div class="jr-time" style="font-size:30px;">${dn[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${dn[0].dest}</div></div><div class="stops"><span>停車駅 ： ${dn[0].stops ? dn[0].stops.join(" → ") : "各駅停車"}</span></div>`;
+          dn.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
+        } else { trainHTML += `<div class="jr-row" style="color:#888;">本日の運行は終了しました</div>`; }
+        trainHTML += `</div>`;
+      }
+    }
+
+    if (data.bus) {
+      for (let k in data.bus) {
+        const stop = data.bus[k];
+        const bd = stop[window.mode] || { toStation: [], toTown: [] };
+        const toS = getNextItems(bd.toStation, 3);
+        const toT = getNextItems(bd.toTown, 3);
+
+        busHTML += `
+          <div class="jr-board">
+            <h3>（アルピコ交通） ${stop.name}</h3>
+            <div class="bus-columns">
+              <div class="bus-col">
+                <b>城山小学校前：長野駅・松岡・大塚南方面</b>
+                ${toS.length ? toS.map(t => `
+                  <div class="schedule-card">
+                    <div class="jr-time" style="width:80px;">${t.time}</div>
+                    <div class="jr-dest">
+                      <span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>
+                      ${t.dest}
+                      <div style="font-size:12px; color:#aaa; margin-left:20px;">${t.via || ""}</div>
+                    </div>
+                  </div>`).join("") : `<div class="jr-row">本日の運行は終了しました</div>`}
+              </div>
+              <div class="bus-col">
+                <b>善光寺西：宇木・若槻・飯綱・戸隠方面</b>
+                ${toT.length ? toT.map(t => `
+                  <div class="schedule-card">
+                    <div class="jr-time" style="width:80px;">${t.time}</div>
+                    <div class="jr-dest">
+                      <span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>
+                      ${t.dest}
+                      <div style="font-size:12px; color:#aaa; margin-left:20px;">${t.via || ""}</div>
+                    </div>
+                  </div>`).join("") : `<div class="jr-row">本日の運行は終了しました</div>`}
+              </div>
+            </div>
+          </div>`;
+      }
+    }
+    document.getElementById("trainBoard").innerHTML = trainHTML;
+    document.getElementById("busBoard").innerHTML = busHTML;
+    setupStopScroll();
+  }
+
+  function loadTransport(){
+    db.ref("transport").once("value", snap => {
+      transportCache = snap.val();
+      lastRenderTime = -1;
+      renderTransport();
+    });
+  }
+
+  // グローバルに関数を公開
+  window.setMode = function(m){
+    window.mode = m;
+    document.querySelectorAll(".btns button").forEach(btn=>btn.classList.remove("active"));
+    document.getElementById(m==="weekday"?"btnWeek":"btnHoliday").classList.add("active");
     lastRenderTime = -1;
     renderTransport();
+  };
+
+  function setupStopScroll() {
+    document.querySelectorAll(".stops:not(.fixed) span").forEach(span => {
+      if (span.dataset.running) return;
+      span.dataset.running = "true";
+      const play = () => {
+        if (!document.body.contains(span)) return;
+        const boxW = span.parentElement.clientWidth;
+        const textW = span.scrollWidth;
+        const startPos = boxW;
+        const endPos = -textW - 50;
+        const duration = (startPos - endPos) / 50; 
+        span.style.transition = "none";
+        span.style.transform = `translateX(${startPos}px)`;
+        span.offsetHeight; 
+        span.style.transition = `transform ${duration}s linear`;
+        span.style.transform = `translateX(${endPos}px)`;
+        setTimeout(play, (duration * 1000) + 5000); 
+      };
+      play();
+    });
+  }
+
+  db.ref("classes").on("value", snap => {
+    const data = snap.val();
+    let h1 = "", h2 = "";
+    for (let key in data) {
+      const item = data[key];
+      const s = item.status;
+      const sCls = s === "○" ? "ok" : s === "△" ? "mid" : "ng";
+      const card = `<div class="card"><div>${item.name}</div><div class="status ${sCls}">${s}</div></div>`;
+      if (item.name.includes("1年")) h1 += card;
+      else if (item.name.includes("2年")) h2 += card;
+    }
+    document.getElementById("list").innerHTML = h1 + h2;
   });
-}
 
-function setMode(m){
-  mode = m;
-  document.querySelectorAll(".btns button").forEach(btn=>btn.classList.remove("active"));
-  document.getElementById(m==="weekday"?"btnWeek":"btnHoliday").classList.add("active");
-  lastRenderTime = -1;
-  renderTransport();
-}
+  loadTransport();
+  setInterval(renderTransport, 10000);
+  setInterval(loadTransport, 1800000);
 
-function setupStopScroll() {
-  document.querySelectorAll(".stops:not(.fixed) span").forEach(span => {
-    if (span.dataset.running) return;
-    span.dataset.running = "true";
-    const play = () => {
-      if (!document.body.contains(span)) return;
-      const boxW = span.parentElement.clientWidth;
-      const textW = span.scrollWidth;
-      const startPos = boxW;
-      const endPos = -textW - 50;
-      const duration = (startPos - endPos) / 50; 
-      span.style.transition = "none";
-      span.style.transform = `translateX(${startPos}px)`;
-      span.offsetHeight; 
-      span.style.transition = `transform ${duration}s linear`;
-      span.style.transform = `translateX(${endPos}px)`;
-      setTimeout(play, (duration * 1000) + 5000); 
-    };
-    play();
+  function updateNowTime(){
+    const d = new Date();
+    document.getElementById("nowTime").textContent = `現在時刻　${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+  }
+  setInterval(updateNowTime,1000);
+  updateNowTime();
+
+  // 緊急監視
+  db.ref("system").on("value", snap=>{
+    const d = snap.val();
+    if(!d) return;
+    if(d.emergency){
+      showEmergency(d);
+    }else{
+      hideEmergency();
+    }
   });
-}
 
-db.ref("classes").on("value", snap => {
-  const data = snap.val();
-  let h1 = "", h2 = "";
-  for (let key in data) {
-    const item = data[key];
-    const s = item.status;
-    const sCls = s === "○" ? "ok" : s === "△" ? "mid" : "ng";
-    const card = `<div class="card"><div>${item.name}</div><div class="status ${sCls}">${s}</div></div>`;
-    if (item.name.includes("1年")) h1 += card;
-    else if (item.name.includes("2年")) h2 += card;
+  function showEmergency(d){
+    const screen = document.getElementById("emergencyScreen");
+    document.getElementById("layout").style.display="none";
+    screen.style.display="flex";
+
+    if(d.mode==="drill"){
+      screen.style.background="#f9a825";
+      document.getElementById("emTitle").innerText="⚠ 緊急地震速報訓練中 ⚠";
+    }
+    if(d.mode==="real"){
+      screen.style.background="#c62828";
+      document.getElementById("emTitle").innerText="⚠ 緊急地震速報 ⚠";
+    }
+    document.getElementById("emMessage").innerText = d.message || "";
+    document.getElementById("emVideo").innerHTML = `
+      <div class="video-box">
+        <iframe
+          src="https://www.youtube.com/embed/ozDXFjwgjYA?autoplay=1&mute=1"
+          allow="autoplay"
+          allowfullscreen>
+        </iframe>
+      </div>
+      <div style="text-align:center;font-size:14px;color:#eee;margin-top:8px;opacity:0.8;">
+        出典：YouTube「JQuakeチャンネル」<br>
+        『【JQuake】地震速報放送24時間』
+      </div>`;
   }
-  document.getElementById("list").innerHTML = h1 + h2;
+
+  function hideEmergency(){
+    document.getElementById("emergencyScreen").style.display="none";
+    document.getElementById("layout").style.display="grid";
+    document.getElementById("emVideo").innerHTML = "";
+  }
 });
-
-loadTransport();
-setInterval(renderTransport, 10000);
-setInterval(loadTransport, 1800000);
-
-function updateNowTime(){
-  const d = new Date();
-  document.getElementById("nowTime").textContent = `現在時刻　${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
-}
-setInterval(updateNowTime,1000);
-updateNowTime();
-// 緊急監視
-db.ref("system").on("value", snap=>{
-
-  const d = snap.val();
-  if(!d) return;
-
-  if(d.emergency){
-
-    showEmergency(d);
-
-  }else{
-
-    hideEmergency();
-
-  }
-
-});
-function showEmergency(d){
-
-  const screen = document.getElementById("emergencyScreen");
-
-  // 通常画面を消す
-  document.getElementById("layout").style.display="none";
-
-  screen.style.display="flex";
-
-  if(d.mode==="drill"){
-    screen.style.background="#f9a825";
-    document.getElementById("emTitle").innerText="⚠ 緊急地震速報訓練中 ⚠";
-  }
-
-  if(d.mode==="real"){
-    screen.style.background="#c62828";
-    document.getElementById("emTitle").innerText="⚠ 緊急地震速報 ⚠";
-  }
-
-  document.getElementById("emMessage").innerText = d.message || "";
-
-document.getElementById("emVideo").innerHTML = `
-  <div class="video-box">
-    <iframe
-      src="https://www.youtube.com/embed/ozDXFjwgjYA?autoplay=1&mute=1"
-      allow="autoplay"
-      allowfullscreen>
-    </iframe>
-  </div>
-
-  <div style="
-    text-align:center;
-    font-size:14px;
-    color:#eee;
-    margin-top:8px;
-    opacity:0.8;
-  ">
-    出典：YouTube「JQuakeチャンネル」<br>
-    『【JQuake】地震速報放送24時間』
-  </div>
-`;
-}
-
-
-function hideEmergency(){
-
-  document.getElementById("emergencyScreen").style.display="none";
-  document.getElementById("layout").style.display="grid";
-  document.getElementById("emVideo").innerHTML = "";
-
-}
-  
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
