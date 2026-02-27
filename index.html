@@ -383,6 +383,10 @@ function setupStopScroll() {
 
 db.ref("classes").on("value", snap => {
   const data = snap.val();
+  if(!data){
+    document.getElementById("list").innerHTML = "データがありません";
+    return;
+  }
   let h1 = "", h2 = "";
   for (let key in data) {
     const item = data[key];
@@ -459,7 +463,7 @@ document.getElementById("emVideo").innerHTML = `
     margin-top:8px;
     opacity:0.8;
   ">
-    出典：YouTube「JQuakeチャンネル」<br>
+    提供：YouTube「JQuakeチャンネル」<br>
     『【JQuake】地震速報放送24時間』
   </div>
 `;
@@ -477,3 +481,4 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
