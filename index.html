@@ -242,6 +242,7 @@ const db = firebase.database();
 
 let mode = "weekday";
 let transportCache = null;
+let currentLang = "ja";
 let lastRenderTime = -1;
 
 function timeToMin(t){
@@ -274,7 +275,7 @@ function renderTransport() {
 
   let trainHTML = "";
   let busHTML = "";
-  const data = transportCache;
+　const data = transportCache[currentLang];
 
   if (data.train) {
     for (let k in data.train) {
@@ -404,6 +405,26 @@ setInterval(renderTransport, 10000);
 setInterval(loadTransport, 1800000);
 
 function updateNowTime(){
+  function startLanguageLoop(){
+
+  function toEnglish(){
+    currentLang = "en";
+    lastRenderTime = -1;
+    renderTransport();
+    setTimeout(toJapanese, 30000); // 英語30秒
+  }
+
+  function toJapanese(){
+    currentLang = "ja";
+    lastRenderTime = -1;
+    renderTransport();
+    setTimeout(toEnglish, 50000); // 日本語50秒
+  }
+
+  toEnglish();
+}
+
+startLanguageLoop();
   const d = new Date();
   document.getElementById("nowTime").textContent = `現在時刻　${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
 }
@@ -481,4 +502,5 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
 
