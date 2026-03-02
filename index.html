@@ -407,21 +407,25 @@ loadTransport();
 setInterval(renderTransport, 10000);
 setInterval(loadTransport, 1800000);
 
-function updateNowTime(){
-  function startLanguageLoop(){
+  function updateNowTime(){
+  const d = new Date();
+  document.getElementById("nowTime").textContent =
+    `現在時刻　${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+}
+function startLanguageLoop(){
 
   function toEnglish(){
     currentLang = "en";
     lastRenderTime = -1;
     renderTransport();
-    setTimeout(toJapanese, 30000); // 英語30秒
+    setTimeout(toJapanese, 30000);
   }
 
   function toJapanese(){
     currentLang = "ja";
     lastRenderTime = -1;
     renderTransport();
-    setTimeout(toEnglish, 50000); // 日本語50秒
+    setTimeout(toEnglish, 50000);
   }
 
   toEnglish();
@@ -505,6 +509,7 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
 
 
 
