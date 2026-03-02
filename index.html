@@ -450,11 +450,21 @@ loadTransport();
 setInterval(renderTransport, 10000);
 setInterval(loadTransport, 1800000);
 
+function updateNowTime(){
+  const d = new Date();
+  const h = String(d.getHours()).padStart(2,"0");
+  const m = String(d.getMinutes()).padStart(2,"0");
+  document.getElementById("nowTime").textContent =
+    `現在時刻 ${h}:${m}`;
+}
+  
 setInterval(updateNowTime,1000);
 updateNowTime();
 
 startLanguageLoop();
   
+function startLanguageLoop(){
+
 function startLanguageLoop(){
 
   function toEnglish(){
@@ -547,5 +557,6 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
 
 
