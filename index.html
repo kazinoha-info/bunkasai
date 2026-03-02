@@ -275,7 +275,7 @@ function renderTransport() {
 
   let trainHTML = "";
   let busHTML = "";
-　const data = transportCache[currentLang];
+  const data = transportCache[currentLang] || transportCache["ja"];
 
   if (data.train) {
     for (let k in data.train) {
@@ -504,11 +504,3 @@ function hideEmergency(){
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
