@@ -361,24 +361,27 @@ function setMode(m){
 }
 
 function setupStopScroll() {
-  document.querySelectorAll(".stops:not(.fixed) span").forEach(span => {
+  document.querySelectorAll(".stops span").forEach(span => {
     if (span.dataset.running) return;
     span.dataset.running = "true";
-    const play = () => {
-      if (!document.body.contains(span)) return;
-      const boxW = span.parentElement.clientWidth;
-      const textW = span.scrollWidth;
-      const startPos = boxW;
-      const endPos = -textW - 50;
-      const duration = (startPos - endPos) / 50; 
+
+    const boxW = span.parentElement.clientWidth;
+    const textW = span.scrollWidth;
+
+    if (textW <= boxW) {
       span.style.transition = "none";
-      span.style.transform = `translateX(${startPos}px)`;
-      span.offsetHeight; 
-      span.style.transition = `transform ${duration}s linear`;
-      span.style.transform = `translateX(${endPos}px)`;
-      setTimeout(play, (duration * 1000) + 5000); 
-    };
-    play();
+      span.style.transform = "translateX(0)";
+      return;
+    }
+
+    const distance = boxW + textW + 50;
+    const duration = distance / 50;
+
+    span.style.transition = "none";
+    span.style.transform = `translateX(${boxW}px)`; 
+    span.offsetWidth; // reflow
+    span.style.transition = `transform ${duration}s linear`;
+    span.style.transform = `translateX(-${textW}px)`;
   });
 }
 
@@ -502,5 +505,6 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
 
 
