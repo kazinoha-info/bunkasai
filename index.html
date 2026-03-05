@@ -274,73 +274,61 @@ function renderTransport() {
 
   let trainHTML = "";
   let busHTML = "";
-  const data = transportCache[currentLang] || transportCache["ja"];
+  const data = transportCache["ja"]; 
+  const isEn = (currentLang === "en");
 
- if (data.train) {
-  for (let k in data.train) {
+  if (data.train) {
+    for (let k in data.train) {
+      const st = data.train[k];
+      const d = st[mode] || { up: [], down: [] };
+      const u = getNextItems(d.up, 3);
+      const dn = getNextItems(d.down, 3);
 
-    const st = data.train[k];
-    const d = st[mode] || { up: [], down: [] };
-    const u = getNextItems(d.up, 3);
-    const dn = getNextItems(d.down, 3);
+      const railLabel = isEn ? "(Nagano Electric Railway)" : "(長野電鉄)";
+      trainHTML += `<div class="jr-board"><h3>${railLabel} ${st.name}</h3>`;
 
-    trainHTML += `<div class="jr-board"><h3>（長野電鉄） ${st.name}</h3>`;
+      const upLabel = isEn ? "⬆ Upbound: for Nagano" : "⬆ 上り 長野方面";
+      trainHTML += `<div><b>${upLabel}</b></div>`;
 
-    // ===== 上り =====
-    trainHTML += `<div><b>⬆ 上り 長野方面</b></div>`;
-
-    if (u.length > 0) {
-      trainHTML += `
-        <div class="jr-row" style="background:#111; border-left:4px solid #0af;">
-          <div class="jr-time" style="font-size:30px;">${u[0].time}</div>
-          <div class="jr-dest" style="font-size:30px;color:#ff9800;">${u[0].dest}</div>
-        </div>
-        <div class="stops fixed">
-          停車駅 ： ${u[0].stops.join(" → ")}
-        </div>
-      `;
-
-      u.slice(1).forEach(t => {
+      if (u.length > 0) {
         trainHTML += `
-          <div class="jr-row" style="opacity:0.7;">
-            <div class="jr-time">${t.time}</div>
-            <div class="jr-dest">${t.dest}</div>
+          <div class="jr-row" style="background:#111; border-left:4px solid #0af;">
+            <div class="jr-time" style="font-size:30px;">${u[0].time}</div>
+            <div class="jr-dest" style="font-size:30px;color:#ff9800;">${u[0].dest}</div>
+          </div>
+          <div class="stops fixed">
+            ${isEn ? "Stops" : "停車駅"} ： ${u[0].stops.join(" → ")}
           </div>
         `;
-      });
-    } else {
-      trainHTML += `<div class="jr-row" style="color:#888;">本日の運行は終了しました</div>`;
-    }
+        u.slice(1).forEach(t => {
+          trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
+        });
+      } else {
+        trainHTML += `<div class="jr-row" style="color:#888;">${isEn ? "Service ended for today" : "本日の運行は終了しました"}</div>`;
+      }
 
-    // ===== 下り =====
-    trainHTML += `<br><div><b>⬇ 下り 須坂・信州中野・湯田中方面</b></div>`;
+      const downLabel = isEn ? "⬇ Downbound: for Suzaka / Shinshunakano / Yudanaka" : "⬇ 下り 須坂・信州中野・湯田中方面";
+      trainHTML += `<br><div><b>${downLabel}</b></div>`;
 
-    if (dn.length > 0) {
-      trainHTML += `
-        <div class="jr-row" style="background:#111; border-left:4px solid #f44;">
-          <div class="jr-time" style="font-size:30px;">${dn[0].time}</div>
-          <div class="jr-dest" style="font-size:30px;color:#ff9800;">${dn[0].dest}</div>
-        </div>
-        <div class="stops">
-          <span>停車駅 ： ${dn[0].stops.join(" → ")}</span>
-        </div>
-      `;
-
-      dn.slice(1).forEach(t => {
+      if (dn.length > 0) {
         trainHTML += `
-          <div class="jr-row" style="opacity:0.7;">
-            <div class="jr-time">${t.time}</div>
-            <div class="jr-dest">${t.dest}</div>
+          <div class="jr-row" style="background:#111; border-left:4px solid #f44;">
+            <div class="jr-time" style="font-size:30px;">${dn[0].time}</div>
+            <div class="jr-dest" style="font-size:30px;color:#ff9800;">${dn[0].dest}</div>
+          </div>
+          <div class="stops">
+            <span>${isEn ? "Stops" : "停車駅"} ： ${dn[0].stops.join(" → ")}</span>
           </div>
         `;
-      });
-    } else {
-      trainHTML += `<div class="jr-row" style="color:#888;">本日の運行は終了しました</div>`;
+        dn.slice(1).forEach(t => {
+          trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
+        });
+      } else {
+        trainHTML += `<div class="jr-row" style="color:#888;">${isEn ? "Service ended for today" : "本日の運行は終了しました"}</div>`;
+      }
+      trainHTML += `</div>`;
     }
-
-    trainHTML += `</div>`;
   }
-}
 
   if (data.bus) {
     for (let k in data.bus) {
@@ -349,33 +337,21 @@ function renderTransport() {
       const toS = getNextItems(bd.toStation, 3);
       const toT = getNextItems(bd.toTown, 3);
 
+      const busLabel = isEn ? "(Alpico Bus)" : "(アルピコ交通)";
+      let sideALabel = isEn ? "Joyama Shogakko: for Nagano Sta. / Matsuoka / Otsuka-minami" : "城山小学校前：長野駅・松岡・大塚南方面";
+      let sideBLabel = isEn ? "Zenkoji-nishi: for Uki / Wakatsuki / Iizuna / Togakushi" : "善光寺西：宇木・若槻・飯綱・戸隠方面";
+
       busHTML += `
         <div class="jr-board">
-          <h3>（アルピコ交通） ${stop.name}</h3>
+          <h3>${busLabel} ${stop.name}</h3>
           <div class="bus-columns">
             <div class="bus-col">
-              <b>城山小学校前：長野駅・松岡・大塚南方面</b>
-              ${toS.length ? toS.map(t => `
-                <div class="schedule-card">
-                  <div class="jr-time" style="width:80px;">${t.time}</div>
-                  <div class="jr-dest">
-                    <span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>
-                    ${t.dest}
-                    <div style="font-size:12px; color:#aaa; margin-left:20px;">${t.via || ""}</div>
-                  </div>
-                </div>`).join("") : `<div class="jr-row">本日の運行は終了しました</div>`}
+              <b>${sideALabel}</b>
+              ${toS.length ? toS.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row">${isEn ? "Service ended for today" : "本日の運行は終了しました"}</div>`}
             </div>
             <div class="bus-col">
-              <b>善光寺西：宇木・若槻・飯綱・戸隠方面</b>
-              ${toT.length ? toT.map(t => `
-                <div class="schedule-card">
-                  <div class="jr-time" style="width:80px;">${t.time}</div>
-                  <div class="jr-dest">
-                    <span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>
-                    ${t.dest}
-                    <div style="font-size:12px; color:#aaa; margin-left:20px;">${t.via || ""}</div>
-                  </div>
-                </div>`).join("") : `<div class="jr-row">本日の運行は終了しました</div>`}
+              <b>${sideBLabel}</b>
+              ${toT.length ? toT.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row">${isEn ? "Service ended for today" : "本日の運行は終了しました"}</div>`}
             </div>
           </div>
         </div>`;
@@ -386,11 +362,18 @@ function renderTransport() {
   setupStopScroll();
 }
 
+// 2. loadTransport 関数 (1つだけにまとめました)
 function loadTransport(){
   db.ref("transport").once("value", snap => {
     transportCache = snap.val();
     lastRenderTime = -1;
     renderTransport();
+    
+    // データ取得後に一度だけ言語ループを開始
+    if (!window.langLoopStarted) {
+      window.langLoopStarted = true;
+      startLanguageLoop();
+    }
   });
 }
 
@@ -551,3 +534,4 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
