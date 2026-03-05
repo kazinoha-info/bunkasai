@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>文化祭案内</title>
 <style>
-/* スタイル部分は以前の状態を維持 */
 body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background: linear-gradient(180deg,#f7f9fc,#eaf3ff); }
 #ticker{ background: linear-gradient(90deg,#ff9800,#ff6f00); color:white; overflow:hidden; white-space:nowrap; height:80px; line-height:80px; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
 #ticker-text{ display:inline-block; min-width:200%; padding-left:100%; animation: scroll 60s linear infinite; font-size:26px; font-weight:600; }
@@ -25,7 +24,7 @@ body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background:
 .jr-board{ background: linear-gradient(180deg,#050505,#181818); color:#00c3ff; border-radius:15px; padding:18px; margin-bottom:18px; box-shadow:0 0 12px rgba(0,195,255,0.25); }
 .jr-row{ display:flex; font-size:22px; padding:5px 0; border-bottom:1px solid #333; }
 .jr-time{ width:100px; color:white; font-weight:bold; font-size: 20px; }
-.jr-dest{ flex:1; color:white; font-size: 20px; }
+.jr-dest{ flex:1; color:#ff9800; font-size: 20px; font-weight:bold; }
 .stops{ margin-top:10px; overflow:hidden; white-space:nowrap; color:white; font-weight:bold; position: relative; height: 40px; line-height: 40px; }
 .stops span.scroll-target{ display:inline-block; font-size:28px; white-space: nowrap; position: absolute; left: 0; will-change: transform; }
 .stops.fixed{ overflow: visible; white-space: normal; height: auto; line-height: 1.4; font-size:26px; position: static; }
@@ -36,20 +35,15 @@ body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background:
 #nowTime{ text-align:center; font-size:24px; font-weight:bold; color:white; background:#111; padding:8px; border-radius:10px; margin-bottom:10px; letter-spacing:1px; }
 .schedule-card{ background:#111; border-radius:10px; padding:8px 10px; margin:6px 0; display:flex; align-items:center; box-shadow:0 2px 6px rgba(0,0,0,0.4); }
 .legend{ grid-column: span 2; margin-top:15px; font-size:17px; color:#333; text-align:center; font-weight:bold; }
-.traffic-note{ font-size:12px; color:#aaa; text-align:center; margin-top:10px; }
-#emergencyScreen{ position:fixed; top:0;left:0; width:100%; height:100%; background:#c62828; color:white; display:none; justify-content:center; align-items:center; z-index:9999; }
-#emBox{ text-align:center; width:100%; max-width:1200px; }
-#emTitle{ font-size:60px; }
-#emMessage{ font-size:28px; margin:20px 0; }
-.video-box{ position: relative; width: 100%; max-width: 1600px; margin: 20px auto; padding-top: 56.25%; }
-.video-box iframe{ position: absolute; top:0; left:0; width:100%; height:100%; border:0; }
+/* 運行終了時の水色スタイル */
+.ended-style { color: #00c3ff; border: 1px solid #00c3ff; padding: 5px; text-align: center; width: 100%; font-size: 18px; border-radius: 4px; box-sizing: border-box; }
 </style>
 </head>
 <body>
 
 <div id="ticker">
   <div id="ticker-text">
-    第67回梶の葉祭にご来場くださいましてありがとうございます。記録的な猛暑が続いており、熱中症の危険が高まっています。"こまめな水分補給"や"日陰での休憩"など、熱中症対策にご協力お願いします。
+    第67回梶の葉祭にご来場くださいましてありがとうございます。熱中症対策にご協力お願いします。
   </div>
 </div>
 
@@ -58,14 +52,12 @@ body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background:
     <div id="list" class="crowd-grid">読み込み中...</div>
     <div class="legend">
       <p>凡例：<span style="color:#2e7d32">○ 空いている</span>　<span style="color:#f9a825">△ 少し混雑</span>　<span style="color:#c62828">✕ 混雑</span></p>
-      <p style="font-size:14px; font-weight:normal; color:#666;">※混雑状況はあくまでも目安です。今現在の状態であるため、すぐに変わる可能性もあります。</p>
     </div>
   </div>
 
   <div id="right">
     <div id="nowTime">現在時刻 --:--</div>
     <h2>交通案内</h2>
-    <p class="traffic-note">※詳細につきましては各運行会社のホームページをご確認ください。</p>
     <div class="btns">
       <button id="btnWeek" onclick="setMode('weekday')" class="active">平日</button>
       <button id="btnHoliday" onclick="setMode('holiday')">休日</button>
@@ -73,14 +65,6 @@ body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background:
     <div id="trainBoard"></div>
     <hr>
     <div id="busBoard"></div>
-  </div>
-</div>
-
-<div id="emergencyScreen">
-  <div id="emBox">
-    <h1 id="emTitle"></h1>
-    <p id="emMessage"></p>
-    <div id="emVideo"></div>
   </div>
 </div>
 
@@ -118,21 +102,16 @@ function nowMin(){
 function getNextItems(list, limit = 3){
   if (!list || !Array.isArray(list)) return [];
   const now = nowMin();
-  return list
-    .filter(item => {
-      const t = (typeof item === 'string') ? item : item.time;
-      return timeToMin(t) >= now;
-    })
-    .slice(0, limit);
+  return list.filter(item => timeToMin(typeof item === 'string' ? item : item.time) >= now).slice(0, limit);
 }
 
 function renderTransport() {
   if (!transportCache) return;
-
   let trainHTML = "";
   let busHTML = "";
-  const data = (transportCache[currentLang]) ? transportCache[currentLang] : transportCache["ja"];
   const isEn = (currentLang === "en");
+  const data = transportCache[currentLang] || transportCache["ja"];
+  const endedText = isEn ? "Service ended" : "本日の運行は終了しました";
 
   if (data && data.train) {
     for (let k in data.train) {
@@ -141,44 +120,21 @@ function renderTransport() {
       const u = getNextItems(d.up, 3);
       const dn = getNextItems(d.down, 3);
 
-      const railLabel = isEn ? "(Nagano Electric Railway)" : "(長野電鉄)";
-      trainHTML += `<div class="jr-board"><h3>${railLabel} ${st.name}</h3>`;
-      const upLabel = isEn ? "⬆ Upbound: for Nagano" : "⬆ 上り 長野方面";
-      trainHTML += `<div><b>${upLabel}</b></div>`;
-
+      trainHTML += `<div class="jr-board"><h3>${isEn ? "(Nagano Elec. Railway)" : "(長野電鉄)"} ${st.name}</h3>`;
+      trainHTML += `<div><b>${isEn ? "⬆ Upbound: for Nagano" : "⬆ 上り 長野方面"}</b></div>`;
       if (u.length > 0) {
-        trainHTML += `
-          <div class="jr-row" style="background:#111; border-left:4px solid #0af;">
-            <div class="jr-time" style="font-size:30px;">${u[0].time}</div>
-            <div class="jr-dest" style="font-size:30px;color:#ff9800;">${u[0].dest}</div>
-          </div>
-          <div class="stops fixed">
-            ${isEn ? "Stops" : "停車駅"} ： ${u[0].stops.join(" → ")}
-          </div>`;
-        u.slice(1).forEach(t => {
-          trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
-        });
+        trainHTML += `<div class="jr-row" style="background:#111; border-left:4px solid #0af;"><div class="jr-time" style="font-size:30px;">${u[0].time}</div><div class="jr-dest" style="font-size:30px;">${u[0].dest}</div></div><div class="stops fixed">${isEn ? "Stops" : "停車駅"} ： ${u[0].stops.join(" → ")}</div>`;
+        u.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
       } else {
-        trainHTML += `<div class="jr-row" style="color:#888;">${isEn ? "Service ended" : "本日の運行は終了しました"}</div>`;
+        trainHTML += `<div class="jr-row"><div class="ended-style">${endedText}</div></div>`;
       }
 
-      const downLabel = isEn ? "⬇ Downbound: for Suzaka / Shinshunakano / Yudanaka" : "⬇ 下り 須坂・信州中野・湯田中方面";
-      trainHTML += `<br><div><b>${downLabel}</b></div>`;
-
+      trainHTML += `<br><div><b>${isEn ? "⬇ Downbound: for Suzaka / Yudanaka" : "⬇ 下り 須坂・湯田中方面"}</b></div>`;
       if (dn.length > 0) {
-        trainHTML += `
-          <div class="jr-row" style="background:#111; border-left:4px solid #f44;">
-            <div class="jr-time" style="font-size:30px;">${dn[0].time}</div>
-            <div class="jr-dest" style="font-size:30px;color:#ff9800;">${dn[0].dest}</div>
-          </div>
-          <div class="stops">
-            <span class="scroll-target">${isEn ? "Stops" : "停車駅"} ： ${dn[0].stops.join(" → ")}</span>
-          </div>`;
-        dn.slice(1).forEach(t => {
-          trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
-        });
+        trainHTML += `<div class="jr-row" style="background:#111; border-left:4px solid #f44;"><div class="jr-time" style="font-size:30px;">${dn[0].time}</div><div class="jr-dest" style="font-size:30px;">${dn[0].dest}</div></div><div class="stops"><span class="scroll-target">${isEn ? "Stops" : "停車駅"} ： ${dn[0].stops.join(" → ")}</span></div>`;
+        dn.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
       } else {
-        trainHTML += `<div class="jr-row" style="color:#888;">${isEn ? "Service ended" : "本日の運行は終了しました"}</div>`;
+        trainHTML += `<div class="jr-row"><div class="ended-style">${endedText}</div></div>`;
       }
       trainHTML += `</div>`;
     }
@@ -190,29 +146,14 @@ function renderTransport() {
       const bd = stop[mode] || { toStation: [], toTown: [] };
       const toS = getNextItems(bd.toStation, 3);
       const toT = getNextItems(bd.toTown, 3);
-      const busLabel = isEn ? "(Alpico Bus)" : "(アルピコ交通)";
-      let sideALabel = isEn ? "Joyama Shogakko: for Nagano Sta." : "城山小学校前：長野駅方面";
-      let sideBLabel = isEn ? "Zenkoji-nishi: for Uki / Togakushi" : "善光寺西：宇木・戸隠方面";
-
-      busHTML += `
-        <div class="jr-board">
-          <h3>${busLabel} ${stop.name}</h3>
-          <div class="bus-columns">
-            <div class="bus-col">
-              <b>${sideALabel}</b>
-              ${toS.length ? toS.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="schedule-card"><div class="jr-dest" style="color:#0af; border:1px solid #0af; padding:5px; text-align:center;">${isEn ? "Service ended" : "本日の運行は終了しました"}</div></div>`}
-            </div>
-            <div class="bus-col">
-              <b>${sideBLabel}</b>
-              ${toT.length ? toT.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="schedule-card"><div class="jr-dest" style="color:#0af; border:1px solid #0af; padding:5px; text-align:center;">${isEn ? "Service ended" : "本日の運行は終了しました"}</div></div>`}
-            </div>
-          </div>
-        </div>`;
+      busHTML += `<div class="jr-board"><h3>${isEn ? "(Alpico Bus)" : "(アルピコ交通)"} ${stop.name}</h3><div class="bus-columns">
+            <div class="bus-col"><b>${isEn ? "for Nagano Sta." : "長野駅方面"}</b>${toS.length ? toS.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="ended-style">${endedText}</div>`}</div>
+            <div class="bus-col"><b>${isEn ? "for Uki / Togakushi" : "宇木・戸隠方面"}</b>${toT.length ? toT.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="ended-style">${endedText}</div>`}</div>
+          </div></div>`;
     }
   }
   document.getElementById("trainBoard").innerHTML = trainHTML;
   document.getElementById("busBoard").innerHTML = busHTML;
-  
   setTimeout(startSmartScroll, 200);
 }
 
@@ -222,25 +163,11 @@ function startSmartScroll() {
     const parent = span.parentElement;
     const parentW = parent.offsetWidth;
     const textW = span.offsetWidth;
-
-    if (textW <= parentW) {
-      span.style.left = "0";
-      return;
-    }
-
-    // 速度を一定にする（1秒間に80px進む設定。お好みで変更可）
-    const speed = 80; 
+    if (textW <= parentW) { span.style.left = "0"; return; }
+    const speed = 30; // 以前よりかなり遅く設定 (1秒間に30px)
     const totalDistance = parentW + textW;
     const duration = (totalDistance / speed) * 1000;
-
-    span.animate([
-      { transform: `translateX(${parentW}px)` },
-      { transform: `translateX(-${textW}px)` }
-    ], {
-      duration: duration,
-      iterations: Infinity,
-      easing: 'linear'
-    });
+    span.animate([{ transform: `translateX(${parentW}px)` }, { transform: `translateX(-${textW}px)` }], { duration: duration, iterations: Infinity, easing: 'linear' });
   });
 }
 
@@ -248,11 +175,16 @@ function loadTransport(){
   db.ref("transport").on("value", snap => {
     transportCache = snap.val();
     renderTransport();
-    if (!window.langLoopStarted) {
-      window.langLoopStarted = true;
-      startLanguageLoop();
-    }
+    if (!window.langLoopStarted) { window.langLoopStarted = true; startLanguageLoop(); }
   });
+}
+
+function startLanguageLoop(){
+  const loop = () => {
+    currentLang = "ja"; renderTransport();
+    setTimeout(() => { currentLang = "en"; renderTransport(); setTimeout(loop, 90000); }, 150000);
+  };
+  loop();
 }
 
 function setMode(m){
@@ -262,30 +194,15 @@ function setMode(m){
   renderTransport();
 }
 
-function startLanguageLoop(){
-  const loop = () => {
-    currentLang = "ja";
-    renderTransport();
-    setTimeout(() => {
-      currentLang = "en";
-      renderTransport();
-      setTimeout(loop, 90000);
-    }, 150000);
-  };
-  loop();
-}
-
 db.ref("classes").on("value", snap => {
-  const data = snap.val();
-  if(!data) return;
+  const data = snap.val(); if(!data) return;
   let h1 = "", h2 = "";
   for (let key in data) {
     const item = data[key];
     const s = item.status;
     const sCls = s === "○" ? "ok" : s === "△" ? "mid" : "ng";
     const card = `<div class="card"><div>${item.name}</div><div class="status ${sCls}">${s}</div></div>`;
-    if (item.name.includes("1年")) h1 += card;
-    else if (item.name.includes("2年")) h2 += card;
+    if (item.name.includes("1年")) h1 += card; else if (item.name.includes("2年")) h2 += card;
   }
   document.getElementById("list").innerHTML = h1 + h2;
 });
@@ -295,41 +212,10 @@ setInterval(renderTransport, 10000);
 
 function updateNowTime(){
   const d = new Date();
-  const h = String(d.getHours()).padStart(2,"0");
-  const m = String(d.getMinutes()).padStart(2,"0");
-  document.getElementById("nowTime").textContent = `現在時刻 ${h}:${m}`;
+  document.getElementById("nowTime").textContent = `現在時刻 ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
 }
 setInterval(updateNowTime,1000);
 updateNowTime();
-
-db.ref("system").on("value", snap=>{
-  const d = snap.val();
-  if(!d) return;
-  if(d.emergency) showEmergency(d);
-  else hideEmergency();
-});
-
-function showEmergency(d){
-  const screen = document.getElementById("emergencyScreen");
-  document.getElementById("layout").style.display="none";
-  screen.style.display="flex";
-  if(d.mode==="drill"){
-    screen.style.background="#f9a825";
-    document.getElementById("emTitle").innerText="⚠ 緊急地震速報訓練中 ⚠";
-  } else {
-    screen.style.background="#c62828";
-    document.getElementById("emTitle").innerText="⚠ 緊急地震速報 ⚠";
-  }
-  document.getElementById("emMessage").innerText = d.message || "";
-  document.getElementById("emVideo").innerHTML = `
-    <div class="video-box"><iframe src="https://www.youtube.com/embed/ozDXFjwgjYA?autoplay=1&mute=1" allow="autoplay" allowfullscreen></iframe></div>`;
-}
-
-function hideEmergency(){
-  document.getElementById("emergencyScreen").style.display="none";
-  document.getElementById("layout").style.display="grid";
-  document.getElementById("emVideo").innerHTML = "";
-}
 </script>
 </body>
 </html>
