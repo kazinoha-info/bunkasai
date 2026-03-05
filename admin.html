@@ -98,7 +98,7 @@ input[type="password"]:focus {
 
 /* --- 管理パネル（初期は非表示） --- */
 #panel {
-  display: none; /* 認証後に表示 */
+  display: none;
   background: white;
   width: 92%;
   max-width: 520px;
@@ -107,7 +107,6 @@ input[type="password"]:focus {
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
 
-/* (以下、元のCSSデザインと同じ) */
 h1{ text-align:center; margin:0 0 20px; color:#1565c0; font-size:26px; }
 .section{ margin-bottom:25px; }
 .section h2{ font-size:20px; margin-bottom:10px; color:#333; border-left:6px solid #1565c0; padding-left:8px; }
@@ -170,8 +169,7 @@ select{ width:100%; font-size:20px; padding:10px; border-radius:10px; border:2px
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-<script>
-// --- [1] Firebase初期設定 (あなたの情報を保持) ---
+// --- [1] Firebase初期設定 ---
 const firebaseConfig = {
   apiKey: "AIzaSyDTHN-YfAJz86NgNAaldixubGfDZwRgnKw",
   authDomain: "bunkasai-info-59212.firebaseapp.com",
@@ -199,9 +197,8 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
-// --- [3] ログイン実行 (Firebase Authに問い合わせ) ---
+// --- [3] ログイン実行 ---
 function checkAuth() {
-  // ★ Firebaseコンソールで登録した「メールアドレス」をここに入れてください
   const email = "naganonisi25133@g.nagano-c.ed.jp"; 
   const pass = document.getElementById("passInput").value;
   const errorMsg = document.getElementById("login-error");
@@ -219,7 +216,7 @@ document.getElementById("passInput").addEventListener("keypress", (e) => {
   if (e.key === "Enter") checkAuth();
 });
 
-// --- [4] 防災・混雑管理のメイン機能 (中身は同じ) ---
+// --- [4] 防災・混雑管理機能 ---
 const select = document.getElementById("cName");
 const msg = document.getElementById("msg");
 
@@ -250,8 +247,8 @@ function showMsg(t){
 
 db.ref("classes").on("value", snap=>{
   const data = snap.val();
-  select.innerHTML="";
   if(!data) return;
+  select.innerHTML="";
   for(let k in data){
     const opt = document.createElement("option");
     opt.value = k;
@@ -260,6 +257,5 @@ db.ref("classes").on("value", snap=>{
   }
 });
 </script>
-
 </body>
 </html>
