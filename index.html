@@ -450,14 +450,14 @@ function startLanguageLoop(){
     currentLang = "en";
     lastRenderTime = -1;
     renderTransport();
-    setTimeout(toJapanese, 30000);
+    setTimeout(toJapanese, 90000);
   }
 
   function toJapanese(){
     currentLang = "ja";
     lastRenderTime = -1;
     renderTransport();
-    setTimeout(toEnglish, 50000);
+    setTimeout(toEnglish, 150000);
   }
 
   toEnglish();
@@ -534,4 +534,5 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
 
