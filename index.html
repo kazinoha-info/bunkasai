@@ -274,7 +274,9 @@ function renderTransport() {
 
   let trainHTML = "";
   let busHTML = "";
-  const data = transportCache["ja"]; 
+  // transportCacheの中に現在の言語(currentLang)のデータがあればそれを、
+// なければ(英語データがない場合など)日本語データを使わせる
+const data = (transportCache && transportCache[currentLang]) ? transportCache[currentLang] : transportCache["ja"];
   const isEn = (currentLang === "en");
 
   if (data.train) {
@@ -364,19 +366,18 @@ function renderTransport() {
 
 // 2. loadTransport 関数 (1つだけにまとめました)
 function loadTransport(){
-  db.ref("transport").once("value", snap => {
+  // .once を .on に変えると、Firebaseの更新と100%連動します
+  db.ref("transport").on("value", snap => {
     transportCache = snap.val();
-    lastRenderTime = -1;
+    lastRenderTime = -1; // 強制再描画
     renderTransport();
     
-    // データ取得後に一度だけ言語ループを開始
     if (!window.langLoopStarted) {
       window.langLoopStarted = true;
       startLanguageLoop();
     }
   });
 }
-
 function setMode(m){
   mode = m;
   document.querySelectorAll(".btns button").forEach(btn=>btn.classList.remove("active"));
@@ -533,5 +534,6 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
 
 
