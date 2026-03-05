@@ -281,17 +281,24 @@ setInterval(updateNowTime,1000);
 updateNowTime();
 
 function startLanguageLoop(){
+  // 英語に切り替える関数
   function toEnglish(){
     currentLang = "en";
     renderTransport();
-    setTimeout(toJapanese, 30000);
+    // 1分30秒（90000ms）経ったら日本語に戻す
+    setTimeout(toJapanese, 90000);
   }
+
+  // 日本語に切り替える関数
   function toJapanese(){
     currentLang = "ja";
     renderTransport();
-    setTimeout(toEnglish, 50000);
+    // 2分30秒（150000ms）経ったら英語に切り替える
+    setTimeout(toEnglish, 150000);
   }
-  toEnglish();
+
+  // 最初にどちらから始めるか（ここでは日本語からスタートさせています）
+  toJapanese();
 }
 
 db.ref("system").on("value", snap=>{
@@ -325,3 +332,4 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
