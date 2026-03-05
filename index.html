@@ -4,184 +4,45 @@
   <meta charset="UTF-8">
   <title>文化祭案内</title>
 <style>
-
-body{
-  margin:0;
-  font-family: "Segoe UI", "Noto Sans JP", sans-serif;
-  background: linear-gradient(180deg,#f7f9fc,#eaf3ff);
-}
-#ticker{
-  background: linear-gradient(90deg,#ff9800,#ff6f00);
-  color:white;
-  overflow:hidden;
-  white-space:nowrap;
-  height:80px;
-  line-height:80px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.2);
-}
-#ticker-text{
-  display:inline-block;
-  min-width:200%;
-  padding-left:100%;
-  animation: scroll 60s linear infinite;
-  font-size:26px;
-  font-weight:600;
-}
+/* スタイル部分は変更なし */
+body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background: linear-gradient(180deg,#f7f9fc,#eaf3ff); }
+#ticker{ background: linear-gradient(90deg,#ff9800,#ff6f00); color:white; overflow:hidden; white-space:nowrap; height:80px; line-height:80px; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+#ticker-text{ display:inline-block; min-width:200%; padding-left:100%; animation: scroll 60s linear infinite; font-size:26px; font-weight:600; }
 @keyframes scroll{ from{ transform: translateX(0); } to{ transform: translateX(-100%); } }
 #layout{ display:grid; grid-template-columns: 3fr 2fr; height: calc(100vh - 100px); }
-
 #left{ overflow:auto; padding:20px; }
-#right{
-  background:white;
-  margin:15px;
-  border-radius:15px;
-  padding:20px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.15);
-  overflow-y:auto;
-}
-
-
+#right{ background:white; margin:15px; border-radius:15px; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,0.15); overflow-y:auto; }
 .crowd-grid{ display:grid; grid-template-columns: repeat(2, 1fr); gap:16px; }
-.card{
-  background: #005c3c;
-  color:white;
-  border-radius:12px;
-  padding:18px;
-  height: 55px;
-  box-shadow:0 3px 8px rgba(0,0,0,0.25);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:55px;
-  font-weight:bold;
-}
+.card{ background: #005c3c; color:white; border-radius:12px; padding:18px; height: 55px; box-shadow:0 3px 8px rgba(0,0,0,0.25); display:flex; justify-content:space-between; align-items:center; font-size:55px; font-weight:bold; }
 .status{ font-size:40px; font-weight:bold; width:50px; height:50px; border-radius:6px; display:flex; justify-content:center; align-items:center; }
 .ok{ background:#2e7d32; color:white; } 
 .mid{ background:#f9a825; color:#333; } 
 .ng{ background:#c62828; color:white; }
-
 #right h2{ font-size:28px; font-weight:bold; color:white; background:black; padding:8px; border-radius:6px; text-align:center; margin-top:5px; }
 .btns{ margin:10px 0; }
 .btns button{ background: #eee; color:#333; font-weight:600; border-radius:20px; padding:6px 16px; border:none; cursor:pointer; }
 .btns button.active{ background:#ff9800; color:white; }
-
-.jr-board{
-  background: linear-gradient(180deg,#050505,#181818);
-  color:#00c3ff;
-  border-radius:15px;
-  padding:18px;
-  margin-bottom:18px;
-  box-shadow:0 0 12px rgba(0,195,255,0.25);
-}
+.jr-board{ background: linear-gradient(180deg,#050505,#181818); color:#00c3ff; border-radius:15px; padding:18px; margin-bottom:18px; box-shadow:0 0 12px rgba(0,195,255,0.25); }
 .jr-row{ display:flex; font-size:22px; padding:5px 0; border-bottom:1px solid #333; }
 .jr-time{ width:100px; color:white; font-weight:bold; font-size: 20px; }
 .jr-dest{ flex:1; color:white; font-size: 20px; }
-
-.stops{ 
-  margin-top:10px; 
-  overflow:hidden; 
-  white-space:nowrap; 
-  color:white; 
-  font-weight:bold; 
-  position: relative; 
-  height: 40px;
-  line-height: 40px;
-}
-.stops span{ 
-  display:inline-block; 
-  font-size:28px; 
-  white-space: nowrap; 
-  will-change: transform; 
-  position: absolute; 
-  top: 0; 
-}
-.stops.fixed{ 
-  overflow: visible; 
-  white-space: normal; 
-  height: auto;
-  line-height: 1.4; 
-  font-size:26px; 
-  position: static; 
-}
-
+.stops{ margin-top:10px; overflow:hidden; white-space:nowrap; color:white; font-weight:bold; position: relative; height: 40px; line-height: 40px; }
+.stops span{ display:inline-block; font-size:28px; white-space: nowrap; will-change: transform; position: absolute; top: 0; }
+.stops.fixed{ overflow: visible; white-space: normal; height: auto; line-height: 1.4; font-size:26px; position: static; }
 .jr-board h3{ font-size:30px; font-weight:bold; color:white; margin:5px 0 10px; }
 .jr-board b{ font-size:24px; font-weight:bold; color:white; }
 .bus-columns{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
 .bus-col b{ display: block; text-align: center; font-size: 22px; margin-bottom: 5px; color: #ffae00; }
-
-#nowTime{
-  text-align:center;
-  font-size:24px;
-  font-weight:bold;
-  color:white;
-  background:#111;
-  padding:8px;
-  border-radius:10px;
-  margin-bottom:10px;
-  letter-spacing:1px;
-}
-.schedule-card{
-  background:#111;
-  border-radius:10px;
-  padding:8px 10px;
-  margin:6px 0;
-  display:flex;
-  align-items:center;
-  box-shadow:0 2px 6px rgba(0,0,0,0.4);
-}
-.legend{
-  grid-column: span 2;
-  margin-top:15px;
-  font-size:17px;
-  color:#333;
-  text-align:center;
-  font-weight:bold;
-}
+#nowTime{ text-align:center; font-size:24px; font-weight:bold; color:white; background:#111; padding:8px; border-radius:10px; margin-bottom:10px; letter-spacing:1px; }
+.schedule-card{ background:#111; border-radius:10px; padding:8px 10px; margin:6px 0; display:flex; align-items:center; box-shadow:0 2px 6px rgba(0,0,0,0.4); }
+.legend{ grid-column: span 2; margin-top:15px; font-size:17px; color:#333; text-align:center; font-weight:bold; }
 .traffic-note{ font-size:12px; color:#aaa; text-align:center; margin-top:10px; }
-#emergencyScreen{
-  position:fixed;
-  top:0;left:0;
-  width:100%;
-  height:100%;
-  background:#c62828;
-  color:white;
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-}
-
-#emBox{
-  text-align:center;
-  width:100%;
-  max-width:1200px;
-}
-
-#emTitle{
-  font-size:60px;
-}
-
-#emMessage{
-  font-size:28px;
-  margin:20px 0;
-}
-
-.video-box{
-  position: relative;
-  width: 100%;
-  max-width: 1600px;
-  margin: 20px auto;
-  padding-top: 56.25%; /* 16:9 */
-}
-
-.video-box iframe{
-  position: absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  border:0;
-}
+#emergencyScreen{ position:fixed; top:0;left:0; width:100%; height:100%; background:#c62828; color:white; display:none; justify-content:center; align-items:center; z-index:9999; }
+#emBox{ text-align:center; width:100%; max-width:1200px; }
+#emTitle{ font-size:60px; }
+#emMessage{ font-size:28px; margin:20px 0; }
+.video-box{ position: relative; width: 100%; max-width: 1600px; margin: 20px auto; padding-top: 56.25%; }
+.video-box iframe{ position: absolute; top:0; left:0; width:100%; height:100%; border:0; }
 </style>
 </head>
 <body>
@@ -214,7 +75,7 @@ body{
     <div id="busBoard"></div>
   </div>
 </div>
-  <!-- 緊急画面 -->
+
 <div id="emergencyScreen">
   <div id="emBox">
     <h1 id="emTitle"></h1>
@@ -242,7 +103,6 @@ const db = firebase.database();
 let mode = "weekday";
 let transportCache = null;
 let currentLang = "ja";
-let lastRenderTime = -1;
 
 function timeToMin(t){
   if(!t || typeof t !== "string") return 0;
@@ -268,18 +128,15 @@ function getNextItems(list, limit = 3){
 
 function renderTransport() {
   if (!transportCache) return;
-  const currentMin = nowMin();
-  if (currentMin === lastRenderTime) return;
-  lastRenderTime = currentMin;
 
   let trainHTML = "";
   let busHTML = "";
-  // transportCacheの中に現在の言語(currentLang)のデータがあればそれを、
-// なければ(英語データがない場合など)日本語データを使わせる
-const data = (transportCache && transportCache[currentLang]) ? transportCache[currentLang] : transportCache["ja"];
+  
+  // 現在の言語のデータ、なければjaを参照
+  const data = (transportCache[currentLang]) ? transportCache[currentLang] : transportCache["ja"];
   const isEn = (currentLang === "en");
 
-  if (data.train) {
+  if (data && data.train) {
     for (let k in data.train) {
       const st = data.train[k];
       const d = st[mode] || { up: [], down: [] };
@@ -288,7 +145,6 @@ const data = (transportCache && transportCache[currentLang]) ? transportCache[cu
 
       const railLabel = isEn ? "(Nagano Electric Railway)" : "(長野電鉄)";
       trainHTML += `<div class="jr-board"><h3>${railLabel} ${st.name}</h3>`;
-
       const upLabel = isEn ? "⬆ Upbound: for Nagano" : "⬆ 上り 長野方面";
       trainHTML += `<div><b>${upLabel}</b></div>`;
 
@@ -300,13 +156,12 @@ const data = (transportCache && transportCache[currentLang]) ? transportCache[cu
           </div>
           <div class="stops fixed">
             ${isEn ? "Stops" : "停車駅"} ： ${u[0].stops.join(" → ")}
-          </div>
-        `;
+          </div>`;
         u.slice(1).forEach(t => {
           trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
         });
       } else {
-        trainHTML += `<div class="jr-row" style="color:#888;">${isEn ? "Service ended for today" : "本日の運行は終了しました"}</div>`;
+        trainHTML += `<div class="jr-row" style="color:#888;">${isEn ? "Service ended" : "本日の運行は終了しました"}</div>`;
       }
 
       const downLabel = isEn ? "⬇ Downbound: for Suzaka / Shinshunakano / Yudanaka" : "⬇ 下り 須坂・信州中野・湯田中方面";
@@ -320,19 +175,18 @@ const data = (transportCache && transportCache[currentLang]) ? transportCache[cu
           </div>
           <div class="stops">
             <span>${isEn ? "Stops" : "停車駅"} ： ${dn[0].stops.join(" → ")}</span>
-          </div>
-        `;
+          </div>`;
         dn.slice(1).forEach(t => {
           trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
         });
       } else {
-        trainHTML += `<div class="jr-row" style="color:#888;">${isEn ? "Service ended for today" : "本日の運行は終了しました"}</div>`;
+        trainHTML += `<div class="jr-row" style="color:#888;">${isEn ? "Service ended" : "本日の運行は終了しました"}</div>`;
       }
       trainHTML += `</div>`;
     }
   }
 
-  if (data.bus) {
+  if (data && data.bus) {
     for (let k in data.bus) {
       const stop = data.bus[k];
       const bd = stop[mode] || { toStation: [], toTown: [] };
@@ -349,11 +203,11 @@ const data = (transportCache && transportCache[currentLang]) ? transportCache[cu
           <div class="bus-columns">
             <div class="bus-col">
               <b>${sideALabel}</b>
-              ${toS.length ? toS.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row">${isEn ? "Service ended for today" : "本日の運行は終了しました"}</div>`}
+              ${toS.length ? toS.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row">${isEn ? "Service ended" : "本日の運行は終了しました"}</div>`}
             </div>
             <div class="bus-col">
               <b>${sideBLabel}</b>
-              ${toT.length ? toT.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row">${isEn ? "Service ended for today" : "本日の運行は終了しました"}</div>`}
+              ${toT.length ? toT.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row">${isEn ? "Service ended" : "本日の運行は終了しました"}</div>`}
             </div>
           </div>
         </div>`;
@@ -364,25 +218,21 @@ const data = (transportCache && transportCache[currentLang]) ? transportCache[cu
   setupStopScroll();
 }
 
-// 2. loadTransport 関数 (1つだけにまとめました)
 function loadTransport(){
-  // .once を .on に変えると、Firebaseの更新と100%連動します
   db.ref("transport").on("value", snap => {
     transportCache = snap.val();
-    lastRenderTime = -1; // 強制再描画
     renderTransport();
-    
     if (!window.langLoopStarted) {
       window.langLoopStarted = true;
       startLanguageLoop();
     }
   });
 }
+
 function setMode(m){
   mode = m;
   document.querySelectorAll(".btns button").forEach(btn=>btn.classList.remove("active"));
   document.getElementById(m==="weekday"?"btnWeek":"btnHoliday").classList.add("active");
-  lastRenderTime = -1;
   renderTransport();
 }
 
@@ -390,22 +240,14 @@ function setupStopScroll() {
   document.querySelectorAll(".stops span").forEach(span => {
     if (span.dataset.running) return;
     span.dataset.running = "true";
-
     const boxW = span.parentElement.clientWidth;
     const textW = span.scrollWidth;
-
-    if (textW <= boxW) {
-      span.style.transition = "none";
-      span.style.transform = "translateX(0)";
-      return;
-    }
-
+    if (textW <= boxW) return;
     const distance = boxW + textW + 50;
     const duration = distance / 50;
-
     span.style.transition = "none";
     span.style.transform = `translateX(${boxW}px)`; 
-    span.offsetWidth; // reflow
+    span.offsetWidth; 
     span.style.transition = `transform ${duration}s linear`;
     span.style.transform = `translateX(-${textW}px)`;
   });
@@ -413,10 +255,7 @@ function setupStopScroll() {
 
 db.ref("classes").on("value", snap => {
   const data = snap.val();
-  if(!data){
-    document.getElementById("list").innerHTML = "データがありません";
-    return;
-  }
+  if(!data) return;
   let h1 = "", h2 = "";
   for (let key in data) {
     const item = data[key];
@@ -431,109 +270,58 @@ db.ref("classes").on("value", snap => {
 
 loadTransport();
 setInterval(renderTransport, 10000);
-setInterval(loadTransport, 1800000);
 
 function updateNowTime(){
   const d = new Date();
   const h = String(d.getHours()).padStart(2,"0");
   const m = String(d.getMinutes()).padStart(2,"0");
-  document.getElementById("nowTime").textContent =
-    `現在時刻 ${h}:${m}`;
+  document.getElementById("nowTime").textContent = `現在時刻 ${h}:${m}`;
 }
-  
 setInterval(updateNowTime,1000);
 updateNowTime();
 
 function startLanguageLoop(){
-
   function toEnglish(){
     currentLang = "en";
-    lastRenderTime = -1;
     renderTransport();
     setTimeout(toJapanese, 30000);
   }
-
   function toJapanese(){
     currentLang = "ja";
-    lastRenderTime = -1;
     renderTransport();
     setTimeout(toEnglish, 50000);
   }
-
   toEnglish();
 }
 
-// 緊急監視
 db.ref("system").on("value", snap=>{
-
   const d = snap.val();
   if(!d) return;
-
-  if(d.emergency){
-
-    showEmergency(d);
-
-  }else{
-
-    hideEmergency();
-
-  }
-
+  if(d.emergency) showEmergency(d);
+  else hideEmergency();
 });
+
 function showEmergency(d){
-
   const screen = document.getElementById("emergencyScreen");
-
-  // 通常画面を消す
   document.getElementById("layout").style.display="none";
-
   screen.style.display="flex";
-
   if(d.mode==="drill"){
     screen.style.background="#f9a825";
     document.getElementById("emTitle").innerText="⚠ 緊急地震速報訓練中 ⚠";
-  }
-
-  if(d.mode==="real"){
+  } else {
     screen.style.background="#c62828";
     document.getElementById("emTitle").innerText="⚠ 緊急地震速報 ⚠";
   }
-
   document.getElementById("emMessage").innerText = d.message || "";
-
-document.getElementById("emVideo").innerHTML = `
-  <div class="video-box">
-    <iframe
-      src="https://www.youtube.com/embed/ozDXFjwgjYA?autoplay=1&mute=1"
-      allow="autoplay"
-      allowfullscreen>
-    </iframe>
-  </div>
-
-  <div style="
-    text-align:center;
-    font-size:14px;
-    color:#eee;
-    margin-top:8px;
-    opacity:0.8;
-  ">
-    提供：YouTube「JQuakeチャンネル」<br>
-    『【JQuake】地震速報放送24時間』
-  </div>
-`;
+  document.getElementById("emVideo").innerHTML = `
+    <div class="video-box"><iframe src="https://www.youtube.com/embed/ozDXFjwgjYA?autoplay=1&mute=1" allow="autoplay" allowfullscreen></iframe></div>`;
 }
 
 function hideEmergency(){
-
   document.getElementById("emergencyScreen").style.display="none";
   document.getElementById("layout").style.display="grid";
   document.getElementById("emVideo").innerHTML = "";
-
 }
-  
 </script>
 </body>
 </html>
-
-
-
