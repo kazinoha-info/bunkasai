@@ -173,9 +173,9 @@ function renderTransport() {
             <div class="jr-time" style="font-size:30px;">${dn[0].time}</div>
             <div class="jr-dest" style="font-size:30px;color:#ff9800;">${dn[0].dest}</div>
           </div>
-          <div class="stops">
-            <span>${isEn ? "Stops" : "停車駅"} ： ${dn[0].stops.join(" → ")}</span>
-          </div>`;
+<div class="stops">
+  <span data-running="false">${isEn ? "Stops" : "停車駅"} ： ${dn[0].stops.join(" → ")}</span>
+</div>;
         dn.slice(1).forEach(t => {
           trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
         });
@@ -236,21 +236,25 @@ function setMode(m){
   renderTransport();
 }
 
-function setupStopScroll() {
-  document.querySelectorAll(".stops span").forEach(span => {
-    if (span.dataset.running) return;
-    span.dataset.running = "true";
-    const boxW = span.parentElement.clientWidth;
-    const textW = span.scrollWidth;
-    if (textW <= boxW) return;
-    const distance = boxW + textW + 50;
-    const duration = distance / 50;
-    span.style.transition = "none";
-    span.style.transform = `translateX(${boxW}px)`; 
-    span.offsetWidth; 
-    span.style.transition = `transform ${duration}s linear`;
-    span.style.transform = `translateX(-${textW}px)`;
-  });
+function startLanguageLoop(){
+  // 英語に切り替える関数
+  function toEnglish(){
+    currentLang = "en";
+    renderTransport();
+    // 1分30秒（90000ms）経ったら日本語に戻す
+    setTimeout(toJapanese, 90000);
+  }
+
+  // 日本語に切り替える関数
+  function toJapanese(){
+    currentLang = "ja";
+    renderTransport();
+    // 2分30秒（150000ms）経ったら英語に切り替える
+    setTimeout(toEnglish, 150000);
+  }
+
+  // 最初にどちらから始めるか（ここでは日本語からスタートさせています）
+  toJapanese();
 }
 
 db.ref("classes").on("value", snap => {
@@ -332,4 +336,5 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
 
