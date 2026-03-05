@@ -10,6 +10,10 @@ body{
   font-family: "Segoe UI", "Noto Sans JP", sans-serif;
   background: linear-gradient(180deg,#f7f9fc,#eaf3ff);
 }
+  <body>
+<div id="audioInit" style="position:fixed; top:10px; right:10px; z-index:10000;">
+  <button onclick="enableAudio()" style="padding:10px 20px; background:#ff9800; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.3);">音声を有効にする</button>
+</div>
 #ticker{
   background: linear-gradient(90deg,#ff9800,#ff6f00);
   color:white;
@@ -480,17 +484,16 @@ db.ref("system").on("value", snap=>{
     hideEmergency();
 
   }
+function enableAudio() {
+  document.getElementById('audioInit').style.display = 'none';
+  // これでブラウザが「このページは音を出してOK」と認識します
+}
 
 });
 function showEmergency(d){
-
   const screen = document.getElementById("emergencyScreen");
-
-  // 通常画面を消す
   document.getElementById("layout").style.display="none";
-
   screen.style.display="flex";
-
   if(d.mode==="drill"){
     screen.style.background="#f9a825";
     document.getElementById("emTitle").innerText="⚠ 緊急地震速報訓練中 ⚠";
@@ -503,14 +506,14 @@ function showEmergency(d){
 
   document.getElementById("emMessage").innerText = d.message || "";
 
-document.getElementById("emVideo").innerHTML = `
-  <div class="video-box">
-    <iframe
-      src="https://www.youtube.com/embed/ozDXFjwgjYA?autoplay=1&mute=0"
-      allow="autoplay"
-      allowfullscreen>
-    </iframe>
-  </div>
+ddocument.getElementById("emVideo").innerHTML = `
+    <div class="video-box">
+      <iframe
+        src="https://www.youtube.com/embed/ozDXFjwgjYA?autoplay=1&mute=0" 
+        allow="autoplay; encrypted-media" 
+        allowfullscreen>
+      </iframe>
+    </div>
 
   <div style="
     text-align:center;
@@ -536,6 +539,7 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
 
 
 
