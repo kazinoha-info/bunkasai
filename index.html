@@ -25,7 +25,7 @@ body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background:
 .jr-row{ display:flex; font-size:22px; padding:5px 0; border-bottom:1px solid #333; }
 .jr-time{ width:100px; color:white; font-weight:bold; font-size: 20px; }
 .jr-dest{ flex:1; color:white; font-size: 20px; }
-.stops{ margin-top:10px; overflow:hidden; white-space:nowrap; color:white; font-weight:bold; position: relative; height: 40px; line-height: 40px; width: 100%; background: rgba(255,255,255,0.05); }
+.stops{ margin-top:10px; overflow:hidden; white-space:nowrap; color:white; font-weight:bold; position: relative; height: 40px; line-height: 40px; width: 100%; background: rgba(255,255,255,0.1); }
 .stops span.scroll-target{ display:inline-block; font-size:28px; white-space: nowrap; position: absolute; left: 0; will-change: transform; }
 .stops.fixed{ overflow: visible; white-space: normal; height: auto; line-height: 1.4; font-size:26px; position: static; background: none; }
 .jr-board h3{ font-size:30px; font-weight:bold; color:white; margin:5px 0 10px; }
@@ -34,31 +34,16 @@ body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background:
 .bus-col b{ display: block; text-align: center; font-size: 22px; margin-bottom: 5px; color: #ffae00; }
 #nowTime{ text-align:center; font-size:24px; font-weight:bold; color:white; background:#111; padding:8px; border-radius:10px; margin-bottom:10px; letter-spacing:1px; }
 .schedule-card{ background:#111; border-radius:10px; padding:8px 10px; margin:6px 0; display:flex; align-items:center; box-shadow:0 2px 6px rgba(0,0,0,0.4); }
-.legend{ grid-column: span 2; margin-top:15px; font-size:17px; color:#333; text-align:center; font-weight:bold; }
-#emergencyScreen{ position:fixed; top:0;left:0; width:100%; height:100%; background:#c62828; color:white; display:none; justify-content:center; align-items:center; z-index:9999; }
-#emBox{ text-align:center; width:100%; max-width:1200px; }
-#emTitle{ font-size:60px; }
-#emMessage{ font-size:28px; margin:20px 0; }
-.video-box{ position: relative; width: 100%; max-width: 1600px; margin: 20px auto; padding-top: 56.25%; }
-.video-box iframe{ position: absolute; top:0; left:0; width:100%; height:100%; border:0; }
 </style>
 </head>
 <body>
 
-<div id="ticker">
-  <div id="ticker-text">
-    第67回梶の葉祭にご来場くださいましてありがとうございます。熱中症対策にご協力お願いします。
-  </div>
-</div>
+<div id="ticker"><div id="ticker-text">第67回梶の葉祭にご来場くださいましてありがとうございます。</div></div>
 
 <div id="layout">
   <div id="left">
     <div id="list" class="crowd-grid">読み込み中...</div>
-    <div class="legend">
-      <p>凡例：<span style="color:#2e7d32">○ 空いている</span>　<span style="color:#f9a825">△ 少し混雑</span>　<span style="color:#c62828">✕ 混雑</span></p>
-    </div>
   </div>
-
   <div id="right">
     <div id="nowTime">現在時刻 --:--</div>
     <h2>交通案内</h2>
@@ -72,13 +57,7 @@ body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background:
   </div>
 </div>
 
-<div id="emergencyScreen">
-  <div id="emBox">
-    <h1 id="emTitle"></h1>
-    <p id="emMessage"></p>
-    <div id="emVideo"></div>
-  </div>
-</div>
+<div id="emergencyScreen"><div id="emBox"><h1 id="emTitle"></h1><p id="emMessage"></p><div id="emVideo"></div></div></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -114,22 +93,15 @@ function nowMin(){
 function getNextItems(list, limit = 3){
   if (!list || !Array.isArray(list)) return [];
   const now = nowMin();
-  return list
-    .filter(item => {
-      const t = (typeof item === 'string') ? item : item.time;
-      return timeToMin(t) >= now;
-    })
-    .slice(0, limit);
+  return list.filter(item => timeToMin(typeof item === 'string' ? item : item.time) >= now).slice(0, limit);
 }
 
 function renderTransport() {
   if (!transportCache) return;
-
   let trainHTML = "";
   let busHTML = "";
   const isEn = (currentLang === "en");
-  const data = (transportCache[currentLang]) ? transportCache[currentLang] : transportCache["ja"];
-  const endedText = isEn ? "Service ended" : "本日の運行は終了しました";
+  const data = transportCache[currentLang] || transportCache["ja"];
 
   if (data && data.train) {
     for (let k in data.train) {
@@ -142,35 +114,19 @@ function renderTransport() {
       trainHTML += `<div><b>${isEn ? "⬆ Upbound: for Nagano" : "⬆ 上り 長野方面"}</b></div>`;
 
       if (u.length > 0) {
-        trainHTML += `
-          <div class="jr-row" style="background:#111; border-left:4px solid #0af;">
-            <div class="jr-time" style="font-size:30px;">${u[0].time}</div>
-            <div class="jr-dest" style="font-size:30px;color:#ff9800;">${u[0].dest}</div>
-          </div>
-          <div class="stops fixed">${isEn ? "Stops" : "停車駅"} ： ${u[0].stops.join(" → ")}</div>`;
-        u.slice(1).forEach(t => {
-          trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
-        });
+        trainHTML += `<div class="jr-row" style="background:#111; border-left:4px solid #0af;"><div class="jr-time" style="font-size:30px;">${u[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${u[0].dest}</div></div><div class="stops fixed">${isEn ? "Stops" : "停車駅"} ： ${u[0].stops.join(" → ")}</div>`;
+        u.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
       } else {
-        trainHTML += `<div class="jr-row" style="color:#888;">${endedText}</div>`;
+        trainHTML += `<div class="jr-row" style="color:#888;">${isEn ? "Service ended" : "本日の運行は終了しました"}</div>`;
       }
 
       trainHTML += `<br><div><b>${isEn ? "⬇ Downbound: for Suzaka / Yudanaka" : "⬇ 下り 須坂・湯田中方面"}</b></div>`;
 
       if (dn.length > 0) {
-        trainHTML += `
-          <div class="jr-row" style="background:#111; border-left:4px solid #f44;">
-            <div class="jr-time" style="font-size:30px;">${dn[0].time}</div>
-            <div class="jr-dest" style="font-size:30px;color:#ff9800;">${dn[0].dest}</div>
-          </div>
-          <div class="stops">
-            <span class="scroll-target">${isEn ? "Stops" : "停車駅"} ： ${dn[0].stops.join(" → ")}</span>
-          </div>`;
-        dn.slice(1).forEach(t => {
-          trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
-        });
+        trainHTML += `<div class="jr-row" style="background:#111; border-left:4px solid #f44;"><div class="jr-time" style="font-size:30px;">${dn[0].time}</div><div class="jr-dest" style="font-size:30px;color:#ff9800;">${dn[0].dest}</div></div><div class="stops"><span class="scroll-target">${isEn ? "Stops" : "停車駅"} ： ${dn[0].stops.join(" → ")}</span></div>`;
+        dn.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
       } else {
-        trainHTML += `<div class="jr-row" style="color:#888;">${endedText}</div>`;
+        trainHTML += `<div class="jr-row" style="color:#888;">${isEn ? "Service ended" : "本日の運行は終了しました"}</div>`;
       }
       trainHTML += `</div>`;
     }
@@ -182,45 +138,38 @@ function renderTransport() {
       const bd = stop[mode] || { toStation: [], toTown: [] };
       const toS = getNextItems(bd.toStation, 3);
       const toT = getNextItems(bd.toTown, 3);
+      const busEnded = isEn ? "Service ended" : "本日の運行は終了しました";
 
-      busHTML += `
-        <div class="jr-board">
-          <h3>${isEn ? "(Alpico Bus)" : "(アルピコ交通)"} ${stop.name}</h3>
-          <div class="bus-columns">
-            <div class="bus-col">
-              <b>${isEn ? "for Nagano Sta." : "長野駅方面"}</b>
-              ${toS.length ? toS.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row" style="color:#888; padding:5px;">${endedText}</div>`}
-            </div>
-            <div class="bus-col">
-              <b>${isEn ? "for Uki / Togakushi" : "宇木・戸隠方面"}</b>
-              ${toT.length ? toT.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row" style="color:#888; padding:5px;">${endedText}</div>`}
-            </div>
-          </div>
-        </div>`;
+      busHTML += `<div class="jr-board"><h3>${isEn ? "(Alpico Bus)" : "(アルピコ交通)"} ${stop.name}</h3><div class="bus-columns">
+            <div class="bus-col"><b>${isEn ? "for Nagano Sta." : "長野駅方面"}</b>${toS.length ? toS.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row" style="color:#888;">${busEnded}</div>`}</div>
+            <div class="bus-col"><b>${isEn ? "for Uki / Togakushi" : "宇木・戸隠方面"}</b>${toT.length ? toT.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row" style="color:#888;">${busEnded}</div>`}</div>
+          </div></div>`;
     }
   }
   document.getElementById("trainBoard").innerHTML = trainHTML;
   document.getElementById("busBoard").innerHTML = busHTML;
-  
-  setTimeout(startStopsScroll, 150);
+  setTimeout(applySmartScroll, 200);
 }
 
-function startStopsScroll() {
+function applySmartScroll() {
   const targets = document.querySelectorAll(".scroll-target");
   targets.forEach(span => {
     const parent = span.parentElement;
-    const boxW = parent.clientWidth;
-    const textW = span.scrollWidth;
+    const parentW = parent.offsetWidth;
+    const textW = span.offsetWidth;
 
-    if (textW <= boxW) {
+    if (textW <= parentW) {
       span.style.left = "0";
       return;
     }
 
-    const duration = (boxW + textW) / 40 * 1000;
-    
+    // 速度を一定にする (100px進むのに1秒かける)
+    const speed = 100; 
+    const totalDistance = parentW + textW;
+    const duration = (totalDistance / speed) * 1000;
+
     span.animate([
-      { transform: `translateX(${boxW}px)` },
+      { transform: `translateX(${parentW}px)` },
       { transform: `translateX(-${textW}px)` }
     ], {
       duration: duration,
@@ -234,22 +183,14 @@ function loadTransport(){
   db.ref("transport").on("value", snap => {
     transportCache = snap.val();
     renderTransport();
-    if (!window.langLoopStarted) {
-      window.langLoopStarted = true;
-      startLanguageLoop();
-    }
+    if (!window.langLoopStarted) { window.langLoopStarted = true; startLanguageLoop(); }
   });
 }
 
 function startLanguageLoop(){
   const loop = () => {
-    currentLang = "ja";
-    renderTransport();
-    setTimeout(() => {
-      currentLang = "en";
-      renderTransport();
-      setTimeout(loop, 90000);
-    }, 150000);
+    currentLang = "ja"; renderTransport();
+    setTimeout(() => { currentLang = "en"; renderTransport(); setTimeout(loop, 90000); }, 150000);
   };
   loop();
 }
@@ -262,15 +203,13 @@ function setMode(m){
 }
 
 db.ref("classes").on("value", snap => {
-  const data = snap.val();
-  if(!data) return;
+  const data = snap.val(); if(!data) return;
   let h1 = "", h2 = "";
   for (let key in data) {
     const item = data[key];
     const sCls = item.status === "○" ? "ok" : item.status === "△" ? "mid" : "ng";
     const card = `<div class="card"><div>${item.name}</div><div class="status ${sCls}">${item.status}</div></div>`;
-    if (item.name.includes("1年")) h1 += card;
-    else if (item.name.includes("2年")) h2 += card;
+    if (item.name.includes("1年")) h1 += card; else if (item.name.includes("2年")) h2 += card;
   }
   document.getElementById("list").innerHTML = h1 + h2;
 });
@@ -286,27 +225,21 @@ setInterval(updateNowTime,1000);
 updateNowTime();
 
 db.ref("system").on("value", snap=>{
-  const d = snap.val();
-  if(!d) return;
-  if(d.emergency) showEmergency(d);
-  else hideEmergency();
+  const d = snap.val(); if(!d) return;
+  if(d.emergency) {
+    const screen = document.getElementById("emergencyScreen");
+    document.getElementById("layout").style.display="none";
+    screen.style.display="flex";
+    screen.style.background = d.mode==="drill" ? "#f9a825" : "#c62828";
+    document.getElementById("emTitle").innerText = d.mode==="drill" ? "⚠ 訓練 ⚠" : "⚠ 緊急地震速報 ⚠";
+    document.getElementById("emMessage").innerText = d.message || "";
+    document.getElementById("emVideo").innerHTML = `<div class="video-box"><iframe src="https://www.youtube.com/embed/ozDXFjwgjYA?autoplay=1&mute=1" allow="autoplay" allowfullscreen></iframe></div>`;
+  } else {
+    document.getElementById("emergencyScreen").style.display="none";
+    document.getElementById("layout").style.display="grid";
+    document.getElementById("emVideo").innerHTML = "";
+  }
 });
-
-function showEmergency(d){
-  const screen = document.getElementById("emergencyScreen");
-  document.getElementById("layout").style.display="none";
-  screen.style.display="flex";
-  screen.style.background = d.mode==="drill" ? "#f9a825" : "#c62828";
-  document.getElementById("emTitle").innerText = d.mode==="drill" ? "⚠ 訓練 ⚠" : "⚠ 緊急地震速報 ⚠";
-  document.getElementById("emMessage").innerText = d.message || "";
-  document.getElementById("emVideo").innerHTML = `<div class="video-box"><iframe src="https://www.youtube.com/embed/ozDXFjwgjYA?autoplay=1&mute=1" allow="autoplay" allowfullscreen></iframe></div>`;
-}
-
-function hideEmergency(){
-  document.getElementById("emergencyScreen").style.display="none";
-  document.getElementById("layout").style.display="grid";
-  document.getElementById("emVideo").innerHTML = "";
-}
 </script>
 </body>
 </html>
