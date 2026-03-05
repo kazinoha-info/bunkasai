@@ -3,197 +3,198 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>文化祭 防災・混雑管理</title>
+<title>文化祭 管理ログイン</title>
 
 <style>
-
-body{
-  margin:0;
-  font-family:"Segoe UI","Noto Sans JP",sans-serif;
-  background:linear-gradient(180deg,#e3f2fd,#ffffff);
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+/* 共通背景 */
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Noto Sans JP", sans-serif;
+  background: #f0f2f5;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* 全体カード */
-#panel{
-  background:white;
-  width:92%;
-  max-width:520px;
-  border-radius:22px;
-  padding:25px;
-  box-shadow:0 6px 20px rgba(0,0,0,0.15);
+/* --- ログイン画面のデザイン --- */
+#login-container {
+  background: white;
+  width: 90%;
+  max-width: 400px;
+  padding: 40px 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  text-align: center;
+  transition: opacity 0.5s;
 }
 
-/* タイトル */
-h1{
-  text-align:center;
-  margin:0 0 20px;
-  color:#1565c0;
-  font-size:26px;
+.google-logo {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.google-logo span:nth-child(1) { color: #4285F4; }
+.google-logo span:nth-child(2) { color: #EA4335; }
+.google-logo span:nth-child(3) { color: #FBBC05; }
+.google-logo span:nth-child(4) { color: #4285F4; }
+.google-logo span:nth-child(5) { color: #34A853; }
+.google-logo span:nth-child(6) { color: #EA4335; }
+
+h2.login-title {
+  font-size: 22px;
+  font-weight: 400;
+  margin-bottom: 8px;
 }
 
-/* セクション */
-.section{
-  margin-bottom:25px;
+.login-sub {
+  font-size: 16px;
+  margin-bottom: 30px;
+  color: #202124;
 }
 
-.section h2{
-  font-size:20px;
-  margin-bottom:10px;
-  color:#333;
-  border-left:6px solid #1565c0;
-  padding-left:8px;
+.input-group {
+  margin-bottom: 25px;
+  text-align: left;
 }
 
-/* ボタン共通 */
-button{
-  width:100%;
-  font-size:20px;
-  font-weight:bold;
-  padding:14px;
-  margin:6px 0;
-  border:none;
-  border-radius:14px;
-  cursor:pointer;
-  transition:0.15s;
+input[type="password"] {
+  width: 100%;
+  padding: 13px 15px;
+  font-size: 16px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: border 0.2s;
 }
 
-button:active{
-  transform:scale(0.96);
-  opacity:0.85;
+input[type="password"]:focus {
+  outline: none;
+  border: 2px solid #1a73e8;
+  padding: 12px 14px;
 }
 
-/* 防災ボタン */
+.btn-next {
+  background: #1a73e8;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
+}
+
+.btn-next:hover { background: #1557b0; }
+
+#login-error {
+  color: #d93025;
+  font-size: 13px;
+  margin-top: 8px;
+  text-align: left;
+  display: none;
+}
+
+/* --- 管理パネル（初期は非表示） --- */
+#panel {
+  display: none; /* 認証後に表示 */
+  background: white;
+  width: 92%;
+  max-width: 520px;
+  border-radius: 22px;
+  padding: 25px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* (以下、元のCSSデザインと同じ) */
+h1{ text-align:center; margin:0 0 20px; color:#1565c0; font-size:26px; }
+.section{ margin-bottom:25px; }
+.section h2{ font-size:20px; margin-bottom:10px; color:#333; border-left:6px solid #1565c0; padding-left:8px; }
+button.admin-btn{ width:100%; font-size:20px; font-weight:bold; padding:14px; margin:6px 0; border:none; border-radius:14px; cursor:pointer; transition:0.15s; }
+button.admin-btn:active{ transform:scale(0.96); opacity:0.85; }
 .btn-drill{ background:#f9a825; color:#333; }
 .btn-real{ background:#c62828; color:white; }
 .btn-stop{ background:#2e7d32; color:white; }
-
-/* セレクト */
-select{
-  width:100%;
-  font-size:20px;
-  padding:10px;
-  border-radius:10px;
-  border:2px solid #1565c0;
-  margin-bottom:10px;
-}
-
-/* 混雑ボタン */
-.crowd-btns{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:10px;
-}
-
+select{ width:100%; font-size:20px; padding:10px; border-radius:10px; border:2px solid #1565c0; margin-bottom:10px; }
+.crowd-btns{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
 .btn-ok{ background:#2e7d32; color:white; }
 .btn-mid{ background:#f9a825; color:#333; }
 .btn-ng{ background:#c62828; color:white; }
-
-/* メッセージ */
-#msg{
-  margin-top:12px;
-  text-align:center;
-  font-weight:bold;
-  color:#2e7d32;
-  min-height:1.4em;
-}
-
-.footer{
-  margin-top:15px;
-  font-size:12px;
-  text-align:center;
-  color:#777;
-}
-
+#msg{ margin-top:12px; text-align:center; font-weight:bold; color:#2e7d32; min-height:1.4em; }
+.footer{ margin-top:15px; font-size:12px; text-align:center; color:#777; }
 </style>
 </head>
 
 <body>
 
-<div id="panel">
-
-<h1>文化祭 防災・混雑管理</h1>
-
-<!-- 防災 -->
-<div class="section">
-
-  <h2>🚨 防災管理</h2>
-
-  <button class="btn-drill" onclick="startDrill()">
-    ⚠ 訓練開始
-  </button>
-
-  <button class="btn-real" onclick="startReal()">
-    🚨 本番警報
-  </button>
-
-  <button class="btn-stop" onclick="stopAll()">
-    ✅ 解除
-  </button>
-
-</div>
-
-<!-- 混雑 -->
-<div class="section">
-
-  <h2>👥 混雑更新</h2>
-
-  <select id="cName">
-    <option>読み込み中...</option>
-  </select>
-
-  <div class="crowd-btns">
-
-    <button class="btn-ok" onclick="setStatus('○')">
-      ○ 空き
-    </button>
-
-    <button class="btn-mid" onclick="setStatus('△')">
-      △ 普通
-    </button>
-
-    <button class="btn-ng" onclick="setStatus('×')">
-      × 混雑
-    </button>
-
+<div id="login-container">
+  <div class="google-logo">
+    <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
+  </div>
+  <h2 class="login-title">本人確認</h2>
+  <div class="login-sub">管理者パスワードを入力してください</div>
+  
+  <div class="input-group">
+    <input type="password" id="passInput" placeholder="パスワードを入力">
+    <div id="login-error">⚠ パスワードが違います。</div>
   </div>
 
+  <button class="btn-next" onclick="checkAuth()">次へ</button>
+  <div style="clear:both;"></div>
 </div>
 
-<p id="msg"></p>
-
-<div class="footer">
-  ※ 操作内容は即時反映されます
+<div id="panel">
+  <h1>文化祭 防災・混雑管理</h1>
+  <div class="section">
+    <h2>🚨 防災管理</h2>
+    <button class="admin-btn btn-drill" onclick="startDrill()">⚠ 訓練開始</button>
+    <button class="admin-btn btn-real" onclick="startReal()">🚨 本番警報</button>
+    <button class="admin-btn btn-stop" onclick="stopAll()">✅ 解除</button>
+  </div>
+  <div class="section">
+    <h2>👥 混雑更新</h2>
+    <select id="cName"><option>読み込み中...</option></select>
+    <div class="crowd-btns">
+      <button class="admin-btn btn-ok" onclick="setStatus('○')">○ 空き</button>
+      <button class="admin-btn btn-mid" onclick="setStatus('△')">△ 普通</button>
+      <button class="admin-btn btn-ng" onclick="setStatus('×')">× 混雑</button>
+    </div>
+  </div>
+  <p id="msg"></p>
+  <div class="footer">※ 操作内容は即時反映されます</div>
 </div>
 
-</div>
-
-
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <script>
+<script>
+// ===== 認証処理 =====
+const ADMIN_PASSWORD = "naganishi2450";
 
-// ===== パスワード設定 =====
-const ADMIN_PASSWORD = "naganishi2450"; // ← 好きなパスワードに変える
+function checkAuth() {
+  const input = document.getElementById("passInput").value;
+  const loginView = document.getElementById("login-container");
+  const adminPanel = document.getElementById("panel");
+  const errorMsg = document.getElementById("login-error");
 
-// ===== 認証チェック =====
-const input = prompt("管理者パスワードを入力してください");
-
-if(input !== ADMIN_PASSWORD){
-  alert("パスワードが違います");
-  location.href = "about:blank"; // 追い出す
+  if(input === ADMIN_PASSWORD) {
+    // 成功：ログイン画面を消してパネルを出す
+    loginView.style.display = "none";
+    adminPanel.style.display = "block";
+  } else {
+    // 失敗：エラーを表示して赤枠にする
+    errorMsg.style.display = "block";
+    document.getElementById("passInput").style.border = "2px solid #d93025";
+  }
 }
 
-</script>
+// Enterキーでもログインできるようにする
+document.getElementById("passInput").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") checkAuth();
+});
 
-<script>
-
+// ===== Firebase設定 (変更なし) =====
 const firebaseConfig = {
   apiKey: "AIzaSyDTHN-YfAJz86NgNAaldixubGfDZwRgnKw",
   authDomain: "bunkasai-info-59212.firebaseapp.com",
@@ -210,84 +211,45 @@ const db = firebase.database();
 const select = document.getElementById("cName");
 const msg = document.getElementById("msg");
 
-/* 防災 */
+/* 防災ロジック */
 function startDrill(){
-
-  db.ref("system").set({
-    emergency:true,
-    mode:"drill",
-    message:"緊急地震速報訓練中です。これはテストです。落ち着いて行動してください。"
-  });
-
+  db.ref("system").set({ emergency:true, mode:"drill", message:"緊急地震速報訓練中です。これはテストです。落ち着いて行動してください。" });
   showMsg("訓練モード開始");
 }
-
 function startReal(){
-
-  db.ref("system").set({
-    emergency:true,
-    mode:"real",
-    message:"強い揺れに警戒してください。付近に倒れやすいものや落ちてきやすいものなどがある場合は速やかに移動してください。揺れが収まり次第、係委員の指示に従ってください。"
-  });
-
+  db.ref("system").set({ emergency:true, mode:"real", message:"強い揺れに警戒してください。付近に倒れやすいものや落ちてきやすいものなどがある場合は速やかに移動してください。揺れが収まり次第、係委員の指示に従ってください。" });
   showMsg("本番警報 発令");
 }
-
 function stopAll(){
-
-  db.ref("system").set({
-    emergency:false,
-    mode:"normal"
-  });
-
+  db.ref("system").set({ emergency:false, mode:"normal" });
   showMsg("警報解除");
 }
 
-/* 混雑 */
+/* 混雑ロジック */
 function setStatus(s){
-
   const key = select.value;
-
-  if(!key){
-    alert("場所を選んでください");
-    return;
-  }
-
+  if(!key){ alert("場所を選んでください"); return; }
   db.ref("classes/"+key+"/status").set(s);
-
   showMsg("混雑状況 更新完了");
 }
 
-/* メッセージ表示 */
 function showMsg(t){
-
   msg.textContent = "✔ " + t;
-
-  setTimeout(()=>{
-    msg.textContent="";
-  },1500);
+  setTimeout(()=>{ msg.textContent=""; }, 1500);
 }
 
-/* クラス取得 */
+/* クラスリスト取得 */
 db.ref("classes").on("value", snap=>{
-
   const data = snap.val();
-
   select.innerHTML="";
-
   if(!data) return;
-
   for(let k in data){
-
     const opt = document.createElement("option");
     opt.value = k;
     opt.textContent = data[k].name;
-
     select.appendChild(opt);
   }
-
 });
-
 </script>
 
 </body>
