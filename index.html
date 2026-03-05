@@ -34,9 +34,8 @@ body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background:
 .bus-col b{ display: block; text-align: center; font-size: 22px; margin-bottom: 5px; color: #ffae00; }
 #nowTime{ text-align:center; font-size:24px; font-weight:bold; color:white; background:#111; padding:8px; border-radius:10px; margin-bottom:10px; letter-spacing:1px; }
 .schedule-card{ background:#111; border-radius:10px; padding:8px 10px; margin:6px 0; display:flex; align-items:center; box-shadow:0 2px 6px rgba(0,0,0,0.4); }
-.legend{ grid-column: span 2; margin-top:15px; font-size:17px; color:#333; text-align:center; font-weight:bold; }
-/* 運行終了時の水色スタイル */
-.ended-style { color: #00c3ff; border: 1px solid #00c3ff; padding: 5px; text-align: center; width: 100%; font-size: 18px; border-radius: 4px; box-sizing: border-box; }
+/* 以前の運行終了時の文字色（囲いなし） */
+.ended-msg { color: #00c3ff; font-size: 20px; font-weight: bold; padding: 5px 0; }
 </style>
 </head>
 <body>
@@ -50,9 +49,6 @@ body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background:
 <div id="layout">
   <div id="left">
     <div id="list" class="crowd-grid">読み込み中...</div>
-    <div class="legend">
-      <p>凡例：<span style="color:#2e7d32">○ 空いている</span>　<span style="color:#f9a825">△ 少し混雑</span>　<span style="color:#c62828">✕ 混雑</span></p>
-    </div>
   </div>
 
   <div id="right">
@@ -126,7 +122,7 @@ function renderTransport() {
         trainHTML += `<div class="jr-row" style="background:#111; border-left:4px solid #0af;"><div class="jr-time" style="font-size:30px;">${u[0].time}</div><div class="jr-dest" style="font-size:30px;">${u[0].dest}</div></div><div class="stops fixed">${isEn ? "Stops" : "停車駅"} ： ${u[0].stops.join(" → ")}</div>`;
         u.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
       } else {
-        trainHTML += `<div class="jr-row"><div class="ended-style">${endedText}</div></div>`;
+        trainHTML += `<div class="ended-msg">${endedText}</div>`;
       }
 
       trainHTML += `<br><div><b>${isEn ? "⬇ Downbound: for Suzaka / Yudanaka" : "⬇ 下り 須坂・湯田中方面"}</b></div>`;
@@ -134,7 +130,7 @@ function renderTransport() {
         trainHTML += `<div class="jr-row" style="background:#111; border-left:4px solid #f44;"><div class="jr-time" style="font-size:30px;">${dn[0].time}</div><div class="jr-dest" style="font-size:30px;">${dn[0].dest}</div></div><div class="stops"><span class="scroll-target">${isEn ? "Stops" : "停車駅"} ： ${dn[0].stops.join(" → ")}</span></div>`;
         dn.slice(1).forEach(t => { trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`; });
       } else {
-        trainHTML += `<div class="jr-row"><div class="ended-style">${endedText}</div></div>`;
+        trainHTML += `<div class="ended-msg">${endedText}</div>`;
       }
       trainHTML += `</div>`;
     }
@@ -147,27 +143,37 @@ function renderTransport() {
       const toS = getNextItems(bd.toStation, 3);
       const toT = getNextItems(bd.toTown, 3);
       busHTML += `<div class="jr-board"><h3>${isEn ? "(Alpico Bus)" : "(アルピコ交通)"} ${stop.name}</h3><div class="bus-columns">
-            <div class="bus-col"><b>${isEn ? "for Nagano Sta." : "長野駅方面"}</b>${toS.length ? toS.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="ended-style">${endedText}</div>`}</div>
-            <div class="bus-col"><b>${isEn ? "for Uki / Togakushi" : "宇木・戸隠方面"}</b>${toT.length ? toT.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="ended-style">${endedText}</div>`}</div>
+            <div class="bus-col"><b>${isEn ? "for Nagano Sta." : "長野駅方面"}</b>${toS.length ? toS.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="ended-msg">${endedText}</div>`}</div>
+            <div class="bus-col"><b>${isEn ? "for Uki / Togakushi" : "宇木・戸隠方面"}</b>${toT.length ? toT.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="ended-msg">${endedText}</div>`}</div>
           </div></div>`;
     }
   }
   document.getElementById("trainBoard").innerHTML = trainHTML;
   document.getElementById("busBoard").innerHTML = busHTML;
-  setTimeout(startSmartScroll, 200);
+  setTimeout(applyFinalScroll, 200);
 }
 
-function startSmartScroll() {
+function applyFinalScroll() {
   const targets = document.querySelectorAll(".scroll-target");
   targets.forEach(span => {
     const parent = span.parentElement;
     const parentW = parent.offsetWidth;
     const textW = span.offsetWidth;
     if (textW <= parentW) { span.style.left = "0"; return; }
-    const speed = 30; // 以前よりかなり遅く設定 (1秒間に30px)
+    
+    // 秒間20px：非常にゆっくり流れるように設定
+    const speed = 20; 
     const totalDistance = parentW + textW;
     const duration = (totalDistance / speed) * 1000;
-    span.animate([{ transform: `translateX(${parentW}px)` }, { transform: `translateX(-${textW}px)` }], { duration: duration, iterations: Infinity, easing: 'linear' });
+    
+    span.animate([
+      { transform: `translateX(${parentW}px)` },
+      { transform: `translateX(-${textW}px)` }
+    ], {
+      duration: duration,
+      iterations: Infinity,
+      easing: 'linear'
+    });
   });
 }
 
