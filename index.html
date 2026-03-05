@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>文化祭案内</title>
 <style>
-/* スタイル部分は変更なし */
 body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background: linear-gradient(180deg,#f7f9fc,#eaf3ff); }
 #ticker{ background: linear-gradient(90deg,#ff9800,#ff6f00); color:white; overflow:hidden; white-space:nowrap; height:80px; line-height:80px; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
 #ticker-text{ display:inline-block; min-width:200%; padding-left:100%; animation: scroll 60s linear infinite; font-size:26px; font-weight:600; }
@@ -26,10 +25,10 @@ body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background:
 .jr-row{ display:flex; font-size:22px; padding:5px 0; border-bottom:1px solid #333; }
 .jr-time{ width:100px; color:white; font-weight:bold; font-size: 20px; }
 .jr-dest{ flex:1; color:white; font-size: 20px; }
-/* スクロールエリアのスタイル */
-.stops{ margin-top:10px; overflow:hidden; white-space:nowrap; color:white; font-weight:bold; position: relative; height: 40px; line-height: 40px; width: 100%; }
-.stops span.scroll-target{ display:inline-block; font-size:28px; white-space: nowrap; will-change: transform; position: absolute; left: 0; }
-.stops.fixed{ overflow: visible; white-space: normal; height: auto; line-height: 1.4; font-size:26px; position: static; }
+/* スクロールエリア */
+.stops{ margin-top:10px; overflow:hidden; white-space:nowrap; color:white; font-weight:bold; position: relative; height: 40px; line-height: 40px; width: 100%; background: rgba(255,255,255,0.05); }
+.stops span.scroll-target{ display:inline-block; font-size:28px; white-space: nowrap; position: absolute; left: 0; will-change: transform; }
+.stops.fixed{ overflow: visible; white-space: normal; height: auto; line-height: 1.4; font-size:26px; position: static; background: none; }
 .jr-board h3{ font-size:30px; font-weight:bold; color:white; margin:5px 0 10px; }
 .jr-board b{ font-size:24px; font-weight:bold; color:white; }
 .bus-columns{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
@@ -50,7 +49,7 @@ body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background:
 
 <div id="ticker">
   <div id="ticker-text">
-    第67回梶の葉祭にご来場くださいましてありがとうございます。記録的な猛暑が続いており、熱中症の危険が高まっています。"こまめな水分補給"や"日陰での休憩"など、熱中症対策にご協力お願いします。
+    第67回梶の葉祭にご来場くださいましてありがとうございます。熱中症対策にご協力お願いします。
   </div>
 </div>
 
@@ -59,14 +58,12 @@ body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background:
     <div id="list" class="crowd-grid">読み込み中...</div>
     <div class="legend">
       <p>凡例：<span style="color:#2e7d32">○ 空いている</span>　<span style="color:#f9a825">△ 少し混雑</span>　<span style="color:#c62828">✕ 混雑</span></p>
-      <p style="font-size:14px; font-weight:normal; color:#666;">※混雑状況はあくまでも目安です。今現在の状態であるため、すぐに変わる可能性もあります。</p>
     </div>
   </div>
 
   <div id="right">
     <div id="nowTime">現在時刻 --:--</div>
     <h2>交通案内</h2>
-    <p class="traffic-note">※詳細につきましては各運行会社のホームページをご確認ください。</p>
     <div class="btns">
       <button id="btnWeek" onclick="setMode('weekday')" class="active">平日</button>
       <button id="btnHoliday" onclick="setMode('holiday')">休日</button>
@@ -134,6 +131,7 @@ function renderTransport() {
   let busHTML = "";
   const data = (transportCache[currentLang]) ? transportCache[currentLang] : transportCache["ja"];
   const isEn = (currentLang === "en");
+  const endedText = isEn ? "Service ended" : "本日の運行は終了しました";
 
   if (data && data.train) {
     for (let k in data.train) {
@@ -142,10 +140,8 @@ function renderTransport() {
       const u = getNextItems(d.up, 3);
       const dn = getNextItems(d.down, 3);
 
-      const railLabel = isEn ? "(Nagano Electric Railway)" : "(長野電鉄)";
-      trainHTML += `<div class="jr-board"><h3>${railLabel} ${st.name}</h3>`;
-      const upLabel = isEn ? "⬆ Upbound: for Nagano" : "⬆ 上り 長野方面";
-      trainHTML += `<div><b>${upLabel}</b></div>`;
+      trainHTML += `<div class="jr-board"><h3>${isEn ? "(Nagano Elec. Railway)" : "(長野電鉄)"} ${st.name}</h3>`;
+      trainHTML += `<div><b>${isEn ? "⬆ Upbound: for Nagano" : "⬆ 上り 長野方面"}</b></div>`;
 
       if (u.length > 0) {
         trainHTML += `
@@ -153,18 +149,15 @@ function renderTransport() {
             <div class="jr-time" style="font-size:30px;">${u[0].time}</div>
             <div class="jr-dest" style="font-size:30px;color:#ff9800;">${u[0].dest}</div>
           </div>
-          <div class="stops fixed">
-            ${isEn ? "Stops" : "停車駅"} ： ${u[0].stops.join(" → ")}
-          </div>`;
+          <div class="stops fixed">${isEn ? "Stops" : "停車駅"} ： ${u[0].stops.join(" → ")}</div>`;
         u.slice(1).forEach(t => {
           trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
         });
       } else {
-        trainHTML += `<div class="jr-row" style="color:#888;">${isEn ? "Service ended" : "本日の運行は終了しました"}</div>`;
+        trainHTML += `<div class="jr-row" style="color:#888;">${endedText}</div>`;
       }
 
-      const downLabel = isEn ? "⬇ Downbound: for Suzaka / Shinshunakano / Yudanaka" : "⬇ 下り 須坂・信州中野・湯田中方面";
-      trainHTML += `<br><div><b>${downLabel}</b></div>`;
+      trainHTML += `<br><div><b>${isEn ? "⬇ Downbound: for Suzaka / Yudanaka" : "⬇ 下り 須坂・湯田中方面"}</b></div>`;
 
       if (dn.length > 0) {
         trainHTML += `
@@ -179,7 +172,7 @@ function renderTransport() {
           trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
         });
       } else {
-        trainHTML += `<div class="jr-row" style="color:#888;">${isEn ? "Service ended" : "本日の運行は終了しました"}</div>`;
+        trainHTML += `<div class="jr-row" style="color:#888;">${endedText}</div>`;
       }
       trainHTML += `</div>`;
     }
@@ -191,21 +184,18 @@ function renderTransport() {
       const bd = stop[mode] || { toStation: [], toTown: [] };
       const toS = getNextItems(bd.toStation, 3);
       const toT = getNextItems(bd.toTown, 3);
-      const busLabel = isEn ? "(Alpico Bus)" : "(アルピコ交通)";
-      let sideALabel = isEn ? "Joyama Shogakko: for Nagano Sta." : "城山小学校前：長野駅方面";
-      let sideBLabel = isEn ? "Zenkoji-nishi: for Uki / Togakushi" : "善光寺西：宇木・戸隠方面";
 
       busHTML += `
         <div class="jr-board">
-          <h3>${busLabel} ${stop.name}</h3>
+          <h3>${isEn ? "(Alpico Bus)" : "(アルピコ交通)"} ${stop.name}</h3>
           <div class="bus-columns">
             <div class="bus-col">
-              <b>${sideALabel}</b>
-              ${toS.length ? toS.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row">Service ended</div>`}
+              <b>${isEn ? "for Nagano Sta." : "長野駅方面"}</b>
+              ${toS.length ? toS.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row" style="color:#888;">${endedText}</div>`}
             </div>
             <div class="bus-col">
-              <b>${sideBLabel}</b>
-              ${toT.length ? toT.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row">Service ended</div>`}
+              <b>${isEn ? "for Uki / Togakushi" : "宇木・戸隠方面"}</b>
+              ${toT.length ? toT.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row" style="color:#888;">${endedText}</div>`}
             </div>
           </div>
         </div>`;
@@ -214,8 +204,7 @@ function renderTransport() {
   document.getElementById("trainBoard").innerHTML = trainHTML;
   document.getElementById("busBoard").innerHTML = busHTML;
   
-  // 描画が完了した直後にスクロール処理を呼ぶ
-  setTimeout(startStopsScroll, 50);
+  setTimeout(startStopsScroll, 100);
 }
 
 function startStopsScroll() {
@@ -225,29 +214,24 @@ function startStopsScroll() {
     const boxW = parent.clientWidth;
     const textW = span.scrollWidth;
 
-    // テキストが短い場合は動かさない
-    if (textW <= boxW) {
-      span.style.left = "0";
-      return;
-    }
+    if (textW <= boxW) return;
 
-    const animate = () => {
-      // 1. 初期位置：右端の外側（完全に隠れた状態）
-      span.style.transition = "none";
-      span.style.transform = `translateX(${boxW}px)`;
-      
-      // リフロー強制
-      span.offsetHeight; 
+    // 前のアニメーションを完全にリセット
+    span.getAnimations().forEach(a => a.cancel());
 
-      // 2. 移動：左端の外側（完全に消える状態）まで
-      const duration = (boxW + textW) / 40; 
-      span.style.transition = `transform ${duration}s linear`;
-      span.style.transform = `translateX(-${textW}px)`;
-    };
+    const distance = boxW + textW;
+    const duration = distance / 40 * 1000; // 速度 40px/s
 
-    animate();
-    // 既存のイベントをクリアして再登録
-    span.ontransitionend = animate;
+    const keyframes = [
+      { transform: `translateX(${boxW}px)` },
+      { transform: `translateX(-${textW}px)` }
+    ];
+
+    span.animate(keyframes, {
+      duration: duration,
+      iterations: Infinity,
+      easing: 'linear'
+    });
   });
 }
 
@@ -262,26 +246,24 @@ function loadTransport(){
   });
 }
 
+function startLanguageLoop(){
+  const loop = () => {
+    currentLang = "ja";
+    renderTransport();
+    setTimeout(() => {
+      currentLang = "en";
+      renderTransport();
+      setTimeout(loop, 90000); // 英語1分30秒
+    }, 150000); // 日本語2分30秒
+  };
+  loop();
+}
+
 function setMode(m){
   mode = m;
   document.querySelectorAll(".btns button").forEach(btn=>btn.classList.remove("active"));
   document.getElementById(m==="weekday"?"btnWeek":"btnHoliday").classList.add("active");
   renderTransport();
-}
-
-function startLanguageLoop(){
-  const loop = () => {
-    // 2分30秒日本語表示
-    currentLang = "ja";
-    renderTransport();
-    setTimeout(() => {
-      // 1分30秒英語表示
-      currentLang = "en";
-      renderTransport();
-      setTimeout(loop, 90000);
-    }, 150000);
-  };
-  loop();
 }
 
 db.ref("classes").on("value", snap => {
@@ -290,9 +272,8 @@ db.ref("classes").on("value", snap => {
   let h1 = "", h2 = "";
   for (let key in data) {
     const item = data[key];
-    const s = item.status;
-    const sCls = s === "○" ? "ok" : s === "△" ? "mid" : "ng";
-    const card = `<div class="card"><div>${item.name}</div><div class="status ${sCls}">${s}</div></div>`;
+    const sCls = item.status === "○" ? "ok" : item.status === "△" ? "mid" : "ng";
+    const card = `<div class="card"><div>${item.name}</div><div class="status ${sCls}">${item.status}</div></div>`;
     if (item.name.includes("1年")) h1 += card;
     else if (item.name.includes("2年")) h2 += card;
   }
@@ -304,9 +285,7 @@ setInterval(renderTransport, 10000);
 
 function updateNowTime(){
   const d = new Date();
-  const h = String(d.getHours()).padStart(2,"0");
-  const m = String(d.getMinutes()).padStart(2,"0");
-  document.getElementById("nowTime").textContent = `現在時刻 ${h}:${m}`;
+  document.getElementById("nowTime").textContent = `現在時刻 ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
 }
 setInterval(updateNowTime,1000);
 updateNowTime();
@@ -322,16 +301,10 @@ function showEmergency(d){
   const screen = document.getElementById("emergencyScreen");
   document.getElementById("layout").style.display="none";
   screen.style.display="flex";
-  if(d.mode==="drill"){
-    screen.style.background="#f9a825";
-    document.getElementById("emTitle").innerText="⚠ 緊急地震速報訓練中 ⚠";
-  } else {
-    screen.style.background="#c62828";
-    document.getElementById("emTitle").innerText="⚠ 緊急地震速報 ⚠";
-  }
+  screen.style.background = d.mode==="drill" ? "#f9a825" : "#c62828";
+  document.getElementById("emTitle").innerText = d.mode==="drill" ? "⚠ 訓練 ⚠" : "⚠ 緊急地震速報 ⚠";
   document.getElementById("emMessage").innerText = d.message || "";
-  document.getElementById("emVideo").innerHTML = `
-    <div class="video-box"><iframe src="https://www.youtube.com/embed/ozDXFjwgjYA?autoplay=1&mute=1" allow="autoplay" allowfullscreen></iframe></div>`;
+  document.getElementById("emVideo").innerHTML = `<div class="video-box"><iframe src="https://www.youtube.com/embed/ozDXFjwgjYA?autoplay=1&mute=1" allow="autoplay" allowfullscreen></iframe></div>`;
 }
 
 function hideEmergency(){
