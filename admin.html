@@ -26,7 +26,6 @@ body {
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   text-align: center;
-  transition: opacity 0.5s;
 }
 
 .google-logo {
@@ -41,37 +40,26 @@ body {
 .google-logo span:nth-child(5) { color: #34A853; }
 .google-logo span:nth-child(6) { color: #EA4335; }
 
-h2.login-title {
-  font-size: 22px;
-  font-weight: 400;
-  margin-bottom: 8px;
-}
+h2.login-title { font-size: 22px; font-weight: 400; margin-bottom: 8px; }
+.login-sub { font-size: 16px; margin-bottom: 30px; color: #202124; }
 
-.login-sub {
-  font-size: 16px;
-  margin-bottom: 30px;
-  color: #202124;
-}
+.input-group { margin-bottom: 25px; text-align: left; }
 
-.input-group {
-  margin-bottom: 25px;
-  text-align: left;
-}
-
-input[type="password"] {
+/* 入力欄のデザイン */
+input[type="email"], input[type="password"] {
   width: 100%;
   padding: 13px 15px;
   font-size: 16px;
   border: 1px solid #dadce0;
   border-radius: 4px;
   box-sizing: border-box;
+  margin-bottom: 12px;
   transition: border 0.2s;
 }
 
-input[type="password"]:focus {
+input:focus {
   outline: none;
   border: 2px solid #1a73e8;
-  padding: 12px 14px;
 }
 
 .btn-next {
@@ -86,17 +74,14 @@ input[type="password"]:focus {
   float: right;
 }
 
-.btn-next:hover { background: #1557b0; }
-
 #login-error {
   color: #d93025;
   font-size: 13px;
   margin-top: 8px;
-  text-align: left;
   display: none;
 }
 
-/* --- 管理パネル（初期は非表示） --- */
+/* --- 管理パネル --- */
 #panel {
   display: none;
   background: white;
@@ -105,23 +90,44 @@ input[type="password"]:focus {
   border-radius: 22px;
   padding: 25px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  position: relative;
 }
 
-h1{ text-align:center; margin:0 0 20px; color:#1565c0; font-size:26px; }
-.section{ margin-bottom:25px; }
-.section h2{ font-size:20px; margin-bottom:10px; color:#333; border-left:6px solid #1565c0; padding-left:8px; }
-button.admin-btn{ width:100%; font-size:20px; font-weight:bold; padding:14px; margin:6px 0; border:none; border-radius:14px; cursor:pointer; transition:0.15s; }
-button.admin-btn:active{ transform:scale(0.96); opacity:0.85; }
-.btn-drill{ background:#f9a825; color:#333; }
-.btn-real{ background:#c62828; color:white; }
-.btn-stop{ background:#2e7d32; color:white; }
-select{ width:100%; font-size:20px; padding:10px; border-radius:10px; border:2px solid #1565c0; margin-bottom:10px; }
-.crowd-btns{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
-.btn-ok{ background:#2e7d32; color:white; }
-.btn-mid{ background:#f9a825; color:#333; }
-.btn-ng{ background:#c62828; color:white; }
-#msg{ margin-top:12px; text-align:center; font-weight:bold; color:#2e7d32; min-height:1.4em; }
-.footer{ margin-top:15px; font-size:12px; text-align:center; color:#777; }
+/* ログアウトボタン（右上） */
+.btn-logout {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #f1f3f4;
+  color: #5f6368;
+  border: 1px solid #dadce0;
+  padding: 5px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-logout:hover { background: #e8eaed; }
+
+h1 { text-align:center; margin:10px 0 20px; color:#1565c0; font-size:26px; }
+.section { margin-bottom:25px; }
+.section h2 { font-size:20px; margin-bottom:10px; color:#333; border-left:6px solid #1565c0; padding-left:8px; }
+
+/* ボタン共通 */
+button.admin-btn { width:100%; font-size:20px; font-weight:bold; padding:14px; margin:6px 0; border:none; border-radius:14px; cursor:pointer; transition:0.15s; }
+button.admin-btn:active { transform:scale(0.96); opacity:0.85; }
+
+.btn-drill { background:#f9a825; color:#333; }
+.btn-real { background:#c62828; color:white; }
+.btn-stop { background:#2e7d32; color:white; }
+
+select { width:100%; font-size:20px; padding:10px; border-radius:10px; border:2px solid #1565c0; margin-bottom:10px; }
+.crowd-btns { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+.btn-ok { background:#2e7d32; color:white; }
+.btn-mid { background:#f9a825; color:#333; }
+.btn-ng { background:#c62828; color:white; }
+
+#msg { margin-top:12px; text-align:center; font-weight:bold; color:#2e7d32; min-height:1.4em; }
+.footer { margin-top:15px; font-size:12px; text-align:center; color:#777; }
 </style>
 </head>
 
@@ -131,26 +137,30 @@ select{ width:100%; font-size:20px; padding:10px; border-radius:10px; border:2px
   <div class="google-logo">
     <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
   </div>
-  <h2 class="login-title">本人確認</h2>
-  <div class="login-sub">管理者パスワードを入力してください</div>
+  <h2 class="login-title">ログイン</h2>
+  <div class="login-sub">管理者アカウントを使用してください</div>
   
   <div class="input-group">
+    <input type="email" id="emailInput" placeholder="メールアドレス（ID）">
     <input type="password" id="passInput" placeholder="パスワードを入力">
-    <div id="login-error">⚠ パスワードが違います。</div>
+    <div id="login-error">⚠ IDまたはパスワードが正しくありません。</div>
   </div>
 
-  <button class="btn-next" onclick="checkAuth()">次へ</button>
+  <button class="btn-next" onclick="checkAuth()">ログイン</button>
   <div style="clear:both;"></div>
 </div>
 
 <div id="panel">
+  <button class="btn-logout" onclick="handleLogout()">ログアウト</button>
   <h1>文化祭 防災・混雑管理</h1>
+  
   <div class="section">
     <h2>🚨 防災管理</h2>
     <button class="admin-btn btn-drill" onclick="startDrill()">⚠ 訓練開始</button>
     <button class="admin-btn btn-real" onclick="startReal()">🚨 本番警報</button>
     <button class="admin-btn btn-stop" onclick="stopAll()">✅ 解除</button>
   </div>
+
   <div class="section">
     <h2>👥 混雑更新</h2>
     <select id="cName"><option>読み込み中...</option></select>
@@ -160,6 +170,7 @@ select{ width:100%; font-size:20px; padding:10px; border-radius:10px; border:2px
       <button class="admin-btn btn-ng" onclick="setStatus('×')">× 混雑</button>
     </div>
   </div>
+  
   <p id="msg"></p>
   <div class="footer">※ 操作内容は即時反映されます</div>
 </div>
@@ -184,7 +195,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
 
-// --- [2] ログイン状態を監視して画面を切り替える ---
+// --- [2] 認証状態の監視 ---
 auth.onAuthStateChanged((user) => {
   const loginView = document.getElementById("login-container");
   const adminPanel = document.getElementById("panel");
@@ -199,24 +210,39 @@ auth.onAuthStateChanged((user) => {
 
 // --- [3] ログイン実行 ---
 function checkAuth() {
-  const email = "naganonisi25133@g.nagano-c.ed.jp"; 
+  const email = document.getElementById("emailInput").value; 
   const pass = document.getElementById("passInput").value;
   const errorMsg = document.getElementById("login-error");
+
+  if(!email || !pass) {
+    errorMsg.style.display = "block";
+    errorMsg.textContent = "⚠ 両方入力してください";
+    return;
+  }
 
   auth.signInWithEmailAndPassword(email, pass)
     .catch((error) => {
       errorMsg.style.display = "block";
       errorMsg.textContent = "⚠ 失敗: " + error.message;
-      document.getElementById("passInput").style.border = "2px solid #d93025";
     });
 }
 
+// --- [4] ログアウト実行（確認ポップアップ付き） ---
+function handleLogout() {
+  const confirmResult = confirm("ログアウトしますか？");
+  if (confirmResult) {
+    auth.signOut().then(() => {
+      alert("ログアウトしました");
+    });
+  }
+}
+
 // Enterキー対応
-document.getElementById("passInput").addEventListener("keypress", (e) => {
+document.addEventListener("keypress", (e) => {
   if (e.key === "Enter") checkAuth();
 });
 
-// --- [4] 防災・混雑管理機能 ---
+// --- [5] 防災・混雑管理機能 ---
 const select = document.getElementById("cName");
 const msg = document.getElementById("msg");
 
