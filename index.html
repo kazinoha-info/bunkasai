@@ -131,8 +131,6 @@ function renderTransport() {
 
   let trainHTML = "";
   let busHTML = "";
-  
-  // 現在の言語のデータ、なければjaを参照
   const data = (transportCache[currentLang]) ? transportCache[currentLang] : transportCache["ja"];
   const isEn = (currentLang === "en");
 
@@ -173,9 +171,9 @@ function renderTransport() {
             <div class="jr-time" style="font-size:30px;">${dn[0].time}</div>
             <div class="jr-dest" style="font-size:30px;color:#ff9800;">${dn[0].dest}</div>
           </div>
-<div class="stops">
-  <span data-running="false">${isEn ? "Stops" : "停車駅"} ： ${dn[0].stops.join(" → ")}</span>
-</div>;
+          <div class="stops">
+            <span class="scroll-target">${isEn ? "Stops" : "停車駅"} ： ${dn[0].stops.join(" → ")}</span>
+          </div>`;
         dn.slice(1).forEach(t => {
           trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
         });
@@ -192,10 +190,9 @@ function renderTransport() {
       const bd = stop[mode] || { toStation: [], toTown: [] };
       const toS = getNextItems(bd.toStation, 3);
       const toT = getNextItems(bd.toTown, 3);
-
       const busLabel = isEn ? "(Alpico Bus)" : "(アルピコ交通)";
-      let sideALabel = isEn ? "Joyama Shogakko: for Nagano Sta. / Matsuoka / Otsuka-minami" : "城山小学校前：長野駅・松岡・大塚南方面";
-      let sideBLabel = isEn ? "Zenkoji-nishi: for Uki / Wakatsuki / Iizuna / Togakushi" : "善光寺西：宇木・若槻・飯綱・戸隠方面";
+      let sideALabel = isEn ? "Joyama Shogakko: for Nagano Sta." : "城山小学校前：長野駅方面";
+      let sideBLabel = isEn ? "Zenkoji-nishi: for Uki / Togakushi" : "善光寺西：宇木・戸隠方面";
 
       busHTML += `
         <div class="jr-board">
@@ -203,11 +200,11 @@ function renderTransport() {
           <div class="bus-columns">
             <div class="bus-col">
               <b>${sideALabel}</b>
-              ${toS.length ? toS.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row">${isEn ? "Service ended" : "本日の運行は終了しました"}</div>`}
+              ${toS.length ? toS.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row">Service ended</div>`}
             </div>
             <div class="bus-col">
               <b>${sideBLabel}</b>
-              ${toT.length ? toT.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row">${isEn ? "Service ended" : "本日の運行は終了しました"}</div>`}
+              ${toT.length ? toT.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; font-size:20px; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row">Service ended</div>`}
             </div>
           </div>
         </div>`;
@@ -215,7 +212,44 @@ function renderTransport() {
   }
   document.getElementById("trainBoard").innerHTML = trainHTML;
   document.getElementById("busBoard").innerHTML = busHTML;
-  setupStopScroll();
+  
+  // 描画後にスクロールを開始
+  startStopsScroll();
+}
+
+function startStopsScroll() {
+  const targets = document.querySelectorAll(".scroll-target");
+  targets.forEach(span => {
+    const parent = span.parentElement;
+    const boxW = parent.clientWidth;
+    const textW = span.scrollWidth;
+
+    // テキストが短い場合は動かさない
+    if (textW <= boxW) {
+      span.style.left = "0";
+      return;
+    }
+
+    function animate() {
+      // 1. 初期位置：右端の外側（完全に隠れた状態）
+      span.style.transition = "none";
+      span.style.transform = `translateX(${boxW}px)`;
+      
+      // 2. 少し待ってから移動開始（リフロー強制）
+      span.offsetHeight; 
+
+      // 3. 移動：左端の外側（完全に消える状態）まで
+      // 速度調整：(全移動距離) / 40px
+      const duration = (boxW + textW) / 40; 
+      span.style.transition = `transform ${duration}s linear`;
+      span.style.transform = `translateX(-${textW}px)`;
+    }
+
+    animate();
+    // アニメーションが終わったらもう一度実行
+    span.removeEventListener("transitionend", animate);
+    span.addEventListener("transitionend", animate);
+  });
 }
 
 function loadTransport(){
@@ -237,24 +271,17 @@ function setMode(m){
 }
 
 function startLanguageLoop(){
-  // 英語に切り替える関数
   function toEnglish(){
     currentLang = "en";
     renderTransport();
-    // 1分30秒（90000ms）経ったら日本語に戻す
     setTimeout(toJapanese, 90000);
   }
-
-  // 日本語に切り替える関数
   function toJapanese(){
     currentLang = "ja";
     renderTransport();
-    // 2分30秒（150000ms）経ったら英語に切り替える
     setTimeout(toEnglish, 150000);
   }
-
-  // 最初にどちらから始めるか（ここでは日本語からスタートさせています）
-  toJapanese();
+  toJapanese(); // 最初は日本語から
 }
 
 db.ref("classes").on("value", snap => {
@@ -283,27 +310,6 @@ function updateNowTime(){
 }
 setInterval(updateNowTime,1000);
 updateNowTime();
-
-function startLanguageLoop(){
-  // 英語に切り替える関数
-  function toEnglish(){
-    currentLang = "en";
-    renderTransport();
-    // 1分30秒（90000ms）経ったら日本語に戻す
-    setTimeout(toJapanese, 90000);
-  }
-
-  // 日本語に切り替える関数
-  function toJapanese(){
-    currentLang = "ja";
-    renderTransport();
-    // 2分30秒（150000ms）経ったら英語に切り替える
-    setTimeout(toEnglish, 150000);
-  }
-
-  // 最初にどちらから始めるか（ここでは日本語からスタートさせています）
-  toJapanese();
-}
 
 db.ref("system").on("value", snap=>{
   const d = snap.val();
@@ -336,5 +342,3 @@ function hideEmergency(){
 </script>
 </body>
 </html>
-
-
