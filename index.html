@@ -25,7 +25,6 @@ body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background:
 .jr-row{ display:flex; font-size:22px; padding:5px 0; border-bottom:1px solid #333; }
 .jr-time{ width:100px; color:white; font-weight:bold; font-size: 20px; }
 .jr-dest{ flex:1; color:white; font-size: 20px; }
-/* スクロールエリア */
 .stops{ margin-top:10px; overflow:hidden; white-space:nowrap; color:white; font-weight:bold; position: relative; height: 40px; line-height: 40px; width: 100%; background: rgba(255,255,255,0.05); }
 .stops span.scroll-target{ display:inline-block; font-size:28px; white-space: nowrap; position: absolute; left: 0; will-change: transform; }
 .stops.fixed{ overflow: visible; white-space: normal; height: auto; line-height: 1.4; font-size:26px; position: static; background: none; }
@@ -36,7 +35,6 @@ body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background:
 #nowTime{ text-align:center; font-size:24px; font-weight:bold; color:white; background:#111; padding:8px; border-radius:10px; margin-bottom:10px; letter-spacing:1px; }
 .schedule-card{ background:#111; border-radius:10px; padding:8px 10px; margin:6px 0; display:flex; align-items:center; box-shadow:0 2px 6px rgba(0,0,0,0.4); }
 .legend{ grid-column: span 2; margin-top:15px; font-size:17px; color:#333; text-align:center; font-weight:bold; }
-.traffic-note{ font-size:12px; color:#aaa; text-align:center; margin-top:10px; }
 #emergencyScreen{ position:fixed; top:0;left:0; width:100%; height:100%; background:#c62828; color:white; display:none; justify-content:center; align-items:center; z-index:9999; }
 #emBox{ text-align:center; width:100%; max-width:1200px; }
 #emTitle{ font-size:60px; }
@@ -129,8 +127,8 @@ function renderTransport() {
 
   let trainHTML = "";
   let busHTML = "";
-  const data = (transportCache[currentLang]) ? transportCache[currentLang] : transportCache["ja"];
   const isEn = (currentLang === "en");
+  const data = (transportCache[currentLang]) ? transportCache[currentLang] : transportCache["ja"];
   const endedText = isEn ? "Service ended" : "本日の運行は終了しました";
 
   if (data && data.train) {
@@ -191,11 +189,11 @@ function renderTransport() {
           <div class="bus-columns">
             <div class="bus-col">
               <b>${isEn ? "for Nagano Sta." : "長野駅方面"}</b>
-              ${toS.length ? toS.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row" style="color:#888;">${endedText}</div>`}
+              ${toS.length ? toS.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row" style="color:#888; padding:5px;">${endedText}</div>`}
             </div>
             <div class="bus-col">
               <b>${isEn ? "for Uki / Togakushi" : "宇木・戸隠方面"}</b>
-              ${toT.length ? toT.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row" style="color:#888;">${endedText}</div>`}
+              ${toT.length ? toT.map(t => `<div class="schedule-card"><div class="jr-time" style="width:80px;">${t.time}</div><div class="jr-dest"><span style="color:#0af; border:1px solid #0af; padding:0 2px; margin-right:4px;">${t.line}</span>${t.dest}</div></div>`).join("") : `<div class="jr-row" style="color:#888; padding:5px;">${endedText}</div>`}
             </div>
           </div>
         </div>`;
@@ -204,7 +202,7 @@ function renderTransport() {
   document.getElementById("trainBoard").innerHTML = trainHTML;
   document.getElementById("busBoard").innerHTML = busHTML;
   
-  setTimeout(startStopsScroll, 100);
+  setTimeout(startStopsScroll, 150);
 }
 
 function startStopsScroll() {
@@ -214,20 +212,17 @@ function startStopsScroll() {
     const boxW = parent.clientWidth;
     const textW = span.scrollWidth;
 
-    if (textW <= boxW) return;
+    if (textW <= boxW) {
+      span.style.left = "0";
+      return;
+    }
 
-    // 前のアニメーションを完全にリセット
-    span.getAnimations().forEach(a => a.cancel());
-
-    const distance = boxW + textW;
-    const duration = distance / 40 * 1000; // 速度 40px/s
-
-    const keyframes = [
+    const duration = (boxW + textW) / 40 * 1000;
+    
+    span.animate([
       { transform: `translateX(${boxW}px)` },
       { transform: `translateX(-${textW}px)` }
-    ];
-
-    span.animate(keyframes, {
+    ], {
       duration: duration,
       iterations: Infinity,
       easing: 'linear'
@@ -253,8 +248,8 @@ function startLanguageLoop(){
     setTimeout(() => {
       currentLang = "en";
       renderTransport();
-      setTimeout(loop, 90000); // 英語1分30秒
-    }, 150000); // 日本語2分30秒
+      setTimeout(loop, 90000);
+    }, 150000);
   };
   loop();
 }
