@@ -306,7 +306,7 @@ const data = (transportCache && transportCache[currentLang]) ? transportCache[cu
           trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
         });
       } else {
-        trainHTML += `<div class="jr-row" style="color:#888;">${isEn ? "Service ended for today" : "本日の運行は終了しました"}</div>`;
+        trainHTML += `<div class="jr-row" style="color:#00c3ff;">${isEn ? "Service ended for today" : "本日の運行は終了しました"}</div>`;
       }
 
       const downLabel = isEn ? "⬇ Downbound: for Suzaka / Shinshunakano / Yudanaka" : "⬇ 下り 須坂・信州中野・湯田中方面";
@@ -534,6 +534,7 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
 
 
 
