@@ -26,8 +26,9 @@ body{ margin:0; font-family: "Segoe UI", "Noto Sans JP", sans-serif; background:
 .jr-row{ display:flex; font-size:22px; padding:5px 0; border-bottom:1px solid #333; }
 .jr-time{ width:100px; color:white; font-weight:bold; font-size: 20px; }
 .jr-dest{ flex:1; color:white; font-size: 20px; }
-.stops{ margin-top:10px; overflow:hidden; white-space:nowrap; color:white; font-weight:bold; position: relative; height: 40px; line-height: 40px; }
-.stops span{ display:inline-block; font-size:28px; white-space: nowrap; will-change: transform; position: absolute; top: 0; }
+/* スクロールエリアのスタイル */
+.stops{ margin-top:10px; overflow:hidden; white-space:nowrap; color:white; font-weight:bold; position: relative; height: 40px; line-height: 40px; width: 100%; }
+.stops span.scroll-target{ display:inline-block; font-size:28px; white-space: nowrap; will-change: transform; position: absolute; left: 0; }
 .stops.fixed{ overflow: visible; white-space: normal; height: auto; line-height: 1.4; font-size:26px; position: static; }
 .jr-board h3{ font-size:30px; font-weight:bold; color:white; margin:5px 0 10px; }
 .jr-board b{ font-size:24px; font-weight:bold; color:white; }
@@ -213,8 +214,8 @@ function renderTransport() {
   document.getElementById("trainBoard").innerHTML = trainHTML;
   document.getElementById("busBoard").innerHTML = busHTML;
   
-  // 描画後にスクロールを開始
-  startStopsScroll();
+  // 描画が完了した直後にスクロール処理を呼ぶ
+  setTimeout(startStopsScroll, 50);
 }
 
 function startStopsScroll() {
@@ -230,25 +231,23 @@ function startStopsScroll() {
       return;
     }
 
-    function animate() {
+    const animate = () => {
       // 1. 初期位置：右端の外側（完全に隠れた状態）
       span.style.transition = "none";
       span.style.transform = `translateX(${boxW}px)`;
       
-      // 2. 少し待ってから移動開始（リフロー強制）
+      // リフロー強制
       span.offsetHeight; 
 
-      // 3. 移動：左端の外側（完全に消える状態）まで
-      // 速度調整：(全移動距離) / 40px
+      // 2. 移動：左端の外側（完全に消える状態）まで
       const duration = (boxW + textW) / 40; 
       span.style.transition = `transform ${duration}s linear`;
       span.style.transform = `translateX(-${textW}px)`;
-    }
+    };
 
     animate();
-    // アニメーションが終わったらもう一度実行
-    span.removeEventListener("transitionend", animate);
-    span.addEventListener("transitionend", animate);
+    // 既存のイベントをクリアして再登録
+    span.ontransitionend = animate;
   });
 }
 
@@ -271,17 +270,18 @@ function setMode(m){
 }
 
 function startLanguageLoop(){
-  function toEnglish(){
-    currentLang = "en";
-    renderTransport();
-    setTimeout(toJapanese, 90000);
-  }
-  function toJapanese(){
+  const loop = () => {
+    // 2分30秒日本語表示
     currentLang = "ja";
     renderTransport();
-    setTimeout(toEnglish, 150000);
-  }
-  toJapanese(); // 最初は日本語から
+    setTimeout(() => {
+      // 1分30秒英語表示
+      currentLang = "en";
+      renderTransport();
+      setTimeout(loop, 90000);
+    }, 150000);
+  };
+  loop();
 }
 
 db.ref("classes").on("value", snap => {
