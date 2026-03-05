@@ -326,7 +326,7 @@ const data = (transportCache && transportCache[currentLang]) ? transportCache[cu
           trainHTML += `<div class="jr-row" style="opacity:0.7;"><div class="jr-time">${t.time}</div><div class="jr-dest">${t.dest}</div></div>`;
         });
       } else {
-        trainHTML += `<div class="jr-row" style="color:#888;">${isEn ? "Service ended for today" : "本日の運行は終了しました"}</div>`;
+        trainHTML += `<div class="jr-row" style="color:#00c3ff;">${isEn ? "Service ended for today" : "本日の運行は終了しました"}</div>`;
       }
       trainHTML += `</div>`;
     }
@@ -450,14 +450,14 @@ function startLanguageLoop(){
     currentLang = "en";
     lastRenderTime = -1;
     renderTransport();
-    setTimeout(toJapanese, 90000);
+    setTimeout(toJapanese, 120000);
   }
 
   function toJapanese(){
     currentLang = "ja";
     lastRenderTime = -1;
     renderTransport();
-    setTimeout(toEnglish, 150000);
+    setTimeout(toEnglish, 180000);
   }
 
   toEnglish();
@@ -534,5 +534,6 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
 
 
