@@ -11,6 +11,7 @@ body{
   background: linear-gradient(180deg,#f7f9fc,#eaf3ff);
 }
 <body>
+<div id="screen">
 <div id="audioInit" style="position:fixed; top:10px; right:10px; z-index:10000;">
   <button onclick="enableAudio()" style="padding:10px 20px; background:#ff9800; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">音声を有効にする</button>
 </div>
@@ -32,8 +33,21 @@ body{
   font-weight:600;
 }
 @keyframes scroll{ from{ transform: translateX(0); } to{ transform: translateX(-100%); } }
-#layout{ display:grid; grid-template-columns: 3fr 2fr; height: calc(100vh - 100px); }
-
+body{
+  margin:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  background:black;
+}
+#screen{
+  width:100vw;
+  max-width:177vh;
+  aspect-ratio:16/9;
+  background:linear-gradient(180deg,#f7f9fc,#eaf3ff);
+  overflow:hidden;
+}
 #left{ overflow:auto; padding:20px; }
 #right{
   background:white;
@@ -188,6 +202,7 @@ body{
 }
 </style>
 </head>
+</div>
 <body>
 
 <div id="ticker">
@@ -544,3 +559,4 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
