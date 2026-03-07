@@ -55,12 +55,12 @@ body{
   color:white;
   border-radius:12px;
   padding:18px;
-  height: 55px;
+  min-height: 90px; /* ← 高さを少し大きく */
   box-shadow:0 3px 8px rgba(0,0,0,0.25);
   display:flex;
   justify-content:space-between;
   align-items:center;
-  font-size:55px;
+  font-size:32px; /* ← 少し小さく */
   font-weight:bold;
 }
 .status{ font-size:40px; font-weight:bold; width:50px; height:50px; border-radius:6px; display:flex; justify-content:center; align-items:center; }
@@ -443,12 +443,18 @@ db.ref("classes").on("value", snap => {
     const item = data[key];
     const s = item.status;
     const sCls = s === "○" ? "ok" : s === "△" ? "mid" : "ng";
-    const card = `<div class="card"><div>${item.name}</div><div class="status ${sCls}">${s}</div></div>`;
+    const card = `<div class="card"><div class="card-name">${item.name}</div><div class="status ${sCls}">${s}</div>
+</div>`;
     if (item.name.includes("1年")) h1 += card;
     else if (item.name.includes("2年")) h2 += card;
   }
   document.getElementById("list").innerHTML = h1 + h2;
 });
+  .card-name{
+  max-width:70%;
+  line-height:1.2;
+  word-break:break-word;
+}
 
 loadTransport();
 setInterval(renderTransport, 10000);
@@ -517,6 +523,7 @@ function hideEmergency(){
 </script>
 </body>
 </html>
+
 
 
 
