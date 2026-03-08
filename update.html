@@ -165,7 +165,6 @@ db.ref("classes").once("value", snap=>{
 
 });
 
-/* 更新 */
 function setStatus(s){
 
   const key = select.value;
@@ -175,14 +174,22 @@ function setStatus(s){
     return;
   }
 
-  db.ref("classes/"+key+"/status").set(s);
+  db.ref("classes/"+key+"/status").set(s)
+  .then(()=>{
 
-  msg.textContent = "✔ 更新しました";
+    msg.textContent = "✔ 更新しました";
 
-  setTimeout(()=>{
-    msg.textContent="";
-  },1500);
+    setTimeout(()=>{
+      msg.textContent="";
+    },1500);
+
+  })
+  .catch(err=>{
+    alert("更新失敗: "+err.message);
+  });
+
 }
+  
 
 </script>
 
