@@ -104,13 +104,13 @@ body{
   display:grid;
   grid-template-columns: 1fr 1fr;
   gap:0;
-  border:1px solid #ccc;
+  border:1px solid white;
 }
 
 .card{
   background: #e66700;
   color:white;
-  border-radius:0; /* ←角ばらせる */
+  border-radius:0;
   padding:8px 12px;
   display:flex;
   justify-content:space-between;
@@ -118,10 +118,12 @@ body{
   font-size:18px;
   font-weight:bold;
 
-  border-bottom:1px solid #ccc;
+  border-bottom:1px solid white;
 }
+
+/* 真ん中の縦線 */
 .crowd-grid > .card:nth-child(2n){
-  border-left:1px solid #ccc;
+  border-left:1px solid white;
 }
 .card-name{
   max-width:85%;
@@ -129,6 +131,7 @@ body{
   overflow:hidden;
   text-overflow:ellipsis;
 }
+
 .legend{
   grid-column: span 2;
   margin-top:15px;
@@ -141,7 +144,11 @@ body{
   padding:12px;
   border-radius:10px;
 }
-
+.crowd-wrapper{
+  background:#C9EABF;
+  padding:15px;
+  border-radius:12px;
+}
 .status{
   font-size:26px;
   width:36px;
@@ -430,16 +437,19 @@ body{
 
 <div id="layout">
 
-  <div id="left">
+ <div id="left">
+
+  <div class="crowd-wrapper">
 
     <div id="list" class="crowd-grid">読み込み中...</div>
 
-<div class="legend">
+    <div class="legend">
   <p>凡例：<span style="color:#2e7d32">○ 空いている</span>　<span style="color:#f9a825">△ 少し混雑</span>　<span style="color:#c62828">✕ 混雑</span></p>
 
   <p style="font-size:14px; font-weight:normal; color:#555;">
     ※混雑状況はあくまでも目安です。今現在の状態であるため、すぐに変わる可能性もあります。
   </p>
+</div>
 </div>
 
   </div>
