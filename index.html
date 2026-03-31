@@ -101,29 +101,28 @@ body{
 
 
 .crowd-grid{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:0;
+  border:1px solid #ccc;
 }
 
 .card{
-  background: #e66700;
-  color:white;
-  border-radius:8px;
-  padding:10px 14px;
-  box-shadow:0 2px 5px rgba(0,0,0,0.2);
-
+  background: white;
+  color:black;
+  border-radius:0; /* ←角ばらせる */
+  padding:8px 12px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-
-  font-size:20px; /* 小さくしてコンパクト化 */
+  font-size:18px;
   font-weight:bold;
-  min-height:auto;
+
+  border-bottom:1px solid #ccc;
 }
-
-
-
+.crowd-grid > .card:nth-child(2n){
+  border-left:1px solid #ccc;
+}
 .card-name{
   max-width:85%;
   white-space:nowrap;
@@ -132,10 +131,10 @@ body{
 }
 
 .status{
-  font-size:20px;
-  width:32px;
-  height:32px;
-  border-radius:6px; display:flex; justify-content:center; align-items:center; }
+  font-size:18px;
+  width:28px;
+  height:28px;
+  border-radius:0; display:flex; justify-content:center; align-items:center; }
 
 .ok{ background:#2e7d32; color:white; } 
 
@@ -885,30 +884,34 @@ db.ref("classes").on("value", snap => {
 
   }
 
-  let h1 = "", h2 = "";
+let h = "";
 
-  for (let key in data) {
+const grade1 = [];
+const grade2 = [];
 
-    const item = data[key];
+for (let key in data) {
+  const item = data[key];
+  const s = item.status;
+  const sCls = s === "○" ? "ok" : s === "△" ? "mid" : "ng";
 
-    const s = item.status;
+  const row = `<div class="card">
+    <div class="card-name">${item.name}</div>
+    <div class="status ${sCls}">${s}</div>
+  </div>`;
 
-    const sCls = s === "○" ? "ok" : s === "△" ? "mid" : "ng";
+  if (item.name.includes("1年")) grade1.push(row);
+  else if (item.name.includes("2年")) grade2.push(row);
+}
 
-   const card = `
-<div class="card">
-  <div class="card-name">${item.name}</div>
-  <div class="status ${sCls}">${s}</div>
-</div>`;
+// 行ごとに左右並べる
+const max = Math.max(grade1.length, grade2.length);
 
-    if (item.name.includes("1年")) h1 += card;
+for(let i=0; i<max; i++){
+  h += (grade1[i] || `<div class="card"></div>`);
+  h += (grade2[i] || `<div class="card"></div>`);
+}
 
-    else if (item.name.includes("2年")) h2 += card;
-
-  }
-
-  document.getElementById("list").innerHTML = h1 + h2;
-
+document.getElementById("list").innerHTML = h;
 });
 
 
