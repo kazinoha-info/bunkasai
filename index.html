@@ -100,47 +100,42 @@ body{
 
 
 
-.crowd-grid{ display:grid; grid-template-columns: repeat(2, 1fr); gap:16px; }
+.crowd-grid{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
 
 .card{
-
   background: #e66700;
-
   color:white;
-
-  border-radius:12px;
-
-  padding:18px;
-
-  min-height: 90px; /* ← 高さを少し大きく */
-
-  box-shadow:0 3px 8px rgba(0,0,0,0.25);
+  border-radius:8px;
+  padding:10px 14px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.2);
 
   display:flex;
-
   justify-content:space-between;
-
   align-items:center;
 
-  font-size:42px; /* ← 少し小さく */
-
+  font-size:20px; /* 小さくしてコンパクト化 */
   font-weight:bold;
-
+  min-height:auto;
 }
 
 
 
 .card-name{
-
-  max-width:70%;
-
-  line-height:1.5;
-
-  word-break:break-word;
-
+  max-width:85%;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
-.status{ font-size:40px; font-weight:bold; width:50px; height:50px; border-radius:6px; display:flex; justify-content:center; align-items:center; }
+.status{
+  font-size:20px;
+  width:32px;
+  height:32px;
+  border-radius:6px; display:flex; justify-content:center; align-items:center; }
 
 .ok{ background:#2e7d32; color:white; } 
 
@@ -900,8 +895,10 @@ db.ref("classes").on("value", snap => {
 
     const sCls = s === "○" ? "ok" : s === "△" ? "mid" : "ng";
 
-    const card = `<div class="card"><div class="card-name">${item.name}</div><div class="status ${sCls}">${s}</div>
-
+   const card = `
+<div class="card">
+  <div class="card-name">${item.name}</div>
+  <div class="status ${sCls}">${s}</div>
 </div>`;
 
     if (item.name.includes("1年")) h1 += card;
