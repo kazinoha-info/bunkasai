@@ -33,20 +33,20 @@ body{
 
 .video-wrapper{
   width:100%;
-  background:#000;
 }
 
-.video-wrapper video,
+/* iframe用（Drive） */
 .video-wrapper iframe{
   width:100%;
-  height:auto; /* ←これがポイント */
+  aspect-ratio:auto; /* ←自然に */
+  height:500px; /* ←最低限の高さ確保 */
+  border:none;
 }
 
-/* 動画を枠いっぱいに */
+/* videoタグ用（将来用） */
 .video-wrapper video{
   width:100%;
-  height:100%;
-  object-fit:contain;
+  height:auto;
 }
 
 /* 下のリンク */
