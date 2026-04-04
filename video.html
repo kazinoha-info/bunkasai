@@ -31,12 +31,15 @@ body{
   text-align:center;
 }
 
-/* 16:9の動画枠 */
 .video-wrapper{
-  position:relative;
   width:100%;
-  aspect-ratio:16/9;
   background:#000;
+}
+
+.video-wrapper video,
+.video-wrapper iframe{
+  width:100%;
+  height:auto; /* ←これがポイント */
 }
 
 /* 動画を枠いっぱいに */
@@ -55,7 +58,7 @@ body{
 
 <body>
 
-<a href="https://example.com" class="back-button">戻る</a>
+<a href="https://shy-ebino-2178.cranky.jp/test/apps/index.html" class="back-button">戻る</a>
 
 <div class="container">
 
