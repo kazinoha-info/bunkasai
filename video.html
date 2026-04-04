@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>動画再生ページ</title>
+
+<style>
+body{
+  margin:0;
+  background:#fff;
+  font-family: sans-serif;
+}
+
+/* 右上の戻るボタン */
+.back-button{
+  position:fixed;
+  top:10px;
+  right:10px;
+  padding:10px 15px;
+  background:#333;
+  color:#fff;
+  text-decoration:none;
+  border-radius:8px;
+  font-size:14px;
+}
+
+/* 中央配置 */
+.container{
+  max-width:900px;
+  margin:60px auto;
+  text-align:center;
+}
+
+/* 16:9の動画枠 */
+.video-wrapper{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  background:#000;
+}
+
+/* 動画を枠いっぱいに */
+.video-wrapper video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+/* 下のリンク */
+.link-area{
+  margin-top:15px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 戻るボタン -->
+<a href="https://example.com" class="back-button">戻る</a>
+
+<div class="container">
+
+  <!-- 動画 -->
+  <div class="video-wrapper">
+    <video controls>
+      <source src="video.mp4" type="video/mp4">
+      このブラウザは動画再生に対応していません。
+    </video>
+  </div>
+
+  <!-- 下のリンク -->
+  <div class="link-area">
+    <a href="https://example.com">関連リンクはこちら</a>
+  </div>
+
+</div>
+
+</body>
+</html>
