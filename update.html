@@ -152,6 +152,8 @@ button:active{
   </div>
 
   <p id="msg"></p>
+<p id="nowStatus" style="font-size:20px; font-weight:bold; margin-top:10px;"></p>
+<p id="updateTime" style="font-size:14px; color:#666;"></p>
 
   <div class="footer">
     ※ 状態はすぐに案内画面へ反映されます
@@ -184,6 +186,8 @@ const db = firebase.database();
 
 const select = document.getElementById("classSelect");
 const msg = document.getElementById("msg");
+const nowStatus = document.getElementById("nowStatus");
+const updateTime = document.getElementById("updateTime");
 let loginClass = localStorage.getItem("loginClass");
 
 /* クラス読み込み */
@@ -208,12 +212,15 @@ loginSelect.appendChild(opt2);
   }
 if(loginClass){
   document.getElementById("mainUI").style.display="block";
+  watchStatus(cls);
   select.value = loginClass;
   select.disabled = true;
   document.getElementById("loginBox").style.display="none";
   document.getElementById("logoutBtn").style.display="block";
   document.getElementById("mainUI").style.display="block";
+  watchStatus(cls);
   msg.textContent = "ログイン中: " + loginClass;
+  watchStatus(loginClass);
 }
   
 
@@ -236,7 +243,10 @@ function setStatus(s){
     return;
   }
 
-  db.ref("classes/"+key+"/status").set(s)
+db.ref("classes/"+key).update({
+  status: s,
+  updatedAt: Date.now()
+})
   .then(()=>{
 
     msg.textContent = "✔ 更新しました";
@@ -253,12 +263,15 @@ function setStatus(s){
 }
 if(loginClass){
   document.getElementById("mainUI").style.display="block";
+  watchStatus(cls);
   select.value = loginClass;
   select.disabled = true;
   document.getElementById("loginBox").style.display="none";
   document.getElementById("logoutBtn").style.display="block";
   document.getElementById("mainUI").style.display="block";
+  watchStatus(cls);
   msg.textContent = "ログイン中: " + loginClass;
+  watchStatus(loginClass);
 }
 
   function logout(){
@@ -291,6 +304,46 @@ if(loginClass){
     document.getElementById("mainUI").style.display="block";
 
     msg.textContent = "ログイン成功";
+
+  });
+
+}
+function watchStatus(cls){
+
+  db.ref("classes/"+cls).on("value", snap=>{
+
+    const data = snap.val();
+
+    if(!data || !data.status){
+      nowStatus.textContent = "現在の状態：未設定";
+      nowStatus.style.color = "#333";
+      updateTime.textContent = "";
+      return;
+    }
+
+    const s = data.status;
+
+    // 表示
+    nowStatus.textContent = "現在の状態：" + s;
+
+    // 色変更
+    if(s === "○"){
+      nowStatus.style.color = "#2e7d32";
+    }else if(s === "△"){
+      nowStatus.style.color = "#f9a825";
+    }else if(s === "×"){
+      nowStatus.style.color = "#c62828";
+    }
+
+    // 時間表示
+    if(data.updatedAt){
+      const d = new Date(data.updatedAt);
+      updateTime.textContent =
+        "最終更新：" +
+        d.getHours().toString().padStart(2,"0") + ":" +
+        d.getMinutes().toString().padStart(2,"0") + ":" +
+        d.getSeconds().toString().padStart(2,"0");
+    }
 
   });
 
