@@ -212,7 +212,7 @@ loginSelect.appendChild(opt2);
   }
 if(loginClass){
   document.getElementById("mainUI").style.display="block";
-  watchStatus(cls);
+  watchStatus(loginClass);
   select.value = loginClass;
   select.disabled = true;
   document.getElementById("loginBox").style.display="none";
@@ -261,18 +261,6 @@ db.ref("classes/"+key).update({
   });
 
 }
-if(loginClass){
-  document.getElementById("mainUI").style.display="block";
-  watchStatus(cls);
-  select.value = loginClass;
-  select.disabled = true;
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("logoutBtn").style.display="block";
-  document.getElementById("mainUI").style.display="block";
-  watchStatus(cls);
-  msg.textContent = "ログイン中: " + loginClass;
-  watchStatus(loginClass);
-}
 
   function logout(){
   localStorage.removeItem("loginClass");
@@ -304,6 +292,7 @@ if(loginClass){
     document.getElementById("mainUI").style.display="block";
 
     msg.textContent = "ログイン成功";
+    watchStatus(cls);
 
   });
 
