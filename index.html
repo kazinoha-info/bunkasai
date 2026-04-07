@@ -156,14 +156,16 @@ margin-bottom:6px;
 
 .iframe-box iframe{
   position:absolute;
-  top:0;
-  left:0;
 
-  transform: scale(0.6); /* ←ここでズーム調整 */
-  transform-origin: top left;
+  top:50%;
+  left:50%;
 
-  width:125%;
-  height:125%;
+  transform: translate(-50%, -50%) scale(0.6);
+  transform-origin: center;
+
+  width:200%;
+  height:200%;
+
   border:none;
 }
 .status{
